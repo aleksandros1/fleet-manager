@@ -120,14 +120,14 @@ export default function MarketplaceApp() {
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
-        let dayClass = "h-10 flex items-center justify-center text-xs font-bold rounded-full cursor-pointer transition-colors";
+        let dayClass = "h-10 flex items-center justify-center text-xs font-bold rounded-full cursor-pointer transition-all duration-300";
 
         if (selectedRange.start === dateStr || selectedRange.end === dateStr) {
-            dayClass += " bg-[#D90000] text-white shadow-[0_4px_10px_rgba(220,38,38,0.3)]";
+            dayClass += " bg-[#D90000] text-white shadow-[0_4px_15px_rgba(220,38,38,0.4)] scale-110";
         } else if (selectedRange.start && selectedRange.end && dateStr > selectedRange.start && dateStr < selectedRange.end) {
-            dayClass += " bg-[#D90000]/10 text-[#D90000]";
+            dayClass += " bg-[#D90000]/15 text-[#D90000]";
         } else {
-            dayClass += " text-gray-300 hover:bg-white/5";
+            dayClass += " text-gray-300 hover:bg-white/10";
         }
 
         const handleDateClick = () => {
@@ -144,11 +144,10 @@ export default function MarketplaceApp() {
     }
 
     return (
-        <div className="space-y-6 pt-4 border-t border-white/10">
-          <h2 className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.3em] text-center">Διαρκεια Ενοικιασης (2 Κλικ)</h2>
-          <div className="bg-black/50 border border-white/5 rounded-xl p-6 shadow-inner max-w-sm mx-auto">
-            <div className="text-center text-xs font-bold text-white uppercase tracking-widest mb-6 font-serif">{monthName}</div>
-            <div className="grid grid-cols-7 gap-1 text-center text-[8px] text-gray-600 font-bold uppercase tracking-widest mb-4">
+        <div className="space-y-6 pt-6">
+          <div className="bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 shadow-2xl max-w-sm mx-auto">
+            <div className="text-center text-xs font-bold text-white uppercase tracking-widest mb-6 font-serif opacity-80">{monthName}</div>
+            <div className="grid grid-cols-7 gap-1 text-center text-[8px] text-gray-500 font-bold uppercase tracking-widest mb-4">
               <div>Δευ</div><div>Τρι</div><div>Τετ</div><div>Πεμ</div><div>Παρ</div><div>Σαβ</div><div>Κυρ</div>
             </div>
             <div className="grid grid-cols-7 gap-1">{calendarDays}</div>
@@ -160,31 +159,43 @@ export default function MarketplaceApp() {
   // ΟΘΟΝΗ 3: CHECKOUT
   if (selectedVehicle) {
     return (
-      <div className="min-h-screen bg-[#030303] text-white font-sans relative overflow-x-hidden">
-        <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-5 bg-[#030303]/90 backdrop-blur-xl border-b border-white/5">
-          <button onClick={() => setSelectedVehicle(null)} className="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors">
+      <div className="min-h-screen bg-[#050505] text-white font-sans relative overflow-x-hidden">
+        {/* Ατμοσφαιρικός φωτισμός στο παρασκήνιο για αίσθηση βάθους */}
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[80vw] h-[40vh] bg-[#D90000]/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
+
+        <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-5 bg-[#050505]/70 backdrop-blur-2xl border-b border-white/5">
+          <button onClick={() => setSelectedVehicle(null)} className="p-3 -ml-3 rounded-full hover:bg-white/10 transition-colors backdrop-blur-md">
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <AutoLazaridisLogo className="h-6 w-auto" />
+          <AutoLazaridisLogo className="h-6 w-auto opacity-90" />
           <div className="w-6 h-6"></div>
         </header>
 
-        <main className="px-6 py-10 pb-48 max-w-3xl mx-auto space-y-10 relative z-10">
+        <main className="px-5 py-8 pb-48 max-w-3xl mx-auto space-y-8 relative z-10">
           <section className="text-center space-y-2">
-            <div className="text-[9px] font-bold text-[#D90000] tracking-[0.3em] uppercase">Premium Rental</div>
-            <h1 className="text-3xl md:text-5xl font-serif tracking-wide">{selectedVehicle.model}</h1>
-            <p className="text-xs md:text-sm text-gray-500 font-light italic">ή αντίστοιχο όχημα κατηγορίας {selectedVehicle.category}</p>
+            <div className="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-2 text-[9px] font-bold text-[#D90000] tracking-[0.3em] uppercase shadow-lg">
+              {selectedVehicle.category}
+            </div>
+            <h1 className="text-4xl md:text-5xl font-serif tracking-tight drop-shadow-lg">{selectedVehicle.model}</h1>
           </section>
           
           <section className="max-w-2xl mx-auto">
-            <div className="relative w-full h-64 md:h-96 bg-[#0A0A0A] rounded-sm overflow-hidden shadow-2xl border border-white/10">
-               {/* eslint-disable-next-line @next/next/no-img-element */}
-               <img src={getVehiclePhoto(selectedVehicle)} alt={selectedVehicle.model} className="w-full h-full object-cover grayscale-[20%]" />
-               <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent"></div>
-               <div className="absolute bottom-6 md:bottom-10 w-full flex justify-center gap-10">
-                 <div className="text-center"><div className="text-2xl md:text-3xl font-serif">{selectedVehicle.hp}</div><div className="text-[8px] md:text-[10px] text-gray-400 tracking-widest uppercase">Horsepower</div></div>
-                 <div className="w-px h-10 bg-white/20"></div>
-                 <div className="text-center"><div className="text-2xl md:text-3xl font-serif">{selectedVehicle.cc}</div><div className="text-[8px] md:text-[10px] text-gray-400 tracking-widest uppercase">Engine (CC)</div></div>
+            <div className="relative w-full h-72 md:h-96 bg-[#0A0A0A] rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 p-2">
+               <div className="absolute inset-0 rounded-[2.8rem] overflow-hidden">
+                 {/* eslint-disable-next-line @next/next/no-img-element */}
+                 <img src={getVehiclePhoto(selectedVehicle)} alt={selectedVehicle.model} className="w-full h-full object-cover grayscale-[10%]" />
+                 <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/95 via-[#050505]/20 to-transparent"></div>
+               </div>
+               
+               <div className="absolute bottom-6 md:bottom-10 left-0 right-0 flex justify-center gap-8 z-10">
+                 <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl px-6 py-4 shadow-xl">
+                   <div className="text-2xl font-serif text-white text-center">{selectedVehicle.hp}</div>
+                   <div className="text-[8px] text-gray-300 tracking-widest uppercase mt-1 text-center">Horsepower</div>
+                 </div>
+                 <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl px-6 py-4 shadow-xl">
+                   <div className="text-2xl font-serif text-white text-center">{selectedVehicle.cc}</div>
+                   <div className="text-[8px] text-gray-300 tracking-widest uppercase mt-1 text-center">Engine (CC)</div>
+                 </div>
                </div>
             </div>
           </section>
@@ -192,13 +203,13 @@ export default function MarketplaceApp() {
           <DateRangePicker selectedRange={selectedRange} onRangeChange={setSelectedRange} />
         </main>
 
-        <div className="fixed bottom-0 left-0 right-0 bg-[#030303]/95 backdrop-blur-2xl border-t border-white/5 p-6 z-50">
+        <div className="fixed bottom-0 left-0 right-0 bg-[#050505]/80 backdrop-blur-3xl border-t border-white/10 p-6 z-50 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
            <div className="max-w-3xl mx-auto flex items-center justify-between gap-6">
-             <div className="flex flex-col">
-               <span className="text-[9px] text-gray-500 uppercase tracking-widest mb-1">Συνολο ({totalDays()} Ημερες)</span>
-               <span className="text-2xl md:text-3xl font-serif text-white">€{calculateTotal()}</span>
+             <div className="flex flex-col ml-2">
+               <span className="text-[9px] text-gray-400 uppercase tracking-widest mb-0.5">Συνολο ({totalDays()} Ημερες)</span>
+               <span className="text-3xl font-serif text-white tracking-tight">€{calculateTotal()}</span>
              </div>
-             <button onClick={handleBooking} disabled={!selectedRange.start || !selectedRange.end || isSubmitting} className={`flex-1 max-w-xs py-4 md:py-5 text-[10px] font-bold tracking-[0.2em] uppercase rounded-sm transition-all ${(!selectedRange.start || !selectedRange.end || isSubmitting) ? 'bg-white/5 text-gray-600 cursor-not-allowed' : 'bg-[#D90000] text-white hover:bg-red-700 shadow-[0_4px_15px_rgba(220,38,38,0.25)] hover:shadow-[0_4px_25px_rgba(220,38,38,0.45)]'}`}>
+             <button onClick={handleBooking} disabled={!selectedRange.start || !selectedRange.end || isSubmitting} className={`flex-1 max-w-[180px] py-4 md:py-5 text-[11px] font-bold tracking-[0.2em] uppercase rounded-full transition-all ${(!selectedRange.start || !selectedRange.end || isSubmitting) ? 'bg-white/5 text-gray-600 cursor-not-allowed' : 'bg-[#D90000] text-white hover:bg-red-600 shadow-[0_10px_25px_rgba(220,38,38,0.4)] hover:shadow-[0_10px_35px_rgba(220,38,38,0.6)]'}`}>
                {isSubmitting ? 'ΕΠΕΞΕΡΓΑΣΙΑ...' : 'ΟΛΟΚΛΗΡΩΣΗ'}
              </button>
            </div>
@@ -212,41 +223,43 @@ export default function MarketplaceApp() {
     const categoryVehicles = vehicles.filter(v => (v.category || 'Compact / Hatchback') === selectedCategory);
 
     return (
-      <div className="min-h-screen bg-[#030303] text-white font-sans relative overflow-x-hidden">
-        <header className="sticky top-0 z-50 flex items-center px-6 py-5 bg-[#030303]/90 backdrop-blur-xl border-b border-white/5 shadow-md">
-          <button onClick={() => setSelectedCategory(null)} className="p-2 -ml-2 mr-4 rounded-full hover:bg-white/10 transition-colors">
+      <div className="min-h-screen bg-[#050505] text-white font-sans relative overflow-x-hidden">
+        <header className="sticky top-0 z-50 flex items-center px-6 py-5 bg-[#050505]/70 backdrop-blur-2xl border-b border-white/5 shadow-md">
+          <button onClick={() => setSelectedCategory(null)} className="p-3 -ml-3 mr-4 rounded-full hover:bg-white/10 transition-colors backdrop-blur-md">
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <div className="flex-1 text-center pr-8">
-            <h2 className="text-xs font-bold tracking-[0.2em] uppercase text-white">{selectedCategory}</h2>
+          <div className="flex-1 text-center pr-10">
+            <h2 className="text-xs font-bold tracking-[0.3em] uppercase text-white opacity-90">{selectedCategory}</h2>
           </div>
         </header>
 
-        <main className="p-6 max-w-5xl mx-auto mt-4">
+        <main className="p-5 max-w-5xl mx-auto mt-4 space-y-6">
           {categoryVehicles.length === 0 ? (
-            <div className="text-center py-20 text-gray-600 font-serif italic">Δεν υπάρχουν διαθέσιμα οχήματα.</div>
+            <div className="text-center py-20 text-gray-500 font-serif italic text-lg opacity-80">Δεν υπάρχουν διαθέσιμα οχήματα.</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {categoryVehicles.map((v) => (
-                <div key={v.id} onClick={() => setSelectedVehicle(v)} className="group cursor-pointer">
-                  <div className="h-64 md:h-80 bg-[#0A0A0A] relative overflow-hidden rounded-sm mb-4 border border-white/10 shadow-xl">
+                <div key={v.id} onClick={() => setSelectedVehicle(v)} className="group cursor-pointer relative bg-white/[0.02] border border-white/10 rounded-[2.5rem] p-3 hover:bg-white/[0.04] transition-all duration-500 shadow-2xl backdrop-blur-sm">
+                  
+                  <div className="h-64 md:h-80 bg-[#0A0A0A] relative overflow-hidden rounded-[2rem]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={getVehiclePhoto(v)} alt={v.model} className="w-full h-full object-cover grayscale-[30%] group-hover:scale-105 transition-transform duration-1000 ease-out opacity-90 group-hover:opacity-100" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-transparent"></div>
+                    <img src={getVehiclePhoto(v)} alt={v.model} className="w-full h-full object-cover grayscale-[20%] group-hover:scale-110 transition-transform duration-1000 ease-out opacity-80 group-hover:opacity-100" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/30 to-transparent"></div>
+                    
                     <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
                        <div>
-                         <h3 className="text-2xl md:text-3xl font-serif text-white drop-shadow-md">{v.model}</h3>
-                         <div className="text-[9px] md:text-[10px] text-gray-400 tracking-widest uppercase mt-2">Αντιπροσωπευτικο Οχημα</div>
+                         <h3 className="text-3xl font-serif text-white tracking-tight drop-shadow-lg">{v.model}</h3>
                        </div>
                        <div className="text-right">
-                         <div className="text-2xl md:text-3xl font-serif text-[#D90000] drop-shadow-md">€{v.price}</div>
-                         <div className="text-[8px] md:text-[9px] text-gray-500 uppercase tracking-widest mt-2">Ανα Ημερα</div>
+                         <div className="text-2xl font-serif text-white drop-shadow-lg">€{v.price}</div>
+                         <div className="text-[8px] text-gray-400 uppercase tracking-widest mt-1 opacity-80">Ανα Ημερα</div>
                        </div>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center px-4 py-4 border-t border-white/10 bg-black/30 rounded-b-sm group-hover:bg-white/5 transition-colors">
-                     <span className="text-[10px] md:text-xs text-white tracking-[0.2em] uppercase font-bold">Επιλογη</span>
-                     <svg className="w-5 h-5 text-[#D90000] transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                  
+                  <div className="absolute top-6 right-6 bg-black/40 backdrop-blur-xl border border-white/20 rounded-full px-4 py-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 z-10 shadow-lg">
+                     <span className="text-[9px] text-white tracking-widest uppercase font-bold">Επιλογη</span>
+                     <svg className="w-3 h-3 text-[#D90000]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                   </div>
                 </div>
               ))}
@@ -266,46 +279,49 @@ export default function MarketplaceApp() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white font-sans relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#050505] text-white font-sans relative overflow-x-hidden">
       
       {/* LUXURY HERO SECTION */}
-      <section className="relative h-[65vh] md:h-[75vh] w-full flex flex-col items-center justify-center overflow-hidden">
+      <section className="relative h-[65vh] md:h-[75vh] w-full flex flex-col items-center justify-center overflow-hidden rounded-b-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-20">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/lazaris.jpg" alt="Auto Lazaridis Showroom" className="absolute inset-0 w-full h-full object-cover opacity-20 grayscale brightness-50" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#030303]/60 via-transparent to-[#030303]"></div>
+        <img src="/lazaris.jpg" alt="Auto Lazaridis Showroom" className="absolute inset-0 w-full h-full object-cover opacity-[0.15] grayscale brightness-50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/40 to-[#050505]"></div>
         
         <div className="relative z-10 text-center px-6 flex flex-col items-center mt-10 animate-in fade-in slide-in-from-top-10 duration-1000">
-          <AutoLazaridisLogo className="h-16 md:h-24 w-auto mb-8 md:mb-12 opacity-90 shadow-2xl" />
-          <h1 className="text-3xl md:text-6xl font-serif text-white tracking-wide leading-tight mb-4 drop-shadow-2xl">
-            Η Ποιότητα Δεν Είναι <br/><span className="text-[#D90000] italic">Διαπραγματεύσιμη.</span>
+          <AutoLazaridisLogo className="h-16 md:h-24 w-auto mb-10 opacity-90 drop-shadow-2xl" />
+          <h1 className="text-3xl md:text-6xl font-serif text-white tracking-tight leading-[1.1] mb-5 drop-shadow-2xl">
+            Η Ποιότητα Δεν Είναι <br/><span className="text-[#D90000] italic font-light">Διαπραγματεύσιμη.</span>
           </h1>
-          <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-[0.3em] max-w-lg mx-auto mt-6 leading-relaxed">
+          <p className="text-[10px] md:text-xs text-gray-400 uppercase tracking-[0.3em] max-w-lg mx-auto mt-6 leading-relaxed opacity-80">
             Premium ενοικιασεις, αποκλειστικα οχηματα και μια εμπειρια φτιαγμενη για τον συγχρονο οδηγο.
           </p>
         </div>
       </section>
 
-      {/* CATEGORIES SECTION (NOW GRID ON DESKTOP) */}
-      <main className="px-6 py-12 max-w-5xl mx-auto relative z-20 -mt-10 animate-in fade-in duration-1000 delay-300">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-[10px] md:text-xs font-bold text-white uppercase tracking-[0.4em] mb-4">The Collection</h2>
-          <div className="w-12 h-px bg-[#D90000] mx-auto"></div>
+      {/* CATEGORIES SECTION */}
+      <main className="px-5 py-12 max-w-5xl mx-auto relative z-10 -mt-10 animate-in fade-in duration-1000 delay-300">
+        <div className="text-center mb-10 md:mb-16 pt-8">
+          <h2 className="text-[10px] md:text-xs font-bold text-white/50 uppercase tracking-[0.5em] mb-4">The Collection</h2>
+          <div className="w-8 h-[2px] bg-[#D90000]/50 mx-auto rounded-full"></div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 pb-16">
           {loading ? (
-            <div className="col-span-1 md:col-span-2 text-center py-20 text-gray-600 font-serif italic">Φόρτωση Συλλογής...</div>
+            <div className="col-span-1 md:col-span-2 text-center py-20 text-gray-500 font-serif italic text-lg opacity-70">Φόρτωση Συλλογής...</div>
           ) : (
             availableCategories.map(cat => (
-              <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className="group relative w-full h-64 md:h-80 overflow-hidden block text-left border border-white/5 rounded-sm shadow-2xl bg-[#0A0A0A]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={cat.image} alt={cat.title} className="absolute inset-0 w-full h-full object-cover grayscale-[40%] group-hover:scale-105 group-hover:grayscale-0 transition-all duration-1000 ease-out opacity-60 group-hover:opacity-90" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-colors duration-700"></div>
+              <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className="group relative w-full h-[22rem] md:h-96 block text-left bg-white/[0.02] border border-white/5 rounded-[3rem] p-3 hover:bg-white/[0.04] transition-all duration-500 shadow-2xl backdrop-blur-sm">
                 
-                <div className="absolute inset-0 flex flex-col justify-end p-8">
-                  <div className="w-0 group-hover:w-8 h-px bg-[#D90000] mb-4 transition-all duration-500 ease-out"></div>
-                  <h3 className="text-2xl md:text-3xl font-serif text-white tracking-widest uppercase mb-2 drop-shadow-md">{cat.title}</h3>
-                  <p className="text-[9px] text-gray-300 font-bold tracking-[0.3em]">{cat.subtitle}</p>
+                <div className="absolute inset-3 rounded-[2.5rem] overflow-hidden bg-[#0A0A0A]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={cat.image} alt={cat.title} className="w-full h-full object-cover grayscale-[30%] group-hover:scale-110 group-hover:grayscale-0 transition-transform duration-[1.5s] ease-out opacity-70 group-hover:opacity-100" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/95 via-[#050505]/30 to-transparent transition-colors duration-700"></div>
+                </div>
+                
+                <div className="absolute inset-6 flex flex-col justify-end z-10 pb-4">
+                  <div className="w-0 group-hover:w-12 h-[2px] bg-[#D90000] mb-4 transition-all duration-700 ease-out rounded-full opacity-80"></div>
+                  <h3 className="text-3xl md:text-4xl font-serif text-white tracking-wide mb-2 drop-shadow-xl">{cat.title}</h3>
+                  <p className="text-[9px] text-white/70 font-bold tracking-[0.4em] uppercase">{cat.subtitle}</p>
                 </div>
               </button>
             ))
@@ -314,23 +330,23 @@ export default function MarketplaceApp() {
       </main>
 
       {/* PREMIUM FOOTER */}
-      <footer className="bg-[#050505] border-t border-white/5 pt-16 pb-12 px-6">
-        <div className="max-w-5xl mx-auto text-center space-y-10">
+      <footer className="bg-[#030303] pt-16 pb-16 px-6 rounded-t-[3rem] shadow-[0_-20px_50px_rgba(0,0,0,0.5)] border-t border-white/5">
+        <div className="max-w-5xl mx-auto text-center space-y-12">
           <div>
-            <AutoLazaridisLogo className="h-10 w-auto mx-auto mb-4 opacity-50" />
-            <p className="text-[9px] md:text-[10px] text-gray-500 tracking-[0.2em] uppercase">Crafting Confidence on the road.</p>
+            <AutoLazaridisLogo className="h-12 w-auto mx-auto mb-5 opacity-40 grayscale" />
+            <p className="text-[9px] md:text-[10px] text-gray-600 tracking-[0.3em] uppercase">Crafting Confidence on the road.</p>
           </div>
           
-          <div className="space-y-6 border-t border-white/5 pt-10">
-            <h4 className="text-[11px] font-bold text-white tracking-[0.3em] uppercase">Επικοινωνια</h4>
+          <div className="space-y-6 pt-10">
+            <h4 className="text-[10px] font-bold text-white/50 tracking-[0.4em] uppercase">Επικοινωνια</h4>
             
-            <div className="flex flex-col items-center gap-3 text-xs md:text-sm text-gray-400 font-light">
-              <span className="flex items-center gap-3">
-                <svg className="w-4 h-4 text-[#D90000]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            <div className="flex flex-col items-center gap-4 text-xs md:text-sm text-gray-400 font-light">
+              <span className="flex items-center gap-3 bg-white/[0.03] px-6 py-3 rounded-full border border-white/5 backdrop-blur-md">
+                <svg className="w-4 h-4 text-[#D90000]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 7ο χλμ. Δράμας - Καβάλας
               </span>
-              <span className="flex items-center gap-3 mt-2">
-                <svg className="w-4 h-4 text-[#D90000]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+              <span className="flex items-center gap-3 bg-white/[0.03] px-6 py-3 rounded-full border border-white/5 backdrop-blur-md">
+                <svg className="w-4 h-4 text-[#D90000]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                 6948 766884 &nbsp;|&nbsp; 25210 26912
               </span>
             </div>
