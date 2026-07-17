@@ -1,10 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Απευθείας ενσωμάτωση των κλειδιών για άμεσο deployment χωρίς καθυστερήσεις
+const supabaseUrl = 'https://xbricpdkqhclyfoowxeq.supabase.co';
+const supabaseAnonKey = 'sb_publishable_7-DEyJJSNd0Dd9pOf7Xt7w_s7p2ZaEi';
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Λείπουν τα κλειδιά του Supabase. Ελέγξτε το αρχείο .env.local');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
