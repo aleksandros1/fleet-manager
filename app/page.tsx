@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 // --- Απευθείας σύνδεση Supabase ---
@@ -8,7 +8,7 @@ const supabaseUrl = 'https://xbricpdkqhclyfoowxeq.supabase.co';
 const supabaseAnonKey = 'sb_publishable_7-DEyJJSNd0Dd9pOf7Xt7w_s7p2ZaEi';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// --- CSS & Τυπογραφία (Βελτιστοποιημένα για iPhone) ---
+// --- CSS & Τυπογραφία ---
 const GlobalStyles = () => (
   <style jsx global>{`
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:opsz,wght@5..1200,300;5..1200,400;5..1200,600&display=swap');
@@ -22,7 +22,7 @@ const GlobalStyles = () => (
     }
     .font-serif-premium { font-family: 'Playfair Display', serif; }
     
-    ::-webkit-scrollbar { display: none; } /* Απόκρυψη scrollbar για καθαρό native iOS look */
+    ::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -30,7 +30,6 @@ const GlobalStyles = () => (
     .animate-intro-title { animation: fadeInUp 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
     .animate-intro-subtitle { opacity: 0; animation: fadeIn 1.5s ease-out 1.2s forwards; }
     
-    /* Safespace padding για iPhone Home Bar */
     .pb-safe { padding-bottom: env(safe-area-inset-bottom, 2rem); }
   `}</style>
 );
@@ -73,11 +72,22 @@ export default function PremiumFleetApp() {
   const [selectedRange, setSelectedRange] = useState<{ start: string | null; end: string | null; }>({ start: null, end: null });
   const [calendarDate, setCalendarDate] = useState(new Date());
 
-  // Fast Check-In State
-  const [idUploaded, setIdUploaded] = useState(false);
-  const [licenseUploaded, setLicenseUploaded] = useState(false);
+  // Fast Check-In File Upload State
+  const [idFile, setIdFile] = useState<File | null>(null);
+  const [licenseFile, setLicenseFile] = useState<File | null>(null);
+  const idInputRef = useRef<HTMLInputElement>(null);
+  const licenseInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment') === 'success') {
+      alert('Η πληρωμή ολοκληρώθηκε με επιτυχία. Το όχημα έχει δεσμευτεί.');
+      window.history.replaceState(null, '', window.location.pathname);
+    } else if (urlParams.get('payment') === 'cancelled') {
+      alert('Η διαδικασία πληρωμής ακυρώθηκε.');
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+
     const fadeOutTimer = setTimeout(() => setIntroVisible(false), 3500);
     const unmountTimer = setTimeout(() => setIntroRendered(false), 4500);
     async function fetchVehicles() {
@@ -92,8 +102,8 @@ export default function PremiumFleetApp() {
   useEffect(() => {
     if (!selectedVehicle) {
       setCalendarDate(new Date());
-      setIdUploaded(false);
-      setLicenseUploaded(false);
+      setIdFile(null);
+      setLicenseFile(null);
     }
   }, [selectedVehicle]);
 
@@ -110,26 +120,58 @@ export default function PremiumFleetApp() {
     return getCalculatedDays() * selectedVehicle.price;
   };
 
-  const handleBooking = async () => {
+  const handleBookingToStripe = async () => {
     if (!selectedVehicle || !selectedRange.start || !selectedRange.end) return;
     setIsSubmitting(true);
     
-    // Εδώ στο μέλλον θα προσθέσετε τη λογική για το ανέβασμα των αρχείων στο Supabase Storage.
-    // Προς το παρόν, αποθηκεύουμε την κατάσταση στην κράτηση (Fast Check-in: Yes/No).
-    
-    const { error } = await supabase.from('bookings').insert([{ 
-      vehicle_id: selectedVehicle.id, vehicle_model: selectedVehicle.model, 
-      check_in: selectedRange.start, check_out: selectedRange.end, 
-      total_price: calculateTotal(), status: (idUploaded && licenseUploaded) ? 'Νέα Κράτηση (Fast Track)' : 'Νέα Κράτηση' 
-    }]);
-    setIsSubmitting(false);
-    
-    if (error) {
-      alert(`Σφάλμα: ${error.message}`);
-    } else {
-      alert('Το αίτημά σας καταχωρήθηκε επιτυχώς. Σας ευχαριστούμε για την προτίμηση.');
-      setSelectedVehicle(null);
-      setSelectedRange({ start: null, end: null });
+    try {
+      const totalCost = calculateTotal();
+      const totalDays = getCalculatedDays();
+
+      // 1. Καταχώρηση στη βάση δεδομένων
+      const { error: supabaseError } = await supabase.from('bookings').insert([{ 
+        vehicle_id: selectedVehicle.id, vehicle_model: selectedVehicle.model, 
+        check_in: selectedRange.start, check_out: selectedRange.end, 
+        total_price: totalCost, status: (idFile && licenseFile) ? 'Εκκρεμεί Πληρωμή (Fast Track)' : 'Εκκρεμεί Πληρωμή (Escrow)',
+      }]);
+
+      if (supabaseError) throw new Error(supabaseError.message);
+
+      // 2. Επικοινωνία με Backend
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vehicleId: selectedVehicle.id,
+          model: selectedVehicle.model,
+          price: totalCost,
+          checkIn: selectedRange.start,
+          checkOut: selectedRange.end,
+          days: totalDays
+        }),
+      });
+
+      // 3. Ασφαλής ανάγνωση απάντησης (Αποτρέπει το σφάλμα του Safari)
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error("Το API απέτυχε να φορτώσει. Βεβαιωθείτε ότι: 1) Έγινε Restart ο server (npm run dev) και 2) Ο φάκελος είναι ακριβώς app/api/checkout/route.ts");
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Άγνωστο σφάλμα από την Stripe.');
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Το σύστημα δεν επέστρεψε URL πληρωμής.');
+      }
+
+    } catch (err: any) {
+      alert(`Σφάλμα: ${err.message}`);
+      setIsSubmitting(false);
     }
   };
 
@@ -211,7 +253,6 @@ export default function PremiumFleetApp() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#030303] via-transparent to-[#030303]"></div>
         
         <div className="relative z-10 max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
-          <div className="text-gray-500 text-[10px] uppercase tracking-[0.4em] mb-4 md:mb-6">The Private Fleet</div>
           <h1 className="text-4xl md:text-6xl font-serif-premium font-light leading-tight mb-4 md:mb-6 px-2">
             Ανακαλύψτε Την Απόλυτη <br/>
             <span className="italic text-gray-400">Οδηγική Εμπειρία.</span>
@@ -302,10 +343,10 @@ export default function PremiumFleetApp() {
         </div>
       </footer>
 
-      {/* --- BOOKING MODAL (Βελτιστοποιημένο για iPhone) --- */}
+      {/* --- BOOKING MODAL --- */}
       {selectedVehicle && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/80 backdrop-blur-md transition-opacity">
-          <div className="w-full md:w-[480px] h-full bg-[#0A0A0A] md:border-l border-white/10 shadow-2xl flex flex-col animate-in slide-in-from-bottom md:slide-in-from-right duration-500 rounded-t-[2rem] md:rounded-t-none md:rounded-l-[3rem] overflow-hidden mt-12 md:mt-0">
+          <div className="w-full md:w-[480px] h-[100dvh] bg-[#0A0A0A] md:border-l border-white/10 shadow-2xl flex flex-col animate-in slide-in-from-bottom md:slide-in-from-right duration-500 md:rounded-l-[3rem] overflow-hidden mt-12 md:mt-0">
             
             <div className="px-6 md:px-10 py-6 md:py-8 border-b border-white/5 flex justify-between items-center bg-[#050505]/80 backdrop-blur-xl z-10 absolute top-0 w-full">
               <h3 className="text-[10px] font-bold uppercase tracking-widest text-white">Κρατηση Οχηματος</h3>
@@ -314,7 +355,7 @@ export default function PremiumFleetApp() {
 
             <div className="flex-1 overflow-y-auto pt-20 md:pt-24 pb-8 px-5 md:px-8 space-y-8 hide-scrollbar">
               
-              <div className="w-full aspect-video rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative border border-white/5">
+              <div className="w-full aspect-video rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden relative border border-white/5">
                  {/* eslint-disable-next-line @next/next/no-img-element */}
                  <img src={CATEGORY_STOCK_PHOTOS[selectedVehicle.category || 'Premium']} alt={selectedVehicle.model} className="w-full h-full object-cover grayscale-[10%]" />
                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
@@ -326,20 +367,21 @@ export default function PremiumFleetApp() {
               <DateRangePicker />
 
               {/* FAST CHECK-IN MODULE */}
-              <div className="bg-[#111] border border-white/5 p-5 md:p-6 rounded-[2rem]">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h4 className="text-[9px] text-[#D90000] uppercase tracking-[0.2em] font-bold mb-1">Fast Track Check-In</h4>
-                    <p className="text-[10px] md:text-xs text-gray-500">Ανεβάστε τα έγγραφά σας τώρα για άμεση παραλαβή.</p>
-                  </div>
-                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-[#D90000]/10 text-[#D90000] flex items-center justify-center text-xs">⚡</div>
+              <div className="bg-[#111] border border-white/5 p-6 md:p-8 rounded-[2.5rem]">
+                <div className="mb-5">
+                  <h4 className="text-[10px] text-[#D90000] uppercase tracking-[0.2em] font-bold mb-1">Fast Track Check-In</h4>
+                  <p className="text-[10px] md:text-xs text-gray-500">Φωτογραφίστε ή ανεβάστε τα έγγραφά σας.</p>
                 </div>
+                
+                <input type="file" accept="image/*" capture="environment" className="hidden" ref={idInputRef} onChange={(e) => setIdFile(e.target.files?.[0] || null)} />
+                <input type="file" accept="image/*" capture="environment" className="hidden" ref={licenseInputRef} onChange={(e) => setLicenseFile(e.target.files?.[0] || null)} />
+
                 <div className="flex gap-3 md:gap-4">
-                  <button onClick={() => setIdUploaded(!idUploaded)} className={`flex-1 py-3 md:py-4 rounded-xl text-[9px] uppercase tracking-widest border transition-all ${idUploaded ? 'border-[#D90000] bg-[#D90000]/10 text-[#D90000]' : 'border-white/10 text-gray-400 hover:bg-white/5'}`}>
-                    {idUploaded ? '✓ Ταυτοτητα' : '+ Ταυτοτητα'}
+                  <button onClick={() => idInputRef.current?.click()} className={`flex-1 py-3 md:py-4 rounded-xl text-[9px] uppercase tracking-widest border transition-all ${idFile ? 'border-[#D90000] bg-[#D90000]/10 text-[#D90000]' : 'border-white/10 text-gray-400 hover:bg-white/5'}`}>
+                    {idFile ? '✓ ' + idFile.name.substring(0, 8) + '...' : '+ Ταυτοτητα'}
                   </button>
-                  <button onClick={() => setLicenseUploaded(!licenseUploaded)} className={`flex-1 py-3 md:py-4 rounded-xl text-[9px] uppercase tracking-widest border transition-all ${licenseUploaded ? 'border-[#D90000] bg-[#D90000]/10 text-[#D90000]' : 'border-white/10 text-gray-400 hover:bg-white/5'}`}>
-                    {licenseUploaded ? '✓ Διπλωμα' : '+ Διπλωμα'}
+                  <button onClick={() => licenseInputRef.current?.click()} className={`flex-1 py-3 md:py-4 rounded-xl text-[9px] uppercase tracking-widest border transition-all ${licenseFile ? 'border-[#D90000] bg-[#D90000]/10 text-[#D90000]' : 'border-white/10 text-gray-400 hover:bg-white/5'}`}>
+                    {licenseFile ? '✓ ' + licenseFile.name.substring(0, 8) + '...' : '+ Διπλωμα'}
                   </button>
                 </div>
               </div>
@@ -357,11 +399,11 @@ export default function PremiumFleetApp() {
 
             <div className="p-5 md:p-8 border-t border-white/5 bg-[#050505] pb-safe">
               <button 
-                onClick={handleBooking} 
+                onClick={handleBookingToStripe} 
                 disabled={!selectedRange.start || !selectedRange.end || isSubmitting} 
                 className={`w-full py-4 md:py-5 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all duration-300 ${(!selectedRange.start || !selectedRange.end || isSubmitting) ? 'bg-white/5 text-gray-600 cursor-not-allowed' : 'bg-[#D90000] text-white hover:bg-red-700 shadow-[0_10px_20px_rgba(217,0,0,0.3)]'}`}
               >
-                {isSubmitting ? 'Επεξεργασια...' : 'Επιβεβαιωση Κρατησης'}
+                {isSubmitting ? 'Επεξεργασια...' : 'ΜΕΤΑΒΑΣΗ ΣΕ ΑΣΦΑΛΗ ΠΛΗΡΩΜΗ'}
               </button>
             </div>
           </div>
