@@ -1,4 +1,4 @@
-'use client';
+ 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
@@ -505,4 +505,4 @@ export default function PremiumFleetApp() {
 
     </div>
   );
-}
+} 
