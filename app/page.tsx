@@ -1,4 +1,4 @@
- 'use client';
+'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
@@ -19,6 +19,7 @@ const GlobalStyles = () => (
       font-family: 'Inter', sans-serif; 
       -webkit-font-smoothing: antialiased; 
       -webkit-tap-highlight-color: transparent;
+      scroll-behavior: smooth;
     }
     .font-serif-premium { font-family: 'Playfair Display', serif; }
     
@@ -34,7 +35,6 @@ const GlobalStyles = () => (
   `}</style>
 );
 
-// --- Το Αυθεντικό Λογότυπο από αρχείο PNG ---
 const AutoLazaridisLogo = ({ className = "h-14 w-auto" }) => (
   /* eslint-disable-next-line @next/next/no-img-element */
   <img 
@@ -52,10 +52,8 @@ const CATEGORY_STOCK_PHOTOS: Record<string, string> = {
   'Compact / Hatchback': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=2000&q=80'
 };
 
-// --- ΛΕΞΙΚΟ (DICTIONARY) ---
 const TRANSLATIONS = {
   el: {
-    tagline: "Η Ποιοτητα Δεν Ειναι Διαπραγματευσιμη",
     introSubtitle: "Not everyone drives the same.",
     heroTitle1: "Ανακαλύψτε Την Απόλυτη",
     heroTitle2: "Οδηγική Εμπειρία.",
@@ -64,13 +62,26 @@ const TRANSLATIONS = {
     updating: "Ενημέρωση Στόλου...",
     power: "Ισχυς",
     engine: "Κινητηρας",
+    transmission: "Κιβωτιο",
+    auto: "Αυτοματο",
+    manual: "Χειροκινητο",
     cost: "Κοστος",
     perDay: "/ ημέρα",
+    perMonth: "/ μήνα",
     select: "Επιλογη",
+    buyNow: "Αγορα",
+    rentals: "Ενοικιαζομενα",
+    leasing: "Leasing",
+    forSale: "Προς Πωληση",
     address: "7ο χλμ. Δράμας - Καβάλας",
     tel: "Τηλ: 6948 766884",
     bookingTitle: "Κρατηση Οχηματος",
-    fastTrackSub: "Φωτογραφίστε ή ανεβάστε τα έγγραφά σας.",
+    fastTrackSub: "Φωτογραφίστε ή ανεβάστε τα έγγραφά σας (JPG, PNG, PDF).",
+    personalInfoTitle: "Στοιχεια Πελατη",
+    namePlaceholder: "Ονοματεπώνυμο",
+    phonePlaceholder: "Τηλέφωνο Επικοινωνίας",
+    emailPlaceholder: "Email",
+    fillRequired: "Παρακαλώ συμπληρώστε το Ονοματεπώνυμο, το Τηλέφωνο και το Email σας για να προχωρήσετε.",
     idCard: "+ Ταυτοτητα",
     license: "+ Διπλωμα",
     total: "Συνολο",
@@ -83,11 +94,17 @@ const TRANSLATIONS = {
     securePayment: "ΑΣΦΑΛΗΣ ΠΛΗΡΩΜΗ",
     alertSuccess: "Η πληρωμή ολοκληρώθηκε με επιτυχία. Το όχημα έχει δεσμευτεί.",
     alertCancel: "Η διαδικασία πληρωμής ακυρώθηκε.",
+    datesOverlap: "Οι ημερομηνίες που επιλέξατε συμπίπτουν με υπάρχουσα κράτηση. Παρακαλώ επιλέξτε άλλες ημερομηνίες.",
+    invalidFileType: "Μη αποδεκτός τύπος αρχείου. Επιτρέπονται μόνο εικόνες (JPG, PNG, WEBP) και έγγραφα PDF.",
+    fileTooLarge: "Το αρχείο είναι πολύ μεγάλο. Μέγιστο επιτρεπόμενο μέγεθος: 10MB.",
     months: ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος", "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"],
-    daysShort: ["Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ", "Κυρ"]
+    daysShort: ["Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ", "Κυρ"],
+    menuHome: "ΑΡΧΙΚΗ",
+    menuFleet: "Ο ΣΤΟΛΟΣ",
+    menuLocation: "ΤΟΠΟΘΕΣΙΑ",
+    menuContact: "ΕΠΙΚΟΙΝΩΝΙΑ"
   },
   en: {
-    tagline: "Quality Is Non-Negotiable",
     introSubtitle: "Not everyone drives the same.",
     heroTitle1: "Discover The Ultimate",
     heroTitle2: "Driving Experience.",
@@ -96,13 +113,26 @@ const TRANSLATIONS = {
     updating: "Updating Fleet...",
     power: "Power",
     engine: "Engine",
+    transmission: "Gearbox",
+    auto: "Auto",
+    manual: "Manual",
     cost: "Cost",
     perDay: "/ day",
+    perMonth: "/ month",
     select: "Select",
+    buyNow: "Purchase",
+    rentals: "Rentals",
+    leasing: "Leasing",
+    forSale: "For Sale",
     address: "7th km Drama - Kavala",
     tel: "Tel: +30 6948 766884",
     bookingTitle: "Vehicle Booking",
-    fastTrackSub: "Photograph or upload your documents.",
+    fastTrackSub: "Photograph or upload your documents (JPG, PNG, PDF).",
+    personalInfoTitle: "Customer Details",
+    namePlaceholder: "Full Name",
+    phonePlaceholder: "Phone Number",
+    emailPlaceholder: "Email Address",
+    fillRequired: "Please fill in your Full Name, Phone, and Email to proceed.",
     idCard: "+ ID Card",
     license: "+ License",
     total: "Total",
@@ -115,38 +145,71 @@ const TRANSLATIONS = {
     securePayment: "SECURE PAYMENT",
     alertSuccess: "Payment completed successfully. The vehicle has been reserved.",
     alertCancel: "The payment process was cancelled.",
+    datesOverlap: "Selected dates overlap with an existing booking. Please select different dates.",
+    invalidFileType: "Invalid file format. Only images (JPG, PNG, WEBP) and PDF files are allowed.",
+    fileTooLarge: "File is too large. Maximum allowed size: 10MB.",
     months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-    daysShort: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    daysShort: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    menuHome: "HOME",
+    menuFleet: "THE FLEET",
+    menuLocation: "LOCATION",
+    menuContact: "CONTACT"
   }
 };
 
-type Vehicle = { id: number; plate: string; model: string; cc: string; hp: string; price: number; is_active: boolean; category: string; photos: string[]; };
+type Vehicle = { 
+  id: number; 
+  plate: string; 
+  model: string; 
+  cc: string; 
+  hp: string; 
+  price: number; 
+  is_active: boolean; 
+  category: string; 
+  photos: string[];
+  transmission?: string; 
+  availability?: string[];
+};
+
+type ExistingBooking = {
+  check_in: string;
+  check_out: string;
+};
 
 export default function PremiumFleetApp() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+  
   const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [activeAvailability, setActiveAvailability] = useState<string>('Ενοικίαση');
+  
+  // Η μεταβλητή categories πρέπει να δηλωθεί ψηλά για να αναγνωρίζεται παρακάτω στον κώδικα
+  const categories = ['All', 'Premium', 'SUV / 4x4', 'Sedan', 'Compact / Hatchback'];
   
   const [introVisible, setIntroVisible] = useState(true);
   const [introRendered, setIntroRendered] = useState(true);
+  
+  const [isMenuOpen, setIsMenuOpen] = useState(false); 
 
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [existingBookings, setExistingBookings] = useState<ExistingBooking[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedRange, setSelectedRange] = useState<{ start: string | null; end: string | null; }>({ start: null, end: null });
   const [calendarDate, setCalendarDate] = useState(new Date());
 
   const [paymentMode, setPaymentMode] = useState<'full' | 'deposit'>('full');
+  
+  const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '', email: '' });
+
   const [idFile, setIdFile] = useState<File | null>(null);
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
   const idInputRef = useRef<HTMLInputElement>(null);
   const licenseInputRef = useRef<HTMLInputElement>(null);
 
-  // --- LANGUAGE STATE ---
   const [lang, setLang] = useState<'el' | 'en'>('el');
   const t = TRANSLATIONS[lang];
 
   useEffect(() => {
-    // Ανάκτηση γλώσσας από τη μνήμη του browser (αν υπάρχει)
     const savedLang = localStorage.getItem('autolaz_lang') as 'el' | 'en';
     if (savedLang) setLang(savedLang);
 
@@ -174,11 +237,28 @@ export default function PremiumFleetApp() {
   }, []);
 
   useEffect(() => {
-    if (!selectedVehicle) {
+    if (selectedVehicle) {
+      const currentVehicleId = selectedVehicle.id;
+
+      async function fetchBookings() {
+        const { data } = await supabase
+          .from('bookings')
+          .select('check_in, check_out')
+          .eq('vehicle_id', currentVehicleId)
+          .not('status', 'ilike', '%cancelled%')
+          .not('status', 'ilike', '%ακυρώ%');
+        
+        if (data) setExistingBookings(data);
+      }
+      fetchBookings();
+    } else {
       setCalendarDate(new Date());
+      setCustomerInfo({ name: '', phone: '', email: '' });
       setIdFile(null);
       setLicenseFile(null);
       setPaymentMode('full');
+      setExistingBookings([]);
+      setSelectedRange({ start: null, end: null });
     }
   }, [selectedVehicle]);
 
@@ -186,6 +266,37 @@ export default function PremiumFleetApp() {
     const newLang = lang === 'el' ? 'en' : 'el';
     setLang(newLang);
     localStorage.setItem('autolaz_lang', newLang);
+  };
+
+  const scrollToSection = (id: string) => {
+    setIsMenuOpen(false);
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const validateAndSetFile = (file: File | null, setFileState: (f: File | null) => void, inputRef: React.RefObject<HTMLInputElement | null>) => {
+    if (!file) return;
+    
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    const maxSizeBytes = 10 * 1024 * 1024; 
+
+    if (!allowedMimeTypes.includes(file.type)) {
+      alert(t.invalidFileType);
+      if (inputRef.current) inputRef.current.value = '';
+      setFileState(null);
+      return;
+    }
+
+    if (file.size > maxSizeBytes) {
+      alert(t.fileTooLarge);
+      if (inputRef.current) inputRef.current.value = '';
+      setFileState(null);
+      return;
+    }
+
+    setFileState(file);
   };
 
   const getCalculatedDays = () => {
@@ -203,16 +314,58 @@ export default function PremiumFleetApp() {
 
   const handleBookingToStripe = async () => {
     if (!selectedVehicle || !selectedRange.start || !selectedRange.end) return;
+    
+    if (!customerInfo.name.trim() || !customerInfo.phone.trim() || !customerInfo.email.trim()) {
+      alert(t.fillRequired);
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
+      const { data: conflictCheck } = await supabase
+        .from('bookings')
+        .select('id')
+        .eq('vehicle_id', selectedVehicle.id)
+        .lte('check_in', selectedRange.end)
+        .gte('check_out', selectedRange.start)
+        .not('status', 'ilike', '%cancelled%')
+        .not('status', 'ilike', '%ακυρώ%');
+
+      if (conflictCheck && conflictCheck.length > 0) {
+        throw new Error(t.datesOverlap);
+      }
+
+      let uploadedIdUrl = null;
+      let uploadedLicenseUrl = null;
+
+      if (idFile) {
+        const fileExt = idFile.name.split('.').pop();
+        const fileName = `id_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(fileName, idFile);
+        if (uploadError) throw new Error("Σφάλμα κατά το ανέβασμα της Ταυτότητας.");
+        
+        const { data: publicUrlData } = supabase.storage.from('documents').getPublicUrl(fileName);
+        uploadedIdUrl = publicUrlData.publicUrl;
+      }
+
+      if (licenseFile) {
+        const fileExt = licenseFile.name.split('.').pop();
+        const fileName = `license_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage.from('documents').upload(fileName, licenseFile);
+        if (uploadError) throw new Error("Σφάλμα κατά το ανέβασμα του Διπλώματος.");
+        
+        const { data: publicUrlData } = supabase.storage.from('documents').getPublicUrl(fileName);
+        uploadedLicenseUrl = publicUrlData.publicUrl;
+      }
+
       const totalCost = calculateTotal();
       const depositAmount = Math.round(totalCost * 0.3);
       const amountToPay = paymentMode === 'full' ? totalCost : depositAmount;
       const totalDays = getCalculatedDays();
 
       const paymentStatus = paymentMode === 'full' ? '100% Εξόφληση' : '30% Προκαταβολή';
-      const fastTrackStatus = (idFile && licenseFile) ? ' (Fast Track)' : '';
+      const fastTrackStatus = (uploadedIdUrl && uploadedLicenseUrl) ? ' (Fast Track Attached)' : '';
 
       const { error: supabaseError } = await supabase.from('bookings').insert([{ 
         vehicle_id: selectedVehicle.id, 
@@ -221,6 +374,11 @@ export default function PremiumFleetApp() {
         check_out: selectedRange.end, 
         total_price: totalCost, 
         status: `Εκκρεμεί Πληρωμή: ${paymentStatus}${fastTrackStatus}`,
+        customer_name: customerInfo.name.trim(),
+        customer_phone: customerInfo.phone.trim(),
+        customer_email: customerInfo.email.trim(),
+        id_photo_url: uploadedIdUrl,
+        license_photo_url: uploadedLicenseUrl
       }]);
 
       if (supabaseError) throw new Error(supabaseError.message);
@@ -257,8 +415,11 @@ export default function PremiumFleetApp() {
     }
   };
 
-  const categories = ['All', 'Premium', 'SUV / 4x4', 'Sedan', 'Compact / Hatchback'];
-  const displayedVehicles = activeCategory === 'All' ? vehicles : vehicles.filter(v => v.category === activeCategory);
+  const displayedVehicles = vehicles.filter(v => {
+    const matchCategory = activeCategory === 'All' || v.category === activeCategory;
+    const matchAvailability = v.availability ? v.availability.includes(activeAvailability) : activeAvailability === 'Ενοικίαση';
+    return matchCategory && matchAvailability;
+  });
 
   const DateRangePicker = () => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -267,6 +428,14 @@ export default function PremiumFleetApp() {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDayIndex = new Date(year, month, 1).getDay() || 7; 
     
+    const isDateBooked = (dateStr: string) => {
+      return existingBookings.some(b => dateStr >= b.check_in && dateStr <= b.check_out);
+    };
+
+    const isRangeOverlapping = (startStr: string, endStr: string) => {
+      return existingBookings.some(b => startStr <= b.check_out && endStr >= b.check_in);
+    };
+
     const calendarDays = [];
     for (let i = 1; i < firstDayIndex; i++) calendarDays.push(<div key={`empty-${i}`} className="h-10"></div>);
 
@@ -274,20 +443,43 @@ export default function PremiumFleetApp() {
         const currentDateObj = new Date(year, month, day);
         const isPast = currentDateObj < today;
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isBooked = isDateBooked(dateStr);
         
         let dayClass = "h-10 flex items-center justify-center text-sm transition-all duration-300 rounded-full ";
 
-        if (isPast) dayClass += " text-gray-700 cursor-not-allowed";
-        else if (selectedRange.start === dateStr || selectedRange.end === dateStr) dayClass += " bg-[#D90000] text-white font-bold shadow-[0_4px_10px_rgba(217,0,0,0.4)] scale-110";
-        else if (selectedRange.start && selectedRange.end && dateStr > selectedRange.start && dateStr < selectedRange.end) dayClass += " bg-[#D90000]/15 text-[#D90000]";
-        else dayClass += " text-gray-300 hover:bg-white/10 hover:text-white cursor-pointer";
+        if (isPast || isBooked) {
+          dayClass += " text-gray-700 bg-gray-900/40 line-through cursor-not-allowed";
+        } else if (selectedRange.start === dateStr || selectedRange.end === dateStr) {
+          dayClass += " bg-[#D90000] text-white font-bold shadow-[0_4px_10px_rgba(217,0,0,0.4)] scale-110";
+        } else if (selectedRange.start && selectedRange.end && dateStr > selectedRange.start && dateStr < selectedRange.end) {
+          dayClass += " bg-[#D90000]/15 text-[#D90000]";
+        } else {
+          dayClass += " text-gray-300 hover:bg-white/10 hover:text-white cursor-pointer";
+        }
 
-        calendarDays.push(<div key={dateStr} onClick={() => {
-            if (isPast) return;
-            if (!selectedRange.start || (selectedRange.start && selectedRange.end)) setSelectedRange({ start: dateStr, end: null });
-            else if (dateStr < selectedRange.start) setSelectedRange({ start: dateStr, end: null });
-            else setSelectedRange({ start: selectedRange.start, end: dateStr });
-        }} className={dayClass}>{day}</div>);
+        calendarDays.push(
+          <div 
+            key={dateStr} 
+            onClick={() => {
+              if (isPast || isBooked) return;
+              
+              if (!selectedRange.start || (selectedRange.start && selectedRange.end)) {
+                setSelectedRange({ start: dateStr, end: null });
+              } else if (dateStr < selectedRange.start) {
+                setSelectedRange({ start: dateStr, end: null });
+              } else {
+                if (isRangeOverlapping(selectedRange.start, dateStr)) {
+                  alert(t.datesOverlap);
+                  return;
+                }
+                setSelectedRange({ start: selectedRange.start, end: dateStr });
+              }
+            }} 
+            className={dayClass}
+          >
+            {day}
+          </div>
+        );
     }
 
     return (
@@ -318,11 +510,36 @@ export default function PremiumFleetApp() {
         </div>
       )}
 
-      {/* HEADER WITH LANGUAGE TOGGLE */}
-      <header className="fixed top-0 w-full z-40 bg-[#030303]/90 backdrop-blur-xl border-b border-white/5 px-5 md:px-12 py-4 flex justify-between items-center transition-all">
+      {/* FULL SCREEN MOBILE MENU */}
+      <div className={`fixed inset-0 z-[200] bg-[#050505] flex flex-col transition-all duration-500 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+        <div className="px-5 md:px-12 py-4 flex justify-between items-center border-b border-white/5">
+          <AutoLazaridisLogo className="h-10 md:h-12 w-auto" />
+          <button onClick={() => setIsMenuOpen(false)} className="p-2 text-white hover:text-[#D90000] transition-colors">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+        
+        <div className="flex-1 flex flex-col items-center justify-center gap-10">
+          <button onClick={() => scrollToSection('home')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#D90000] transition-colors uppercase">{t.menuHome}</button>
+          <button onClick={() => scrollToSection('fleet')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#D90000] transition-colors uppercase">{t.menuFleet}</button>
+          <button onClick={() => scrollToSection('contact')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#D90000] transition-colors uppercase">{t.menuLocation}</button>
+          <button onClick={() => scrollToSection('contact')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#D90000] transition-colors uppercase">{t.menuContact}</button>
+        </div>
+
+        <div className="pb-12 flex justify-center items-center gap-8">
+          <a href="https://instagram.com" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors">
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 1.76-6.98 6.237-.058 1.281-.072 1.688-.072 4.947s.014 3.666.072 4.947c.2 4.482 2.617 6.036 6.98 6.237 1.28.058 1.688.072 4.947.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-1.76 6.979-6.237.059-1.281.073-1.689.073-4.947s-.014-3.666-.073-4.947c-.197-4.478-2.62-6.037-6.979-6.237-1.28-.058-1.688-.072-4.948-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <a href="tel:+306948766884" className="text-gray-400 hover:text-white transition-colors">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+          </a>
+        </div>
+      </div>
+
+      <header className="fixed top-0 w-full z-40 bg-[#070707]/95 backdrop-blur-2xl border-b border-white/5 px-5 md:px-12 py-4 flex justify-between items-center transition-all shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
         <AutoLazaridisLogo className="h-10 md:h-12 w-auto" />
+        
         <div className="flex items-center gap-6">
-          <div className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-gray-400 hidden md:block">{t.tagline}</div>
           <button 
             onClick={toggleLanguage}
             className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-white/5 hover:bg-white/10 px-3 py-2 rounded-lg transition-colors border border-white/10"
@@ -331,12 +548,17 @@ export default function PremiumFleetApp() {
             <span className="text-gray-600">/</span>
             <span className={lang === 'el' ? 'text-white' : 'text-gray-600'}>GR</span>
           </button>
+          
+          <button onClick={() => setIsMenuOpen(true)} className="p-2 text-white hover:text-[#D90000] transition-colors focus:outline-none">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </button>
         </div>
       </header>
 
-      <section className="relative w-full h-[65vh] flex flex-col justify-center items-center text-center px-5 md:px-12 mt-16 overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center opacity-15 md:opacity-[0.12] pointer-events-none scale-150 md:scale-125">
-          <AutoLazaridisLogo className="w-full max-w-5xl h-auto" />
+      <section id="home" className="relative w-full h-[65vh] flex flex-col justify-center items-center text-center px-5 md:px-12 mt-16 overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none scale-150 md:scale-125">
+          <div className="absolute w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] bg-[#8B0000] blur-[180px] opacity-15 rounded-full mix-blend-screen"></div>
+          <AutoLazaridisLogo className="w-full max-w-5xl h-auto opacity-[0.06] relative z-10" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#030303]/90 via-[#030303]/60 to-[#030303]"></div>
         <div className="relative z-10 max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
@@ -344,9 +566,22 @@ export default function PremiumFleetApp() {
             {t.heroTitle1} <br/>
             <span className="italic text-gray-300">{t.heroTitle2}</span>
           </h1>
-          <p className="text-[11px] md:text-sm text-gray-400 max-w-xl mx-auto font-light leading-relaxed tracking-wide px-4 drop-shadow-md">
+          <p className="text-[11px] md:text-sm text-gray-400 max-w-xl mx-auto font-light leading-relaxed tracking-wide px-4 drop-shadow-md mb-8">
             {t.heroSub}
           </p>
+          
+          <div className="flex flex-wrap justify-center gap-3">
+            {['Ενοικίαση', 'Leasing', 'Πώληση'].map(type => (
+              <button 
+                key={type}
+                onClick={() => setActiveAvailability(type)}
+                className={`px-8 py-3.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 backdrop-blur-md ${activeAvailability === type ? 'bg-[#D90000] text-white shadow-[0_4px_20px_rgba(217,0,0,0.5)] scale-105 border border-red-500/50' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'}`}
+              >
+                {type === 'Ενοικίαση' ? t.rentals : type === 'Leasing' ? t.leasing : t.forSale}
+              </button>
+            ))}
+          </div>
+
         </div>
       </section>
 
@@ -362,7 +597,7 @@ export default function PremiumFleetApp() {
         ))}
       </div>
 
-      <main className="px-5 md:px-12 py-16 md:py-20 max-w-[1400px] mx-auto pb-safe">
+      <main id="fleet" className="px-5 md:px-12 py-16 md:py-20 max-w-[1400px] mx-auto pb-safe">
         {loading ? (
           <div className="text-center py-32 text-gray-500 text-[10px] md:text-sm uppercase tracking-widest animate-pulse">{t.updating}</div>
         ) : (
@@ -371,30 +606,42 @@ export default function PremiumFleetApp() {
               <div key={v.id} className="group flex flex-col md:flex-row bg-[#0A0A0A] border border-white/5 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden hover:border-white/10 transition-all duration-500 shadow-2xl">
                 <div className="w-full md:w-1/2 aspect-[4/3] md:aspect-auto relative overflow-hidden bg-[#111]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={CATEGORY_STOCK_PHOTOS[v.category || 'Premium']} alt={v.model} className="absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-90 group-hover:opacity-100" />
+                  <img src={v.photos && v.photos.length > 0 ? v.photos[0] : '/logo.png'} alt={v.model} className={`absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-90 group-hover:opacity-100 ${!v.photos || v.photos.length === 0 ? 'object-contain p-10 opacity-30' : ''}`} />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0A0A0A] opacity-0 md:opacity-100"></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] to-transparent opacity-100 md:opacity-0"></div>
                 </div>
                 <div className="w-full md:w-1/2 p-6 md:p-16 flex flex-col justify-center relative z-10">
                   <div className="inline-block px-3 md:px-4 py-1 md:py-1.5 rounded-full bg-[#D90000]/10 text-[#D90000] text-[8px] md:text-[9px] font-bold uppercase tracking-widest w-fit mb-4 md:mb-6 border border-[#D90000]/20">{v.category}</div>
                   <h2 className="text-3xl md:text-5xl font-serif-premium font-light mb-4 md:mb-6 leading-tight">{v.model}</h2>
-                  <div className="flex gap-6 md:gap-8 mb-8 md:mb-10 pb-8 md:pb-10 border-b border-white/5">
-                    <div>
-                      <div className="text-[9px] md:text-[10px] text-gray-500 uppercase tracking-widest mb-1">{t.power}</div>
-                      <div className="text-lg md:text-xl font-medium">{v.hp} <span className="text-[10px] md:text-xs text-gray-400 font-light">HP</span></div>
-                    </div>
+                  
+                  <div className="flex gap-4 md:gap-8 mb-8 md:mb-10 pb-8 md:pb-10 border-b border-white/5">
                     <div>
                       <div className="text-[9px] md:text-[10px] text-gray-500 uppercase tracking-widest mb-1">{t.engine}</div>
-                      <div className="text-lg md:text-xl font-medium">{v.cc} <span className="text-[10px] md:text-xs text-gray-400 font-light">CC</span></div>
+                      <div className="text-sm md:text-xl font-medium">{v.cc} <span className="text-[10px] md:text-xs text-gray-400 font-light">CC</span></div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] md:text-[10px] text-gray-500 uppercase tracking-widest mb-1">{t.power}</div>
+                      <div className="text-sm md:text-xl font-medium">{v.hp} <span className="text-[10px] md:text-xs text-gray-400 font-light">HP</span></div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] md:text-[10px] text-gray-500 uppercase tracking-widest mb-1">{t.transmission}</div>
+                      <div className="text-sm md:text-xl font-medium">
+                        {v.transmission?.toLowerCase().includes('man') || v.transmission?.toLowerCase().includes('χειρ') ? t.manual : t.auto}
+                      </div>
                     </div>
                   </div>
+
                   <div className="mt-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-8">
                     <div>
                       <div className="text-[9px] md:text-[10px] text-gray-500 uppercase tracking-widest mb-1">{t.cost}</div>
-                      <div className="text-2xl md:text-4xl font-light">€{v.price}<span className="text-xs md:text-sm text-gray-500 ml-2">{t.perDay}</span></div>
+                      <div className="text-2xl md:text-4xl font-light">
+                        €{v.price}
+                        {activeAvailability === 'Ενοικίαση' && <span className="text-xs md:text-sm text-gray-500 ml-2">{t.perDay}</span>}
+                        {activeAvailability === 'Leasing' && <span className="text-xs md:text-sm text-gray-500 ml-2">{t.perMonth}</span>}
+                      </div>
                     </div>
                     <button onClick={() => setSelectedVehicle(v)} className="w-full md:w-auto px-8 md:px-10 py-4 md:py-5 bg-white text-black rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#D90000] hover:text-white transition-all duration-300 shadow-lg hover:shadow-[0_10px_20px_rgba(217,0,0,0.3)]">
-                      {t.select}
+                      {activeAvailability === 'Πώληση' ? t.buyNow : t.select}
                     </button>
                   </div>
                 </div>
@@ -404,19 +651,19 @@ export default function PremiumFleetApp() {
         )}
       </main>
 
-      <footer className="bg-[#050505] border-t border-white/5 px-6 md:px-12 py-16 md:py-20 pb-safe mt-4">
+      <footer id="contact" className="bg-[#050505] border-t border-white/5 px-6 md:px-12 py-16 md:py-20 pb-safe mt-4">
         <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8 md:gap-10">
           <AutoLazaridisLogo className="h-8 md:h-10 w-auto opacity-50 grayscale hover:grayscale-0 transition-all" />
           <div className="flex flex-col md:flex-row gap-4 md:gap-8 text-center md:text-right text-[9px] md:text-[10px] uppercase tracking-widest text-gray-500">
             <span>{t.address}</span>
-            <span>{t.tel}</span>
+            <a href="tel:+306948766884" className="hover:text-white transition-colors">{t.tel}</a>
           </div>
         </div>
       </footer>
 
       {/* --- BOOKING MODAL --- */}
       {selectedVehicle && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/80 backdrop-blur-md transition-opacity">
+        <div className="fixed inset-0 z-[150] flex justify-end bg-black/80 backdrop-blur-md transition-opacity">
           <div className="w-full md:w-[550px] h-[100dvh] bg-[#0A0A0A] md:border-l border-white/10 shadow-2xl flex flex-col animate-in slide-in-from-bottom md:slide-in-from-right duration-500 md:rounded-l-[3rem] overflow-hidden mt-12 md:mt-0">
             
             <div className="px-6 md:px-10 py-6 md:py-8 border-b border-white/5 flex justify-between items-center bg-[#050505]/80 backdrop-blur-xl z-10 absolute top-0 w-full">
@@ -428,7 +675,7 @@ export default function PremiumFleetApp() {
               
               <div className="w-full aspect-video rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden relative border border-white/5">
                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                 <img src={CATEGORY_STOCK_PHOTOS[selectedVehicle.category || 'Premium']} alt={selectedVehicle.model} className="w-full h-full object-cover grayscale-[10%]" />
+                 <img src={selectedVehicle.photos && selectedVehicle.photos.length > 0 ? selectedVehicle.photos[0] : '/logo.png'} alt={selectedVehicle.model} className={`w-full h-full object-cover grayscale-[10%] ${!selectedVehicle.photos || selectedVehicle.photos.length === 0 ? 'object-contain p-10 opacity-30' : ''}`} />
                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                  <div className="absolute bottom-4 left-5 md:left-6">
                    <h2 className="text-xl md:text-2xl font-serif-premium text-white">{selectedVehicle.model}</h2>
@@ -437,14 +684,59 @@ export default function PremiumFleetApp() {
 
               <DateRangePicker />
 
+              {/* Προσωπικά Στοιχεία Form */}
+              <div className="bg-[#111] border border-white/5 p-6 md:p-8 rounded-[2.5rem]">
+                <div className="mb-5">
+                  <h4 className="text-[10px] text-[#D90000] uppercase tracking-[0.2em] font-bold mb-1">{t.personalInfoTitle}</h4>
+                </div>
+                <div className="space-y-4">
+                  <input 
+                    type="text" 
+                    required
+                    placeholder={t.namePlaceholder} 
+                    value={customerInfo.name} 
+                    onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})} 
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-4 text-sm text-white focus:outline-none focus:border-[#D90000] transition-colors"
+                  />
+                  <input 
+                    type="tel" 
+                    required
+                    placeholder={t.phonePlaceholder} 
+                    value={customerInfo.phone} 
+                    onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})} 
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-4 text-sm text-white focus:outline-none focus:border-[#D90000] transition-colors"
+                  />
+                  <input 
+                    type="email" 
+                    required
+                    placeholder={t.emailPlaceholder} 
+                    value={customerInfo.email} 
+                    onChange={(e) => setCustomerInfo({...customerInfo, email: e.target.value})} 
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-4 text-sm text-white focus:outline-none focus:border-[#D90000] transition-colors"
+                  />
+                </div>
+              </div>
+
               <div className="bg-[#111] border border-white/5 p-6 md:p-8 rounded-[2.5rem]">
                 <div className="mb-5">
                   <h4 className="text-[10px] text-[#D90000] uppercase tracking-[0.2em] font-bold mb-1">Fast Track Check-In</h4>
                   <p className="text-[10px] md:text-xs text-gray-500">{t.fastTrackSub}</p>
                 </div>
                 
-                <input type="file" accept="image/*" capture="environment" className="hidden" ref={idInputRef} onChange={(e) => setIdFile(e.target.files?.[0] || null)} />
-                <input type="file" accept="image/*" capture="environment" className="hidden" ref={licenseInputRef} onChange={(e) => setLicenseFile(e.target.files?.[0] || null)} />
+                <input 
+                  type="file" 
+                  accept="image/jpeg,image/png,image/webp,application/pdf" 
+                  className="hidden" 
+                  ref={idInputRef} 
+                  onChange={(e) => validateAndSetFile(e.target.files?.[0] || null, setIdFile, idInputRef)} 
+                />
+                <input 
+                  type="file" 
+                  accept="image/jpeg,image/png,image/webp,application/pdf" 
+                  className="hidden" 
+                  ref={licenseInputRef} 
+                  onChange={(e) => validateAndSetFile(e.target.files?.[0] || null, setLicenseFile, licenseInputRef)} 
+                />
 
                 <div className="flex gap-3 md:gap-4">
                   <button onClick={() => idInputRef.current?.click()} className={`flex-1 py-3 md:py-4 rounded-xl text-[9px] uppercase tracking-widest border transition-all ${idFile ? 'border-[#D90000] bg-[#D90000]/10 text-[#D90000]' : 'border-white/10 text-gray-400 hover:bg-white/5'}`}>
@@ -505,4 +797,4 @@ export default function PremiumFleetApp() {
 
     </div>
   );
-} 
+}
