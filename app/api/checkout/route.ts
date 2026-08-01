@@ -3,9 +3,8 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
 // Αρχικοποίηση της Stripe με το Secret Key από το περιβάλλον
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-      apiVersion: '2023-10-16' as any,
-    }); 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build_only');
+    ; 
 
 export async function POST(request: Request) {
   try {
