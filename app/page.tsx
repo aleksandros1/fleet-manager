@@ -38,7 +38,7 @@ const GlobalStyles = () => (
 const AutoLazaridisLogo = ({ className = "h-14 w-auto" }) => (
   /* eslint-disable-next-line @next/next/no-img-element */
   <img 
-    src="/logo.png" 
+    src="/logo.PNG" 
     alt="Auto Lazaridis" 
     className={className} 
     style={{ objectFit: 'contain' }} 
@@ -102,7 +102,8 @@ const TRANSLATIONS = {
     menuHome: "ΑΡΧΙΚΗ",
     menuFleet: "Ο ΣΤΟΛΟΣ",
     menuLocation: "ΤΟΠΟΘΕΣΙΑ",
-    menuContact: "ΕΠΙΚΟΙΝΩΝΙΑ"
+    menuContact: "ΕΠΙΚΟΙΝΩΝΙΑ",
+    back: "ΕΠΙΣΤΡΟΦΗ"
   },
   en: {
     introSubtitle: "Not everyone drives the same.",
@@ -153,7 +154,8 @@ const TRANSLATIONS = {
     menuHome: "HOME",
     menuFleet: "THE FLEET",
     menuLocation: "LOCATION",
-    menuContact: "CONTACT"
+    menuContact: "CONTACT",
+    back: "BACK"
   }
 };
 
@@ -183,7 +185,6 @@ export default function PremiumFleetApp() {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [activeAvailability, setActiveAvailability] = useState<string>('Ενοικίαση');
   
-  // Η μεταβλητή categories πρέπει να δηλωθεί ψηλά για να αναγνωρίζεται παρακάτω στον κώδικα
   const categories = ['All', 'Premium', 'SUV / 4x4', 'Sedan', 'Compact / Hatchback'];
   
   const [introVisible, setIntroVisible] = useState(true);
@@ -558,10 +559,10 @@ export default function PremiumFleetApp() {
       <section id="home" className="relative w-full h-[65vh] flex flex-col justify-center items-center text-center px-5 md:px-12 mt-16 overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none scale-150 md:scale-125">
           <div className="absolute w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] bg-[#8B0000] blur-[180px] opacity-15 rounded-full mix-blend-screen"></div>
-          <AutoLazaridisLogo className="w-full max-w-5xl h-auto opacity-[0.06] relative z-10" />
+          <AutoLazaridisLogo className="w-full max-w-5xl h-auto opacity-[0.25] relative z-10" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#030303]/90 via-[#030303]/60 to-[#030303]"></div>
-        <div className="relative z-10 max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
+        <div className="relative z-10 max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500 w-full px-2">
           <h1 className="text-4xl md:text-6xl font-serif-premium font-light leading-tight mb-4 md:mb-6 px-2 drop-shadow-2xl">
             {t.heroTitle1} <br/>
             <span className="italic text-gray-300">{t.heroTitle2}</span>
@@ -570,12 +571,12 @@ export default function PremiumFleetApp() {
             {t.heroSub}
           </p>
           
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-nowrap justify-start md:justify-center gap-2 md:gap-3 overflow-x-auto hide-scrollbar w-full pb-2 px-1">
             {['Ενοικίαση', 'Leasing', 'Πώληση'].map(type => (
               <button 
                 key={type}
                 onClick={() => setActiveAvailability(type)}
-                className={`px-8 py-3.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 backdrop-blur-md ${activeAvailability === type ? 'bg-[#D90000] text-white shadow-[0_4px_20px_rgba(217,0,0,0.5)] scale-105 border border-red-500/50' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'}`}
+                className={`flex-shrink-0 whitespace-nowrap px-6 md:px-8 py-3.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 backdrop-blur-md ${activeAvailability === type ? 'bg-[#D90000] text-white shadow-[0_4px_20px_rgba(217,0,0,0.5)] scale-105 border border-red-500/50' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'}`}
               >
                 {type === 'Ενοικίαση' ? t.rentals : type === 'Leasing' ? t.leasing : t.forSale}
               </button>
@@ -606,7 +607,7 @@ export default function PremiumFleetApp() {
               <div key={v.id} className="group flex flex-col md:flex-row bg-[#0A0A0A] border border-white/5 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden hover:border-white/10 transition-all duration-500 shadow-2xl">
                 <div className="w-full md:w-1/2 aspect-[4/3] md:aspect-auto relative overflow-hidden bg-[#111]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={v.photos && v.photos.length > 0 ? v.photos[0] : '/logo.png'} alt={v.model} className={`absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-90 group-hover:opacity-100 ${!v.photos || v.photos.length === 0 ? 'object-contain p-10 opacity-30' : ''}`} />
+                  <img src={v.photos && v.photos.length > 0 ? v.photos[0] : '/logo.PNG'} alt={v.model} className={`absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-90 group-hover:opacity-100 ${!v.photos || v.photos.length === 0 ? 'object-contain p-10 opacity-30' : ''}`} />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0A0A0A] opacity-0 md:opacity-100"></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] to-transparent opacity-100 md:opacity-0"></div>
                 </div>
@@ -661,21 +662,34 @@ export default function PremiumFleetApp() {
         </div>
       </footer>
 
-      {/* --- BOOKING MODAL --- */}
+      {/* --- BOOKING MODAL (ΜΕ ΚΟΥΜΠΙ ΕΠΙΣΤΡΟΦΗΣ) --- */}
       {selectedVehicle && (
-        <div className="fixed inset-0 z-[150] flex justify-end bg-black/80 backdrop-blur-md transition-opacity">
-          <div className="w-full md:w-[550px] h-[100dvh] bg-[#0A0A0A] md:border-l border-white/10 shadow-2xl flex flex-col animate-in slide-in-from-bottom md:slide-in-from-right duration-500 md:rounded-l-[3rem] overflow-hidden mt-12 md:mt-0">
+        <div className="fixed inset-0 z-[250] flex justify-end transition-opacity">
+          {/* Κλικάρισμα στο φόντο για κλείσιμο */}
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onClick={() => { setSelectedVehicle(null); setSelectedRange({start: null, end: null}); }}></div>
+          
+          <div className="relative w-full md:w-[550px] h-[100dvh] bg-[#0A0A0A] md:border-l border-white/10 shadow-2xl flex flex-col animate-in slide-in-from-bottom md:slide-in-from-right duration-500 md:rounded-l-[3rem] overflow-hidden">
             
-            <div className="px-6 md:px-10 py-6 md:py-8 border-b border-white/5 flex justify-between items-center bg-[#050505]/80 backdrop-blur-xl z-10 absolute top-0 w-full">
-              <h3 className="text-[10px] font-bold uppercase tracking-widest text-white">{t.bookingTitle}</h3>
-              <button onClick={() => { setSelectedVehicle(null); setSelectedRange({start: null, end: null}); }} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-[#D90000] transition-colors text-white text-xs">✕</button>
+            {/* Header / Κουμπί Επιστροφής */}
+            <div className="px-5 md:px-8 py-5 border-b border-white/5 flex justify-between items-center bg-[#050505] z-20 shrink-0">
+              <button 
+                onClick={() => { setSelectedVehicle(null); setSelectedRange({start: null, end: null}); }} 
+                className="flex items-center gap-3 text-white hover:text-[#D90000] transition-colors group"
+              >
+                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 group-hover:bg-[#D90000]/20 transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-widest">{t.back}</span>
+              </button>
+              <h3 className="text-[9px] font-bold uppercase tracking-widest text-gray-500">{t.bookingTitle}</h3>
             </div>
 
-            <div className="flex-1 overflow-y-auto pt-20 md:pt-24 pb-8 px-5 md:px-8 space-y-8 hide-scrollbar">
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto pb-safe px-5 md:px-8 pt-6 space-y-8 hide-scrollbar">
               
               <div className="w-full aspect-video rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden relative border border-white/5">
                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                 <img src={selectedVehicle.photos && selectedVehicle.photos.length > 0 ? selectedVehicle.photos[0] : '/logo.png'} alt={selectedVehicle.model} className={`w-full h-full object-cover grayscale-[10%] ${!selectedVehicle.photos || selectedVehicle.photos.length === 0 ? 'object-contain p-10 opacity-30' : ''}`} />
+                 <img src={selectedVehicle.photos && selectedVehicle.photos.length > 0 ? selectedVehicle.photos[0] : '/logo.PNG'} alt={selectedVehicle.model} className={`w-full h-full object-cover grayscale-[10%] ${!selectedVehicle.photos || selectedVehicle.photos.length === 0 ? 'object-contain p-10 opacity-30' : ''}`} />
                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                  <div className="absolute bottom-4 left-5 md:left-6">
                    <h2 className="text-xl md:text-2xl font-serif-premium text-white">{selectedVehicle.model}</h2>
@@ -749,7 +763,7 @@ export default function PremiumFleetApp() {
               </div>
 
               {selectedRange.start && selectedRange.end && (
-                <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-6 md:p-8 overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+                <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-6 md:p-8 overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] mt-8">
                   <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
                   
                   <div className="relative z-10">

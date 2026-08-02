@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabase';
 const AutoLazaridisLogo = ({ className = "h-14 w-auto" }) => (
   /* eslint-disable-next-line @next/next/no-img-element */
   <img 
-    src="/logo.png" 
+    src="/logo.PNG" 
     alt="Auto Lazaridis" 
     className={className} 
     style={{ objectFit: 'contain' }} 
@@ -49,7 +49,7 @@ type Booking = {
 export default function CommandCenter() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'active' | 'draft' | 'bookings'>('dashboard'); 
   
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile Menu State
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   
@@ -67,6 +67,8 @@ export default function CommandCenter() {
 
   const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+
+  const [selectedBookingMonth, setSelectedBookingMonth] = useState<string>('all');
 
   useEffect(() => {
     async function initializeData() {
@@ -118,7 +120,7 @@ export default function CommandCenter() {
   };
 
   const deleteBooking = async (id: number) => {
-    if (!window.confirm('Αμετάκλητη διαγραφή κράτησης/δέσμευσης. Είστε σίγουροι;')) return;
+    if (!window.confirm('Αμετάκλητη διαγραφή κράτησης. Είστε σίγουροι;')) return;
     const { error } = await supabase.from('bookings').delete().eq('id', id);
     if (!error) {
       setVehicleBookings(vehicleBookings.filter(b => b.id !== id));
@@ -226,7 +228,7 @@ export default function CommandCenter() {
     }
 
     if (!finalPhotoUrl) {
-      alert("Απαιτείται φωτογραφία (νέα ή από το πρότυπο).");
+      alert("Απαιτείται φωτογραφία.");
       setIsUploading(false);
       return;
     }
@@ -275,67 +277,71 @@ export default function CommandCenter() {
   const draftCount = vehicles.filter(v => !v.is_active).length;
   const totalRevenue = bookings.filter(b => b.total_price > 0).reduce((a, c) => a + c.total_price, 0);
 
-  const getStatusStyle = (status: string) => {
-    if (!status) return 'bg-gray-500/10 text-gray-400 border-gray-500/30';
-    if (status.includes('Εκκρεμεί') || status === 'Νέα Κράτηση') return 'bg-orange-500/10 text-orange-500 border-orange-500/30';
-    if (status.includes('Έγκριση')) return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/30';
-    if (status.includes('Escrow') || status === 'Ζημιά') return 'bg-[#D90000]/10 text-red-500 border-red-600/30 shadow-[0_0_15px_rgba(220,38,38,0.1)]';
-    if (status.includes('Ολοκληρώθηκε') || status.includes('Εξόφληση')) return 'bg-green-500/10 text-green-500 border-green-500/30';
-    if (status === 'Χειροκίνητη Δέσμευση') return 'bg-blue-500/10 text-blue-400 border-blue-500/30';
-    return 'bg-gray-500/10 text-gray-400 border-gray-500/30';
+  // ΑΠΛΟΠΟΙΗΜΕΝΟ ΣΥΣΤΗΜΑ ΚΑΤΑΣΤΑΣΕΩΝ
+  const getSimpleStatus = (status: string) => {
+    if (status === 'Χειροκίνητη Δέσμευση') {
+      return { label: 'ΕΣΩΤΕΡΙΚΟ BLOCK', style: 'text-blue-400 border-blue-500/30 bg-blue-500/10' };
+    }
+    return { label: 'ΕΝΕΡΓΗ ΚΡΑΤΗΣΗ', style: 'text-red-500 border-red-500/30 bg-[#D90000]/10 shadow-[0_0_10px_rgba(217,0,0,0.15)]' };
   };
 
-  const advanceBookingStatus = async (id: number, currentStatus: string) => {
-    let nextStatus = '';
-    if (currentStatus === 'Νέα Κράτηση' || currentStatus.includes('Εκκρεμεί')) nextStatus = 'Έγκριση (Αναμονή Κεφαλαίου)';
-    else if (currentStatus === 'Έγκριση (Αναμονή Κεφαλαίου)') nextStatus = 'Escrow (Δεσμευμένο Κεφάλαιο)';
-    else if (currentStatus === 'Escrow (Δεσμευμένο Κεφάλαιο)') nextStatus = 'Ολοκληρώθηκε (Πληρωμή Μάντρας)';
-    else return;
-
-    const { error } = await supabase.from('bookings').update({ status: nextStatus }).eq('id', id);
-    if (!error) setBookings(bookings.map(b => b.id === id ? { ...b, status: nextStatus } : b));
+  const getBookingMonths = () => {
+    const months = new Set<string>();
+    bookings.forEach(b => {
+      if (b.check_in) {
+        const monthStr = b.check_in.substring(0, 7); 
+        months.add(monthStr);
+      }
+    });
+    return Array.from(months).sort().reverse();
   };
 
+  const formatMonthLabel = (yyyy_mm: string) => {
+    const [year, month] = yyyy_mm.split('-');
+    const monthNames = ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος", "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"];
+    return `${monthNames[parseInt(month) - 1]} ${year}`;
+  };
+
+  const availableMonths = getBookingMonths();
+  const displayedBookings = bookings.filter(b => {
+    if (selectedBookingMonth === 'all') return true;
+    return b.check_in && b.check_in.startsWith(selectedBookingMonth);
+  });
+
+  // ΟΡΙΖΟΝΤΙΟ ΚΥΛΙΟΜΕΝΟ ΗΜΕΡΟΛΟΓΙΟ ΓΙΑ ΚΙΝΗΤΑ
   const AdminDateVisualizer = () => {
     const year = adminCalDate.getFullYear();
     const month = adminCalDate.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDayIndex = new Date(year, month, 1).getDay() || 7;
     const months = ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος", "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"];
-    const daysShort = ["Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ", "Κυρ"];
+    const daysShort = ["Κυρ", "Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ"]; 
 
-    const calendarDays = [];
-    for (let i = 1; i < firstDayIndex; i++) calendarDays.push(<div key={`empty-${i}`} className="h-8 md:h-10"></div>);
-
+    const daysElements = [];
     for (let day = 1; day <= daysInMonth; day++) {
+       const d = new Date(year, month, day);
        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
        const booking = vehicleBookings.find(b => dateStr >= b.check_in && dateStr <= b.check_out);
 
-       let dayClass = "h-8 md:h-10 flex items-center justify-center text-[10px] md:text-sm font-medium rounded-lg transition-all ";
-       let isSelectedOrBetween = false;
-
+       let boxClass = "flex-shrink-0 w-[4.5rem] h-[5.5rem] flex flex-col items-center justify-center rounded-2xl border transition-all cursor-pointer snap-center ";
+       
        if (manualDates.start === dateStr || manualDates.end === dateStr) {
-         isSelectedOrBetween = true;
-         dayClass += "ring-1 md:ring-2 ring-white bg-white/20 text-white ";
+           boxClass += "bg-white/20 border-white text-white shadow-lg scale-105";
        } else if (manualDates.start && manualDates.end && dateStr > manualDates.start && dateStr < manualDates.end) {
-         isSelectedOrBetween = true;
-         dayClass += "bg-white/10 text-white ";
+           boxClass += "bg-white/10 border-white/30 text-white";
+       } else if (booking) {
+           if (booking.status === 'Χειροκίνητη Δέσμευση') {
+               boxClass += "bg-blue-600/20 border-blue-500/40 text-blue-400 opacity-80 cursor-not-allowed";
+           } else {
+               boxClass += "bg-[#D90000]/20 border-red-500/40 text-red-400 opacity-80 cursor-not-allowed";
+           }
+       } else {
+           boxClass += "bg-black border-white/10 text-gray-500 hover:bg-white/10 hover:text-white hover:border-white/30";
        }
 
-       if (booking) {
-          if (booking.status === 'Χειροκίνητη Δέσμευση') {
-            dayClass += "bg-blue-600/40 text-blue-300 border border-blue-500/50 cursor-not-allowed ";
-          } else {
-            dayClass += "bg-[#D90000]/40 text-red-300 border border-[#D90000]/50 cursor-not-allowed ";
-          }
-       } else if (!isSelectedOrBetween) {
-          dayClass += "text-gray-400 bg-black/40 hover:bg-white/10 hover:text-white cursor-pointer border border-white/5 ";
-       }
-
-       calendarDays.push(
+       daysElements.push(
          <div 
            key={dateStr} 
-           className={dayClass} 
+           className={boxClass} 
            onClick={() => {
              if (!booking) {
                if (!manualDates.start || (manualDates.start && manualDates.end)) {
@@ -348,28 +354,28 @@ export default function CommandCenter() {
              }
            }}
          >
-           {day}
+           <span className="text-[10px] uppercase font-bold tracking-widest mb-1">{daysShort[d.getDay()]}</span>
+           <span className="text-xl font-bold">{day}</span>
          </div>
        );
     }
 
     return (
-      <div className="bg-[#111] p-4 md:p-6 rounded-2xl border border-white/5 mb-6 shadow-inner">
-         <div className="flex justify-between items-center mb-4 md:mb-6">
-           <button type="button" onClick={() => setAdminCalDate(new Date(year, month - 1, 1))} className="text-gray-400 hover:text-white bg-white/5 p-2 rounded-full transition-colors">&lt;</button>
-           <span className="text-xs md:text-sm font-bold text-white uppercase tracking-widest">{months[month]} {year}</span>
-           <button type="button" onClick={() => setAdminCalDate(new Date(year, month + 1, 1))} className="text-gray-400 hover:text-white bg-white/5 p-2 rounded-full transition-colors">&gt;</button>
+      <div className="bg-[#111] py-5 px-1 md:px-6 md:p-6 rounded-3xl border border-white/5 mb-6 shadow-inner">
+         <div className="flex justify-between items-center mb-6 px-4 md:px-0">
+           <button type="button" onClick={() => setAdminCalDate(new Date(year, month - 1, 1))} className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-full text-gray-400 hover:text-white transition-colors">&lt;</button>
+           <span className="text-sm font-bold text-white uppercase tracking-widest">{months[month]} {year}</span>
+           <button type="button" onClick={() => setAdminCalDate(new Date(year, month + 1, 1))} className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-full text-gray-400 hover:text-white transition-colors">&gt;</button>
          </div>
-         <div className="grid grid-cols-7 gap-1 md:gap-2 text-center text-[8px] md:text-[10px] text-gray-500 uppercase tracking-widest mb-2">
-           {daysShort.map(d => <div key={d}>{d}</div>)}
+         
+         <div className="flex overflow-x-auto gap-3 hide-scrollbar snap-x snap-mandatory px-4 md:px-0 pb-2">
+            {daysElements}
          </div>
-         <div className="grid grid-cols-7 gap-1 md:gap-2">
-           {calendarDays}
-         </div>
-         <div className="mt-4 flex flex-wrap gap-2 md:gap-4 text-[8px] md:text-[9px] uppercase tracking-widest text-gray-500 justify-center">
-            <div className="flex items-center gap-1"><div className="w-2 md:w-3 h-2 md:h-3 bg-black/40 border border-white/10 rounded"></div> Ελευθερο</div>
-            <div className="flex items-center gap-1"><div className="w-2 md:w-3 h-2 md:h-3 bg-[#D90000]/40 border border-[#D90000]/50 rounded"></div> Κρατηση</div>
-            <div className="flex items-center gap-1"><div className="w-2 md:w-3 h-2 md:h-3 bg-blue-600/40 border border-blue-500/50 rounded"></div> Block</div>
+
+         <div className="mt-5 flex flex-wrap gap-4 text-[9px] uppercase tracking-widest text-gray-500 justify-center">
+            <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-black border border-white/10 rounded"></div> Ελευθερο</div>
+            <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-[#D90000]/20 border border-red-500/40 rounded"></div> Κρατηση Πελατη</div>
+            <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-blue-600/20 border border-blue-500/40 rounded"></div> Εσωτερικο Block</div>
          </div>
       </div>
     )
@@ -490,7 +496,7 @@ export default function CommandCenter() {
             {activeTab === 'dashboard' && 'Επισκοπηση Επιχειρησης'}
             {activeTab === 'active' && 'Ενεργος Στολος'}
             {activeTab === 'draft' && 'Οχηματα Αναμονης'}
-            {activeTab === 'bookings' && 'Κρατησεις & Εσοδα'}
+            {activeTab === 'bookings' && 'Διαχειριση Κρατησεων'}
           </h2>
           <div className="flex items-center gap-4 hidden md:flex">
             <div className="w-10 h-10 rounded-full bg-black border border-white/10 flex items-center justify-center shadow-inner"><span className="text-xs font-bold text-gray-400">AL</span></div>
@@ -522,61 +528,67 @@ export default function CommandCenter() {
             {activeTab === 'active' && renderVehicleGrid(true)}
             {activeTab === 'draft' && renderVehicleGrid(false)}
 
+            {/* --- BOOKINGS SECTION ΜΕ ΚΑΡΤΕΣ & ΜΗΝΕΣ --- */}
             {activeTab === 'bookings' && (
-              <div className="bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl w-full">
-                <div className="overflow-x-auto w-full">
-                  <table className="w-full text-left border-collapse min-w-[900px]">
-                    <thead>
-                      <tr className="border-b border-white/10 bg-black/50">
-                        <th className="p-4 md:p-5 text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest">Οχημα</th>
-                        <th className="p-4 md:p-5 text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest">Ημερομηνιες</th>
-                        <th className="p-4 md:p-5 text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest">Πελατης</th>
-                        <th className="p-4 md:p-5 text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest text-center">Εγγραφα</th>
-                        <th className="p-4 md:p-5 text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest">Ταμειο</th>
-                        <th className="p-4 md:p-5 text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest">Κατασταση</th>
-                        <th className="p-4 md:p-5 text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">Ενεργεια</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {bookings.map(b => (
-                        <tr key={b.id} className="border-b border-white/5 hover:bg-white/[0.03] transition-colors">
-                          <td className="p-4 md:p-5">
-                            <div className="text-[10px] md:text-xs text-gray-500 font-mono mb-1">#{String(b.id).padStart(4, '0')}</div>
-                            <div className="text-xs md:text-sm font-bold text-gray-200">{b.vehicle_model}</div>
-                          </td>
-                          <td className="p-4 md:p-5"><div className="text-[10px] md:text-[11px] font-bold text-gray-400 bg-black px-2 md:px-3 py-1.5 md:py-2 rounded-lg border border-white/10 inline-flex shadow-inner">{b.check_in} → {b.check_out}</div></td>
-                          <td className="p-4 md:p-5">
-                            {b.customer_name ? (
-                              <div className="flex flex-col">
-                                <span className="text-xs md:text-sm font-bold text-white">{b.customer_name}</span>
-                                <span className="text-[9px] md:text-[10px] text-gray-500">{b.customer_phone}</span>
-                                <span className="text-[9px] md:text-[10px] text-gray-500">{b.customer_email}</span>
-                              </div>
-                            ) : (
-                              <span className="text-[9px] md:text-[10px] italic text-gray-600 uppercase tracking-widest">{b.status === 'Χειροκίνητη Δέσμευση' ? 'Εσωτερικό Block' : 'Αναμονή Στοιχείων'}</span>
-                            )}
-                          </td>
-                          <td className="p-4 md:p-5 text-center">
-                            <div className="flex justify-center gap-1.5 md:gap-2">
-                              {b.id_photo_url ? (
-                                <a href={b.id_photo_url} target="_blank" rel="noreferrer" className="text-[8px] md:text-[9px] bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded transition-colors uppercase">ID</a>
-                              ) : <span className="text-[8px] md:text-[9px] text-gray-700">-</span>}
-                              {b.license_photo_url ? (
-                                <a href={b.license_photo_url} target="_blank" rel="noreferrer" className="text-[8px] md:text-[9px] bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded transition-colors uppercase">Διπλωμα</a>
-                              ) : <span className="text-[8px] md:text-[9px] text-gray-700">-</span>}
+              <div className="space-y-6">
+                
+                {/* Μπάρα Φιλτραρίσματος Μηνών */}
+                <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2 px-1">
+                  <button 
+                    onClick={() => setSelectedBookingMonth('all')}
+                    className={`flex-shrink-0 px-5 py-2.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-all ${selectedBookingMonth === 'all' ? 'bg-[#D90000] text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                  >
+                    Γενικη Προβολη
+                  </button>
+                  {availableMonths.map(monthStr => (
+                    <button 
+                      key={monthStr}
+                      onClick={() => setSelectedBookingMonth(monthStr)}
+                      className={`flex-shrink-0 px-5 py-2.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-all ${selectedBookingMonth === monthStr ? 'bg-[#D90000] text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                    >
+                      {formatMonthLabel(monthStr)}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Grid Κρατήσεων */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {displayedBookings.length === 0 ? (
+                    <div className="text-gray-500 text-sm py-10 uppercase tracking-widest col-span-full">ΔΕΝ ΥΠΑΡΧΟΥΝ ΚΡΑΤΗΣΕΙΣ ΓΙΑ ΑΥΤΗ ΤΗΝ ΕΠΙΛΟΓΗ.</div>
+                  ) : (
+                    displayedBookings.map(b => {
+                      const simpleStatus = getSimpleStatus(b.status);
+                      
+                      return (
+                        <div key={b.id} className="bg-[#0A0A0A] border border-white/10 rounded-[1.5rem] p-5 flex flex-col shadow-lg relative transition-colors hover:border-white/20 gap-4">
+                          
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="text-[10px] font-mono text-gray-500 mb-1">#{String(b.id).padStart(4, '0')}</div>
+                              <div className="text-sm font-bold text-white uppercase tracking-wider">{b.vehicle_model}</div>
                             </div>
-                          </td>
-                          <td className="p-4 md:p-5"><div className="text-base md:text-lg font-bold text-white tracking-tight">€{b.total_price}</div></td>
-                          <td className="p-4 md:p-5"><span className={`px-2 md:px-3 py-1 md:py-1.5 text-[8px] md:text-[10px] font-bold uppercase tracking-wider border rounded-lg shadow-sm whitespace-nowrap ${getStatusStyle(b.status)}`}>{b.status}</span></td>
-                          <td className="p-4 md:p-5 text-right">
-                            <button onClick={() => openEditBooking(b)} className="px-3 md:px-4 py-1.5 md:py-2 bg-white/5 border border-white/20 hover:bg-white/10 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-lg transition-colors">
-                              ΕΠΕΞΕΡΓΑΣΙΑ
+                            <button onClick={() => openEditBooking(b)} className="px-3 py-2 bg-white/5 border border-white/10 hover:bg-[#D90000] hover:border-red-500 text-gray-300 hover:text-white rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all shadow-sm">
+                              Επεξεργασια
                             </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          </div>
+                          
+                          <div className="flex justify-between items-center border-b border-white/5 pb-4">
+                             <span className={`px-2.5 py-1.5 text-[8px] md:text-[9px] font-bold uppercase tracking-wider border rounded-lg whitespace-nowrap ${simpleStatus.style}`}>
+                               {simpleStatus.label}
+                             </span>
+                             {b.total_price > 0 && <div className="text-sm md:text-base font-bold text-white tracking-tight">€{b.total_price}</div>}
+                          </div>
+                          
+                          <div className="bg-[#111] border border-white/5 rounded-xl p-3 flex items-center justify-center">
+                            <span className="text-[10px] font-bold text-gray-400 tracking-wider">
+                              {b.check_in} <span className="text-gray-600 mx-2">→</span> {b.check_out}
+                            </span>
+                          </div>
+
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
             )}
@@ -589,24 +601,46 @@ export default function CommandCenter() {
         <div className="fixed inset-0 bg-[#050505]/95 backdrop-blur-2xl flex items-center justify-center z-[100] p-4">
           <div className="bg-[#0A0A0A] border border-white/10 rounded-[2rem] w-full max-w-lg overflow-hidden shadow-[0_0_80px_rgba(0,0,0,1)] flex flex-col max-h-[90vh]">
             <div className="px-5 md:px-8 py-4 md:py-6 border-b border-white/5 flex justify-between items-center bg-black/20 shrink-0">
-              <h3 className="text-xs md:text-sm font-bold text-white tracking-widest uppercase">Επεξεργασια Κρατησης #{String(editingBooking.id).padStart(4, '0')}</h3>
+              <h3 className="text-xs md:text-sm font-bold text-white tracking-widest uppercase">Στοιχεια & Επεξεργασια</h3>
               <button onClick={() => setEditingBooking(null)} disabled={isUploading} className="text-gray-500 hover:text-white transition-colors p-2 -mr-2">✕</button>
             </div>
             
             <div className="overflow-y-auto hide-scrollbar p-5 md:p-8">
-              <form onSubmit={handleUpdateBooking} className="space-y-5 md:space-y-6">
-                
-                <div className="bg-[#111] p-4 rounded-xl border border-white/5 mb-2">
-                   <div className="text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Οχημα</div>
-                   <div className="text-xs md:text-sm font-bold text-white">{editingBooking.vehicle_model}</div>
-                   {editingBooking.customer_name && (
-                     <div className="mt-3 pt-3 border-t border-white/5">
-                       <div className="text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Πελατης</div>
-                       <div className="text-xs md:text-sm font-bold text-white">{editingBooking.customer_name} <br className="md:hidden"/> <span className="text-gray-400 font-normal">({editingBooking.customer_phone})</span></div>
+              
+              {/* ΕΝΟΤΗΤΑ 1: ΠΛΗΡΟΦΟΡΙΕΣ ΠΕΛΑΤΗ & ΕΓΓΡΑΦΑ ΣΕ ΠΡΩΤΟ ΠΛΑΝΟ */}
+              <div className="bg-[#111] p-5 rounded-2xl border border-white/5 mb-6">
+                 <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Οχημα: #{String(editingBooking.id).padStart(4, '0')}</div>
+                 <div className="text-base font-bold text-white mb-5">{editingBooking.vehicle_model}</div>
+                 
+                 {editingBooking.customer_name ? (
+                   <div className="pt-5 border-t border-white/5">
+                     <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Πελατης</div>
+                     <div className="text-sm font-bold text-white mb-1">{editingBooking.customer_name}</div>
+                     <div className="text-[11px] text-gray-400 mb-5">{editingBooking.customer_phone} &bull; {editingBooking.customer_email}</div>
+                     
+                     <div className="flex gap-2 w-full">
+                       {editingBooking.id_photo_url && (
+                         <a href={editingBooking.id_photo_url} target="_blank" rel="noreferrer" className="flex-1 text-center bg-white/10 text-white border border-white/20 hover:bg-white/20 px-3 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-colors">
+                           ΤΑΥΤΟΤΗΤΑ
+                         </a>
+                       )}
+                       {editingBooking.license_photo_url && (
+                         <a href={editingBooking.license_photo_url} target="_blank" rel="noreferrer" className="flex-1 text-center bg-white/10 text-white border border-white/20 hover:bg-white/20 px-3 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-colors">
+                           ΔΙΠΛΩΜΑ
+                         </a>
+                       )}
+                       {!editingBooking.id_photo_url && !editingBooking.license_photo_url && (
+                         <div className="w-full text-center text-gray-600 text-[10px] uppercase tracking-widest border border-white/5 rounded-xl py-3">ΚΑΝΕΝΑ ΕΓΓΡΑΦΟ</div>
+                       )}
                      </div>
-                   )}
-                </div>
+                   </div>
+                 ) : (
+                    <div className="pt-5 border-t border-white/5 text-[10px] italic text-gray-600 uppercase tracking-widest">ΕΣΩΤΕΡΙΚΟ BLOCK ΔΙΑΘΕΣΙΜΟΤΗΤΑΣ</div>
+                 )}
+              </div>
 
+              {/* ΕΝΟΤΗΤΑ 2: ΦΟΡΜΑ ΕΠΕΞΕΡΓΑΣΙΑΣ ΗΜΕΡΟΜΗΝΙΩΝ */}
+              <form onSubmit={handleUpdateBooking} className="space-y-5 md:space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                   <div>
                     <label className="block text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Απο (Check-in)</label>
@@ -619,16 +653,16 @@ export default function CommandCenter() {
                 </div>
 
                 <div>
-                  <label className="block text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Τελικο Ποσο / Κοστος (€)</label>
+                  <label className="block text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Συνολικο Εσοδο (€)</label>
                   <input type="number" required value={editDates.total_price} onChange={(e) => setEditDates({...editDates, total_price: Number(e.target.value)})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-red-600 font-bold disabled:opacity-50" />
                 </div>
 
                 <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row gap-3 md:gap-4">
                   <button type="button" onClick={() => deleteBooking(editingBooking.id)} disabled={isUploading} className="w-full sm:flex-1 py-3.5 md:py-4 bg-transparent border border-red-900 hover:bg-red-900/20 text-red-500 rounded-xl text-[10px] md:text-xs font-bold tracking-widest uppercase transition-all disabled:opacity-50">
-                    ΔΙΑΓΡΑΦΗ 
+                    ΔΙΑΓΡΑΦΗ ΚΡΑΤΗΣΗΣ
                   </button>
                   <button type="submit" disabled={isUploading} className="w-full sm:flex-1 py-3.5 md:py-4 bg-[#D90000] hover:bg-red-600 text-white rounded-xl text-[10px] md:text-xs font-bold tracking-widest uppercase transition-all shadow-[0_10px_30px_rgba(220,38,38,0.2)] disabled:opacity-50">
-                    {isUploading ? 'ΑΠΟΘΗΚΕΥΣΗ...' : 'ΑΠΟΘΗΚΕΥΣΗ'}
+                    {isUploading ? 'ΑΠΟΘΗΚΕΥΣΗ...' : 'ΑΠΟΘΗΚΕΥΣΗ ΑΛΛΑΓΩΝ'}
                   </button>
                 </div>
               </form>
@@ -643,7 +677,7 @@ export default function CommandCenter() {
           <div className="bg-[#0A0A0A] border border-white/10 rounded-[2rem] w-full max-w-2xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,1)] flex flex-col max-h-[90vh]">
             <div className="px-5 md:px-8 py-4 md:py-6 border-b border-white/5 flex justify-between items-center bg-black/20 shrink-0">
               <div>
-                <h3 className="text-xs md:text-sm font-bold text-white tracking-widest uppercase">Διαθεσιμοτητα</h3>
+                <h3 className="text-xs md:text-sm font-bold text-white tracking-widest uppercase">Διαθεσιμοτητα Οχηματος</h3>
                 <p className="text-[9px] md:text-[10px] text-gray-500 uppercase tracking-widest mt-1">{selectedVehicle.brand} {selectedVehicle.model}</p>
               </div>
               <button onClick={() => setIsCalendarModalOpen(false)} className="text-gray-500 hover:text-white transition-colors p-2 -mr-2">✕</button>
@@ -654,7 +688,7 @@ export default function CommandCenter() {
               <AdminDateVisualizer />
 
               <div className="bg-[#111] p-5 md:p-6 rounded-2xl border border-white/5">
-                <h4 className="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Νεα Δεσμευση</h4>
+                <h4 className="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Εσωτερικο Block (Μη διαθεσιμο)</h4>
                 <form onSubmit={handleManualBlock} className="flex flex-col sm:flex-row items-end gap-3 md:gap-4">
                   <div className="w-full sm:flex-1">
                     <label className="block text-[8px] md:text-[9px] text-gray-500 uppercase tracking-widest mb-1.5 md:mb-2">Απο</label>
@@ -671,7 +705,7 @@ export default function CommandCenter() {
               </div>
 
               <div>
-                <h4 className="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Ενεργες Κρατησεις</h4>
+                <h4 className="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Ενεργες Κρατησεις Οχηματος</h4>
                 <div className="space-y-2">
                   {vehicleBookings.length === 0 ? (
                     <div className="text-center text-gray-600 text-[9px] md:text-[10px] uppercase tracking-widest py-4">Το όχημα είναι ελεύθερο.</div>
