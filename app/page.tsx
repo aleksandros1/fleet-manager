@@ -38,7 +38,7 @@ const GlobalStyles = () => (
 const AutoLazaridisLogo = ({ className = "h-14 w-auto" }) => (
   /* eslint-disable-next-line @next/next/no-img-element */
   <img 
-    src="/logo.PNG" 
+    src="/brand-logo.png" 
     alt="Auto Lazaridis" 
     className={className} 
     style={{ objectFit: 'contain' }} 
@@ -607,7 +607,7 @@ export default function PremiumFleetApp() {
               <div key={v.id} className="group flex flex-col md:flex-row bg-[#0A0A0A] border border-white/5 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden hover:border-white/10 transition-all duration-500 shadow-2xl">
                 <div className="w-full md:w-1/2 aspect-[4/3] md:aspect-auto relative overflow-hidden bg-[#111]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={v.photos && v.photos.length > 0 ? v.photos[0] : '/logo.PNG'} alt={v.model} className={`absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-90 group-hover:opacity-100 ${!v.photos || v.photos.length === 0 ? 'object-contain p-10 opacity-30' : ''}`} />
+                  <img src={v.photos && v.photos.length > 0 ? v.photos[0] : '/brand-logo.png'} alt={v.model} className={`absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-90 group-hover:opacity-100 ${!v.photos || v.photos.length === 0 ? 'object-contain p-10 opacity-30' : ''}`} />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0A0A0A] opacity-0 md:opacity-100"></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] to-transparent opacity-100 md:opacity-0"></div>
                 </div>
@@ -689,7 +689,7 @@ export default function PremiumFleetApp() {
               
               <div className="w-full aspect-video rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden relative border border-white/5">
                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                 <img src={selectedVehicle.photos && selectedVehicle.photos.length > 0 ? selectedVehicle.photos[0] : '/logo.PNG'} alt={selectedVehicle.model} className={`w-full h-full object-cover grayscale-[10%] ${!selectedVehicle.photos || selectedVehicle.photos.length === 0 ? 'object-contain p-10 opacity-30' : ''}`} />
+                 <img src={selectedVehicle.photos && selectedVehicle.photos.length > 0 ? selectedVehicle.photos[0] : '/brand-logo.png'} alt={selectedVehicle.model} className={`w-full h-full object-cover grayscale-[10%] ${!selectedVehicle.photos || selectedVehicle.photos.length === 0 ? 'object-contain p-10 opacity-30' : ''}`} />
                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                  <div className="absolute bottom-4 left-5 md:left-6">
                    <h2 className="text-xl md:text-2xl font-serif-premium text-white">{selectedVehicle.model}</h2>
