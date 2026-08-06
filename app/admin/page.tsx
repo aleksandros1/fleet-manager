@@ -23,13 +23,11 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Έλεγχος αν υπάρχει ήδη ενεργή συνεδρία
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoadingAuth(false);
     });
 
-    // Παρακολούθηση αλλαγών (Login / Logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
@@ -112,7 +110,7 @@ type Vehicle = {
 
 type Booking = {
   id: number;
-  vehicle_id: number;
+  vehicle_id: number | null;
   vehicle_model: string;
   check_in: string;
   check_out: string;
@@ -129,8 +127,9 @@ type Booking = {
 type Note = {
   id: number;
   created_at: string;
-  vehicle: string;
+  tag: string;
   content: string;
+  amount: number | null;
 };
 
 function AdminDashboard() {
@@ -167,7 +166,7 @@ function AdminDashboard() {
     total_price: ''
   });
 
-  const [noteInput, setNoteInput] = useState({ vehicle: '', content: '' });
+  const [noteInput, setNoteInput] = useState({ tag: '', content: '', amount: '' });
 
   useEffect(() => {
     async function initializeData() {
@@ -230,15 +229,20 @@ function AdminDashboard() {
   const handleCreateManualBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsUploading(true);
+    
+    // Αφαίρεση υποχρεωτικότητας. Όλα γίνονται αυτόματα fallback αν είναι κενά.
+    const finalCheckIn = manualBookingData.check_in || new Date().toISOString().split('T')[0];
+    const finalCheckOut = manualBookingData.check_out || new Date().toISOString().split('T')[0];
+
     const { data, error } = await supabase.from('bookings').insert([{
-      vehicle_id: 0, 
-      vehicle_model: manualBookingData.vehicle_model + ' (ΕΚΤΟΣ ΣΤΟΛΟΥ)',
-      check_in: manualBookingData.check_in,
-      check_out: manualBookingData.check_out,
-      total_price: Number(manualBookingData.total_price),
+      vehicle_id: null, 
+      vehicle_model: manualBookingData.vehicle_model || 'Γενική Δέσμευση',
+      check_in: finalCheckIn,
+      check_out: finalCheckOut,
+      total_price: Number(manualBookingData.total_price) || 0,
       status: 'Χειροκίνητη Κράτηση',
-      customer_name: manualBookingData.customer_name,
-      customer_phone: manualBookingData.customer_phone
+      customer_name: manualBookingData.customer_name || 'Χωρίς Όνομα',
+      customer_phone: manualBookingData.customer_phone || '-'
     }]).select();
 
     if (!error && data) {
@@ -295,13 +299,14 @@ function AdminDashboard() {
     setIsUploading(true);
     
     const { data, error } = await supabase.from('notes').insert([{
-      vehicle: noteInput.vehicle.trim(),
-      content: noteInput.content.trim()
+      tag: noteInput.tag.trim() || 'Γενικά',
+      content: noteInput.content.trim(),
+      amount: noteInput.amount ? Number(noteInput.amount) : null
     }]).select();
 
     if (!error && data) {
       setNotes([data[0] as Note, ...notes]);
-      setNoteInput({ vehicle: '', content: '' });
+      setNoteInput({ tag: '', content: '', amount: '' });
     } else {
       alert(`Σφάλμα: ${error?.message}`);
     }
@@ -309,7 +314,7 @@ function AdminDashboard() {
   };
 
   const deleteNote = async (id: number) => {
-    if (!window.confirm('Διαγραφή σημείωσης;')) return;
+    if (!window.confirm('Διαγραφή εγγραφής;')) return;
     const { error } = await supabase.from('notes').delete().eq('id', id);
     if (!error) setNotes(notes.filter(n => n.id !== id));
   };
@@ -649,8 +654,8 @@ function AdminDashboard() {
           </button>
 
           <div className="pt-4 mt-4 border-t border-white/5">
-            <button onClick={() => { setActiveTab('notes'); fetchNotes(); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'notes' ? 'bg-white/10 text-white border border-white/20' : 'text-gray-500 hover:bg-white/5 hover:text-white border border-transparent'}`}>
-              Σημειωσεις
+            <button onClick={() => { setActiveTab('notes'); fetchNotes(); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'notes' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'}`}>
+              Αρχειο
             </button>
           </div>
         </div>
@@ -670,7 +675,7 @@ function AdminDashboard() {
               {activeTab === 'active' && 'Ενεργος Στολος'}
               {activeTab === 'draft' && 'Οχηματα Αναμονης'}
               {activeTab === 'bookings' && 'Διαχειριση Κρατησεων'}
-              {activeTab === 'notes' && 'Σημειωσεις Στολου'}
+              {activeTab === 'notes' && 'Αρχειο Καταγραφων'}
             </h2>
             {activeTab === 'bookings' && (
               <button onClick={() => setIsManualBookingModalOpen(true)} className="px-3 md:px-4 py-2 bg-[#8B0000] hover:bg-[#6A0000] text-white text-[8px] md:text-[10px] font-bold uppercase tracking-widest rounded-lg transition-colors shadow-lg border border-red-900/50 whitespace-nowrap">
@@ -708,49 +713,71 @@ function AdminDashboard() {
             {activeTab === 'active' && renderVehicleGrid(true)}
             {activeTab === 'draft' && renderVehicleGrid(false)}
 
-            {/* --- ΕΝΟΤΗΤΑ ΣΗΜΕΙΩΣΕΩΝ --- */}
+            {/* --- ΕΝΟΤΗΤΑ ΑΡΧΕΙΟΥ (LOGBOOK) --- */}
             {activeTab === 'notes' && (
               <div className="max-w-4xl">
-                {/* Γρήγορη καταχώρηση (Μηδενική Τριβή) */}
-                <form onSubmit={handleAddNote} className="flex flex-col sm:flex-row gap-3 bg-[#0A0A0A] p-4 md:p-5 rounded-[1.5rem] border border-white/10 mb-8 md:mb-10 shadow-lg">
-                  <input 
-                    type="text" 
-                    placeholder="Όχημα / Πινακίδα (Προαιρετικό)" 
-                    value={noteInput.vehicle} 
-                    onChange={e => setNoteInput({...noteInput, vehicle: e.target.value})} 
-                    disabled={isUploading} 
-                    className="w-full sm:w-1/3 bg-black border border-white/5 rounded-xl px-4 py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000]" 
-                  />
-                  <input 
-                    type="text" 
-                    required 
-                    placeholder="Γράψτε τη σημείωση..." 
-                    value={noteInput.content} 
-                    onChange={e => setNoteInput({...noteInput, content: e.target.value})} 
-                    disabled={isUploading} 
-                    className="w-full sm:flex-1 bg-black border border-white/5 rounded-xl px-4 py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000]" 
-                  />
-                  <button type="submit" disabled={isUploading} className="w-full sm:w-auto px-6 py-3.5 bg-[#8B0000] hover:bg-[#6A0000] text-white rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all">
+                <form onSubmit={handleAddNote} className="flex flex-col sm:flex-row gap-3 bg-[#0A0A0A] p-4 md:p-5 rounded-[1.5rem] border border-white/10 mb-8 md:mb-10 shadow-lg items-end">
+                  <div className="w-full sm:w-1/4">
+                    <label className="block text-[8px] text-gray-500 uppercase tracking-widest mb-1">Ετικέτα (Προαιρετικό)</label>
+                    <input 
+                      type="text" 
+                      placeholder="π.χ. Έξοδα, Πώληση" 
+                      value={noteInput.tag} 
+                      onChange={e => setNoteInput({...noteInput, tag: e.target.value})} 
+                      disabled={isUploading} 
+                      className="w-full bg-black border border-white/5 rounded-xl px-4 py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000]" 
+                    />
+                  </div>
+                  <div className="w-full sm:flex-1">
+                    <label className="block text-[8px] text-gray-500 uppercase tracking-widest mb-1">Περιγραφή *</label>
+                    <input 
+                      type="text" 
+                      required 
+                      placeholder="π.χ. Αγορά νερών, Πώληση Fiat Panda" 
+                      value={noteInput.content} 
+                      onChange={e => setNoteInput({...noteInput, content: e.target.value})} 
+                      disabled={isUploading} 
+                      className="w-full bg-black border border-white/5 rounded-xl px-4 py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000]" 
+                    />
+                  </div>
+                  <div className="w-full sm:w-1/4">
+                    <label className="block text-[8px] text-gray-500 uppercase tracking-widest mb-1">Ποσό € (Προαιρετικό)</label>
+                    <input 
+                      type="number" 
+                      placeholder="π.χ. -5.50 ή 4500" 
+                      value={noteInput.amount} 
+                      onChange={e => setNoteInput({...noteInput, amount: e.target.value})} 
+                      disabled={isUploading} 
+                      className="w-full bg-black border border-white/5 rounded-xl px-4 py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] font-mono" 
+                    />
+                  </div>
+                  <button type="submit" disabled={isUploading} className="w-full sm:w-auto px-6 py-3.5 h-[46px] bg-[#8B0000] hover:bg-[#6A0000] text-white rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all">
                     {isUploading ? '...' : 'ΚΑΤΑΓΡΑΦΗ'}
                   </button>
                 </form>
 
-                {/* Λίστα Σημειώσεων Ομαδοποιημένη */}
                 <div className="space-y-8">
                   {Object.keys(groupedNotes).length === 0 ? (
-                    <div className="text-gray-500 text-[10px] md:text-sm uppercase tracking-widest text-center py-10">ΔΕΝ ΥΠΑΡΧΟΥΝ ΣΗΜΕΙΩΣΕΙΣ.</div>
+                    <div className="text-gray-500 text-[10px] md:text-sm uppercase tracking-widest text-center py-10">ΤΟ ΑΡΧΕΙΟ ΕΙΝΑΙ ΚΕΝΟ.</div>
                   ) : (
                     Object.entries(groupedNotes).map(([date, dayNotes]) => (
                       <div key={date}>
                         <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 pl-2 border-l-2 border-[#8B0000]">{date}</div>
                         <div className="space-y-2">
                           {dayNotes.map(note => (
-                            <div key={note.id} className="bg-[#0A0A0A] p-4 rounded-xl border border-white/5 flex justify-between items-start gap-4 hover:border-white/10 transition-colors group">
-                              <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
-                                {note.vehicle && <span className="text-[#8B0000] font-bold text-[10px] md:text-xs uppercase tracking-widest shrink-0">{note.vehicle}</span>}
+                            <div key={note.id} className="bg-[#0A0A0A] p-4 rounded-xl border border-white/5 flex justify-between items-center gap-4 hover:border-white/10 transition-colors group">
+                              <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 flex-1">
+                                {note.tag && <span className="text-[#8B0000] font-bold text-[10px] md:text-xs uppercase tracking-widest shrink-0 bg-[#8B0000]/10 px-2 py-1 rounded">{note.tag}</span>}
                                 <span className="text-gray-300 text-xs md:text-sm leading-relaxed">{note.content}</span>
                               </div>
-                              <button onClick={() => deleteNote(note.id)} className="text-gray-600 hover:text-red-500 shrink-0 p-1 opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+                              <div className="flex items-center gap-4 shrink-0">
+                                {note.amount !== null && note.amount !== undefined && (
+                                  <span className={`font-mono font-bold text-sm md:text-base ${note.amount > 0 ? 'text-green-500' : note.amount < 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                                    {note.amount > 0 ? '+' : ''}{note.amount}€
+                                  </span>
+                                )}
+                                <button onClick={() => deleteNote(note.id)} className="text-gray-600 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -1000,31 +1027,31 @@ function AdminDashboard() {
 
                  <div>
                     <label className="block text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Μοντελο Οχηματος / Περιγραφη</label>
-                    <input type="text" required placeholder="π.χ. Υπενοικίαση Fiat Panda" value={manualBookingData.vehicle_model} onChange={(e) => setManualBookingData({...manualBookingData, vehicle_model: e.target.value})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] disabled:opacity-50" />
+                    <input type="text" placeholder="π.χ. Υπενοικίαση Fiat Panda" value={manualBookingData.vehicle_model} onChange={(e) => setManualBookingData({...manualBookingData, vehicle_model: e.target.value})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] disabled:opacity-50" />
                  </div>
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                     <div>
                       <label className="block text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Ονομα Πελατη</label>
-                      <input type="text" required value={manualBookingData.customer_name} onChange={(e) => setManualBookingData({...manualBookingData, customer_name: e.target.value})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] disabled:opacity-50" />
+                      <input type="text" placeholder="Προαιρετικό" value={manualBookingData.customer_name} onChange={(e) => setManualBookingData({...manualBookingData, customer_name: e.target.value})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] disabled:opacity-50" />
                     </div>
                     <div>
                       <label className="block text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Τηλεφωνο</label>
-                      <input type="text" value={manualBookingData.customer_phone} onChange={(e) => setManualBookingData({...manualBookingData, customer_phone: e.target.value})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] disabled:opacity-50" />
+                      <input type="text" placeholder="Προαιρετικό" value={manualBookingData.customer_phone} onChange={(e) => setManualBookingData({...manualBookingData, customer_phone: e.target.value})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] disabled:opacity-50" />
                     </div>
                  </div>
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                     <div>
                       <label className="block text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Απο (Check-in)</label>
-                      <input type="date" required value={manualBookingData.check_in} onChange={(e) => setManualBookingData({...manualBookingData, check_in: e.target.value})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] disabled:opacity-50" />
+                      <input type="date" value={manualBookingData.check_in} onChange={(e) => setManualBookingData({...manualBookingData, check_in: e.target.value})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] disabled:opacity-50" />
                     </div>
                     <div>
                       <label className="block text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Εως (Check-out)</label>
-                      <input type="date" required value={manualBookingData.check_out} onChange={(e) => setManualBookingData({...manualBookingData, check_out: e.target.value})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] disabled:opacity-50" />
+                      <input type="date" value={manualBookingData.check_out} onChange={(e) => setManualBookingData({...manualBookingData, check_out: e.target.value})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] disabled:opacity-50" />
                     </div>
                  </div>
                  <div>
                     <label className="block text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Τελικο Εσοδο (€)</label>
-                    <input type="number" required value={manualBookingData.total_price} onChange={(e) => setManualBookingData({...manualBookingData, total_price: e.target.value})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] font-bold disabled:opacity-50" />
+                    <input type="number" placeholder="Προαιρετικό" value={manualBookingData.total_price} onChange={(e) => setManualBookingData({...manualBookingData, total_price: e.target.value})} disabled={isUploading} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 md:px-4 md:py-3.5 text-xs md:text-sm text-white focus:outline-none focus:border-[#8B0000] font-bold disabled:opacity-50" />
                  </div>
                  <div className="pt-6 border-t border-white/5">
                     <button type="submit" disabled={isUploading} className="w-full py-3.5 md:py-4 bg-[#8B0000] hover:bg-[#6A0000] text-white rounded-xl text-[10px] md:text-xs font-bold tracking-widest uppercase transition-all disabled:opacity-50">

@@ -75,13 +75,13 @@ const TRANSLATIONS = {
     forSale: "Προς Πωληση",
     address: "7ο χλμ. Δράμας - Καβάλας",
     tel: "Τηλ: 6948 766884",
-    bookingTitle: "Κρατηση Οχηματος",
+    bookingTitle: "Αιτημα Ενδιαφεροντος",
     fastTrackSub: "Φωτογραφίστε ή ανεβάστε τα έγγραφά σας (JPG, PNG, PDF).",
     personalInfoTitle: "Στοιχεια Πελατη",
     namePlaceholder: "Ονοματεπώνυμο",
     phonePlaceholder: "Τηλέφωνο Επικοινωνίας",
     emailPlaceholder: "Email",
-    fillRequired: "Παρακαλώ συμπληρώστε το Ονοματεπώνυμο, το Τηλέφωνο και το Email σας για να προχωρήσετε.",
+    fillRequired: "Παρακαλώ συμπληρώστε το Ονοματεπώνυμο, το Τηλέφωνο και το Email σας.",
     idCard: "+ Ταυτοτητα",
     license: "+ Διπλωμα",
     total: "Συνολο",
@@ -92,18 +92,22 @@ const TRANSLATIONS = {
     remaining: "ΥΠΟΛΟΙΠΟ:",
     processing: "Επεξεργασια...",
     securePayment: "ΑΣΦΑΛΗΣ ΠΛΗΡΩΜΗ",
-    alertSuccess: "Η πληρωμή ολοκληρώθηκε με επιτυχία. Το όχημα έχει δεσμευτεί.",
-    alertCancel: "Η διαδικασία πληρωμής ακυρώθηκε.",
-    datesOverlap: "Οι ημερομηνίες που επιλέξατε συμπίπτουν με υπάρχουσα κράτηση. Παρακαλώ επιλέξτε άλλες ημερομηνίες.",
-    invalidFileType: "Μη αποδεκτός τύπος αρχείου. Επιτρέπονται μόνο εικόνες (JPG, PNG, WEBP) και έγγραφα PDF.",
-    fileTooLarge: "Το αρχείο είναι πολύ μεγάλο. Μέγιστο επιτρεπόμενο μέγεθος: 10MB.",
+    alertSuccess: "Η πληρωμή ολοκληρώθηκε με επιτυχία. Η αίτησή σας καταχωρήθηκε.",
+    alertCancel: "Η διαδικασία ακυρώθηκε.",
+    datesOverlap: "Οι ημερομηνίες που επιλέξατε συμπίπτουν με υπάρχουσα κράτηση.",
+    invalidFileType: "Μη αποδεκτός τύπος αρχείου. Επιτρέπονται μόνο εικόνες και έγγραφα PDF.",
+    fileTooLarge: "Το αρχείο είναι πολύ μεγάλο. Μέγιστο μέγεθος: 10MB.",
     months: ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος", "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"],
     daysShort: ["Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ", "Κυρ"],
     menuHome: "ΑΡΧΙΚΗ",
     menuFleet: "Ο ΣΤΟΛΟΣ",
     menuLocation: "ΤΟΠΟΘΕΣΙΑ",
     menuContact: "ΕΠΙΚΟΙΝΩΝΙΑ",
-    back: "ΕΠΙΣΤΡΟΦΗ"
+    back: "ΕΠΙΣΤΡΟΦΗ",
+    rentPaymentInfo: "ΠΛΗΡΩΜΗ ΕΝΟΙΚΙΑΣΗΣ",
+    leasePaymentInfo: "ΠΛΗΡΩΜΗ LEASING (1ΟΣ ΜΗΝΑΣ)",
+    buyPaymentInfo: "ΑΓΟΡΑ ΟΧΗΜΑΤΟΣ",
+    daysSelected: "ΗΜΕΡΕΣ"
   },
   en: {
     introSubtitle: "Not everyone drives the same.",
@@ -127,13 +131,13 @@ const TRANSLATIONS = {
     forSale: "For Sale",
     address: "7th km Drama - Kavala",
     tel: "Tel: +30 6948 766884",
-    bookingTitle: "Vehicle Booking",
+    bookingTitle: "Vehicle Request",
     fastTrackSub: "Photograph or upload your documents (JPG, PNG, PDF).",
     personalInfoTitle: "Customer Details",
     namePlaceholder: "Full Name",
     phonePlaceholder: "Phone Number",
     emailPlaceholder: "Email Address",
-    fillRequired: "Please fill in your Full Name, Phone, and Email to proceed.",
+    fillRequired: "Please fill in your Full Name, Phone, and Email.",
     idCard: "+ ID Card",
     license: "+ License",
     total: "Total",
@@ -144,10 +148,10 @@ const TRANSLATIONS = {
     remaining: "REMAINING:",
     processing: "Processing...",
     securePayment: "SECURE PAYMENT",
-    alertSuccess: "Payment completed successfully. The vehicle has been reserved.",
-    alertCancel: "The payment process was cancelled.",
-    datesOverlap: "Selected dates overlap with an existing booking. Please select different dates.",
-    invalidFileType: "Invalid file format. Only images (JPG, PNG, WEBP) and PDF files are allowed.",
+    alertSuccess: "Payment completed successfully. Your request has been recorded.",
+    alertCancel: "The process was cancelled.",
+    datesOverlap: "Selected dates overlap with an existing booking.",
+    invalidFileType: "Invalid file format. Only images and PDF files are allowed.",
     fileTooLarge: "File is too large. Maximum allowed size: 10MB.",
     months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     daysShort: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -155,7 +159,11 @@ const TRANSLATIONS = {
     menuFleet: "THE FLEET",
     menuLocation: "LOCATION",
     menuContact: "CONTACT",
-    back: "BACK"
+    back: "BACK",
+    rentPaymentInfo: "RENTAL PAYMENT",
+    leasePaymentInfo: "LEASING PAYMENT (1ST MONTH)",
+    buyPaymentInfo: "VEHICLE PURCHASE",
+    daysSelected: "DAYS"
   }
 };
 
@@ -238,9 +246,8 @@ export default function PremiumFleetApp() {
   }, []);
 
   useEffect(() => {
-    if (selectedVehicle) {
+    if (selectedVehicle && activeAvailability === 'Ενοικίαση') {
       const currentVehicleId = selectedVehicle.id;
-
       async function fetchBookings() {
         const { data } = await supabase
           .from('bookings')
@@ -261,7 +268,7 @@ export default function PremiumFleetApp() {
       setExistingBookings([]);
       setSelectedRange({ start: null, end: null });
     }
-  }, [selectedVehicle]);
+  }, [selectedVehicle, activeAvailability]);
 
   const toggleLanguage = () => {
     const newLang = lang === 'el' ? 'en' : 'el';
@@ -273,13 +280,25 @@ export default function PremiumFleetApp() {
     setIsMenuOpen(false);
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({
+           top: offsetPosition,
+           behavior: "smooth"
+      });
     }
+  };
+
+  const handleAvailabilityClick = (type: string) => {
+    setActiveAvailability(type);
+    setTimeout(() => {
+      scrollToSection('fleet');
+    }, 100);
   };
 
   const validateAndSetFile = (file: File | null, setFileState: (f: File | null) => void, inputRef: React.RefObject<HTMLInputElement | null>) => {
     if (!file) return;
-    
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
     const maxSizeBytes = 10 * 1024 * 1024; 
 
@@ -296,7 +315,6 @@ export default function PremiumFleetApp() {
       setFileState(null);
       return;
     }
-
     setFileState(file);
   };
 
@@ -310,11 +328,15 @@ export default function PremiumFleetApp() {
 
   const calculateTotal = () => {
     if (!selectedVehicle) return 0;
-    return getCalculatedDays() * selectedVehicle.price;
+    if (activeAvailability === 'Ενοικίαση') {
+      return getCalculatedDays() * selectedVehicle.price;
+    }
+    return selectedVehicle.price;
   };
 
   const handleBookingToStripe = async () => {
-    if (!selectedVehicle || !selectedRange.start || !selectedRange.end) return;
+    if (!selectedVehicle) return;
+    if (activeAvailability === 'Ενοικίαση' && (!selectedRange.start || !selectedRange.end)) return;
     
     if (!customerInfo.name.trim() || !customerInfo.phone.trim() || !customerInfo.email.trim()) {
       alert(t.fillRequired);
@@ -324,17 +346,22 @@ export default function PremiumFleetApp() {
     setIsSubmitting(true);
     
     try {
-      const { data: conflictCheck } = await supabase
-        .from('bookings')
-        .select('id')
-        .eq('vehicle_id', selectedVehicle.id)
-        .lte('check_in', selectedRange.end)
-        .gte('check_out', selectedRange.start)
-        .not('status', 'ilike', '%cancelled%')
-        .not('status', 'ilike', '%ακυρώ%');
+      const checkInDate = selectedRange.start || new Date().toISOString().split('T')[0];
+      const checkOutDate = selectedRange.end || new Date().toISOString().split('T')[0];
 
-      if (conflictCheck && conflictCheck.length > 0) {
-        throw new Error(t.datesOverlap);
+      if (activeAvailability === 'Ενοικίαση') {
+        const { data: conflictCheck } = await supabase
+          .from('bookings')
+          .select('id')
+          .eq('vehicle_id', selectedVehicle.id)
+          .lte('check_in', checkOutDate)
+          .gte('check_out', checkInDate)
+          .not('status', 'ilike', '%cancelled%')
+          .not('status', 'ilike', '%ακυρώ%');
+
+        if (conflictCheck && conflictCheck.length > 0) {
+          throw new Error(t.datesOverlap);
+        }
       }
 
       let uploadedIdUrl = null;
@@ -345,7 +372,6 @@ export default function PremiumFleetApp() {
         const fileName = `id_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
         const { error: uploadError } = await supabase.storage.from('documents').upload(fileName, idFile);
         if (uploadError) throw new Error("Σφάλμα κατά το ανέβασμα της Ταυτότητας.");
-        
         const { data: publicUrlData } = supabase.storage.from('documents').getPublicUrl(fileName);
         uploadedIdUrl = publicUrlData.publicUrl;
       }
@@ -355,7 +381,6 @@ export default function PremiumFleetApp() {
         const fileName = `license_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
         const { error: uploadError } = await supabase.storage.from('documents').upload(fileName, licenseFile);
         if (uploadError) throw new Error("Σφάλμα κατά το ανέβασμα του Διπλώματος.");
-        
         const { data: publicUrlData } = supabase.storage.from('documents').getPublicUrl(fileName);
         uploadedLicenseUrl = publicUrlData.publicUrl;
       }
@@ -363,16 +388,17 @@ export default function PremiumFleetApp() {
       const totalCost = calculateTotal();
       const depositAmount = Math.round(totalCost * 0.3);
       const amountToPay = paymentMode === 'full' ? totalCost : depositAmount;
-      const totalDays = getCalculatedDays();
+      const totalDays = activeAvailability === 'Ενοικίαση' ? getCalculatedDays() : 1;
 
       const paymentStatus = paymentMode === 'full' ? '100% Εξόφληση' : '30% Προκαταβολή';
       const fastTrackStatus = (uploadedIdUrl && uploadedLicenseUrl) ? ' (Fast Track Attached)' : '';
+      const bookingTypeLabel = activeAvailability === 'Πώληση' ? 'Αγορά' : activeAvailability === 'Leasing' ? 'Leasing' : 'Ενοικίαση';
 
       const { error: supabaseError } = await supabase.from('bookings').insert([{ 
         vehicle_id: selectedVehicle.id, 
-        vehicle_model: selectedVehicle.model, 
-        check_in: selectedRange.start, 
-        check_out: selectedRange.end, 
+        vehicle_model: `${selectedVehicle.model} [${bookingTypeLabel}]`, 
+        check_in: checkInDate, 
+        check_out: checkOutDate, 
         total_price: totalCost, 
         status: `Εκκρεμεί Πληρωμή: ${paymentStatus}${fastTrackStatus}`,
         customer_name: customerInfo.name.trim(),
@@ -391,10 +417,10 @@ export default function PremiumFleetApp() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           vehicleId: selectedVehicle.id,
-          model: selectedVehicle.model + stripeDescriptionModifier,
+          model: `${selectedVehicle.model} [${bookingTypeLabel}] ${stripeDescriptionModifier}`,
           price: amountToPay,
-          checkIn: selectedRange.start,
-          checkOut: selectedRange.end,
+          checkIn: checkInDate,
+          checkOut: checkOutDate,
           days: totalDays
         }),
       });
@@ -451,9 +477,9 @@ export default function PremiumFleetApp() {
         if (isPast || isBooked) {
           dayClass += " text-gray-700 bg-gray-900/40 line-through cursor-not-allowed";
         } else if (selectedRange.start === dateStr || selectedRange.end === dateStr) {
-          dayClass += " bg-[#D90000] text-white font-bold shadow-[0_4px_10px_rgba(217,0,0,0.4)] scale-110";
+          dayClass += " bg-[#8B0000] text-white font-bold scale-110";
         } else if (selectedRange.start && selectedRange.end && dateStr > selectedRange.start && dateStr < selectedRange.end) {
-          dayClass += " bg-[#D90000]/15 text-[#D90000]";
+          dayClass += " bg-[#8B0000]/15 text-[#8B0000]";
         } else {
           dayClass += " text-gray-300 hover:bg-white/10 hover:text-white cursor-pointer";
         }
@@ -486,9 +512,9 @@ export default function PremiumFleetApp() {
     return (
         <div className="w-full bg-[#111111] p-5 md:p-6 rounded-[2rem] border border-white/5">
           <div className="flex justify-between items-center mb-6">
-            <button onClick={() => setCalendarDate(new Date(year, month - 1, 1))} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-[#D90000] text-gray-400 hover:text-white transition-colors">&lt;</button>
+            <button onClick={() => setCalendarDate(new Date(year, month - 1, 1))} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-[#8B0000] text-gray-400 hover:text-white transition-colors">&lt;</button>
             <span className="text-sm font-medium text-white">{t.months[month]} {year}</span>
-            <button onClick={() => setCalendarDate(new Date(year, month + 1, 1))} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-[#D90000] text-gray-400 hover:text-white transition-colors">&gt;</button>
+            <button onClick={() => setCalendarDate(new Date(year, month + 1, 1))} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-[#8B0000] text-gray-400 hover:text-white transition-colors">&gt;</button>
           </div>
           <div className="grid grid-cols-7 gap-1 text-center text-[9px] text-gray-500 uppercase tracking-widest mb-3">
             {t.daysShort.map((dayName, idx) => <div key={idx}>{dayName}</div>)}
@@ -498,8 +524,10 @@ export default function PremiumFleetApp() {
     );
   };
 
+  const showPaymentSection = activeAvailability === 'Ενοικίαση' ? (selectedRange.start && selectedRange.end) : true;
+
   return (
-    <div className="min-h-screen bg-[#030303] text-white selection:bg-[#D90000]/40 relative">
+    <div className="min-h-screen bg-[#030303] text-white selection:bg-[#8B0000]/40 relative">
       <GlobalStyles />
 
       {introRendered && (
@@ -515,16 +543,16 @@ export default function PremiumFleetApp() {
       <div className={`fixed inset-0 z-[200] bg-[#050505] flex flex-col transition-all duration-500 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
         <div className="px-5 md:px-12 py-4 flex justify-between items-center border-b border-white/5">
           <AutoLazaridisLogo className="h-10 md:h-12 w-auto" />
-          <button onClick={() => setIsMenuOpen(false)} className="p-2 text-white hover:text-[#D90000] transition-colors">
+          <button onClick={() => setIsMenuOpen(false)} className="p-2 text-white hover:text-[#8B0000] transition-colors">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
         
         <div className="flex-1 flex flex-col items-center justify-center gap-10">
-          <button onClick={() => scrollToSection('home')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#D90000] transition-colors uppercase">{t.menuHome}</button>
-          <button onClick={() => scrollToSection('fleet')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#D90000] transition-colors uppercase">{t.menuFleet}</button>
-          <button onClick={() => scrollToSection('contact')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#D90000] transition-colors uppercase">{t.menuLocation}</button>
-          <button onClick={() => scrollToSection('contact')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#D90000] transition-colors uppercase">{t.menuContact}</button>
+          <button onClick={() => scrollToSection('home')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#8B0000] transition-colors uppercase">{t.menuHome}</button>
+          <button onClick={() => scrollToSection('fleet')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#8B0000] transition-colors uppercase">{t.menuFleet}</button>
+          <button onClick={() => scrollToSection('contact')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#8B0000] transition-colors uppercase">{t.menuLocation}</button>
+          <button onClick={() => scrollToSection('contact')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#8B0000] transition-colors uppercase">{t.menuContact}</button>
         </div>
 
         <div className="pb-12 flex justify-center items-center gap-8">
@@ -537,7 +565,7 @@ export default function PremiumFleetApp() {
         </div>
       </div>
 
-      <header className="fixed top-0 w-full z-40 bg-[#070707]/95 backdrop-blur-2xl border-b border-white/5 px-5 md:px-12 py-4 flex justify-between items-center transition-all shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+      <header className="fixed top-0 w-full z-40 bg-black border-b border-white/5 px-5 md:px-12 py-4 flex justify-between items-center transition-all">
         <AutoLazaridisLogo className="h-10 md:h-12 w-auto" />
         
         <div className="flex items-center gap-6">
@@ -550,48 +578,53 @@ export default function PremiumFleetApp() {
             <span className={lang === 'el' ? 'text-white' : 'text-gray-600'}>GR</span>
           </button>
           
-          <button onClick={() => setIsMenuOpen(true)} className="p-2 text-white hover:text-[#D90000] transition-colors focus:outline-none">
+          <button onClick={() => setIsMenuOpen(true)} className="p-2 text-white hover:text-[#8B0000] transition-colors focus:outline-none">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
           </button>
         </div>
       </header>
 
-      <section id="home" className="relative w-full h-[65vh] flex flex-col justify-center items-center text-center px-5 md:px-12 mt-16 overflow-hidden">
+      <section id="home" className="relative w-full h-[50vh] md:h-[65vh] flex flex-col justify-center items-center text-center px-5 md:px-12 mt-16 overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none scale-150 md:scale-125">
           <div className="absolute w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] bg-[#8B0000] blur-[180px] opacity-15 rounded-full mix-blend-screen"></div>
           <AutoLazaridisLogo className="w-full max-w-5xl h-auto opacity-[0.25] relative z-10" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#030303]/90 via-[#030303]/60 to-[#030303]"></div>
         <div className="relative z-10 max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500 w-full px-2">
-          <h1 className="text-4xl md:text-6xl font-serif-premium font-light leading-tight mb-4 md:mb-6 px-2 drop-shadow-2xl">
+          <h1 className="text-4xl md:text-6xl font-serif-premium font-light leading-tight mb-4 md:mb-6 px-2">
             {t.heroTitle1} <br/>
             <span className="italic text-gray-300">{t.heroTitle2}</span>
           </h1>
-          <p className="text-[11px] md:text-sm text-gray-400 max-w-xl mx-auto font-light leading-relaxed tracking-wide px-4 drop-shadow-md mb-8">
+          <p className="text-[11px] md:text-sm text-gray-400 max-w-xl mx-auto font-light leading-relaxed tracking-wide px-4 mb-8">
             {t.heroSub}
           </p>
           
-          <div className="flex flex-nowrap justify-start md:justify-center gap-2 md:gap-3 overflow-x-auto hide-scrollbar w-full pb-2 px-1">
-            {['Ενοικίαση', 'Leasing', 'Πώληση'].map(type => (
-              <button 
-                key={type}
-                onClick={() => setActiveAvailability(type)}
-                className={`flex-shrink-0 whitespace-nowrap px-6 md:px-8 py-3.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 backdrop-blur-md ${activeAvailability === type ? 'bg-[#D90000] text-white shadow-[0_4px_20px_rgba(217,0,0,0.5)] scale-105 border border-red-500/50' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'}`}
-              >
-                {type === 'Ενοικίαση' ? t.rentals : type === 'Leasing' ? t.leasing : t.forSale}
-              </button>
-            ))}
+          <div className="w-full max-w-full overflow-x-auto hide-scrollbar">
+            <div className="flex flex-nowrap justify-start md:justify-center gap-2 md:gap-3 pb-2 px-1 min-w-min mx-auto">
+              {['Ενοικίαση', 'Leasing', 'Πώληση'].map(type => (
+                <button 
+                  key={type}
+                  onClick={() => handleAvailabilityClick(type)}
+                  className={`flex-shrink-0 whitespace-nowrap px-6 md:px-8 py-3.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${activeAvailability === type ? 'bg-[#8B0000] text-white scale-105 border border-[#8B0000]' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'}`}
+                >
+                  {type === 'Ενοικίαση' ? t.rentals : type === 'Leasing' ? t.leasing : t.forSale}
+                </button>
+              ))}
+            </div>
           </div>
 
         </div>
       </section>
 
-      <div className="sticky top-[72px] md:top-[84px] z-30 bg-[#030303]/95 backdrop-blur-xl border-y border-white/5 px-5 md:px-12 py-4 flex justify-start md:justify-center gap-3 overflow-x-auto hide-scrollbar shadow-lg">
+      <div className="sticky top-[72px] md:top-[84px] z-30 bg-[#030303]/95 backdrop-blur-xl px-5 md:px-12 py-3 md:py-4 flex justify-start md:justify-center gap-2 md:gap-3 overflow-x-auto hide-scrollbar">
         {categories.map(cat => (
           <button 
             key={cat} 
-            onClick={() => setActiveCategory(cat)}
-            className={`flex-shrink-0 text-[10px] md:text-xs font-bold uppercase tracking-widest px-5 py-3 rounded-full transition-all duration-300 ${activeCategory === cat ? 'bg-[#D90000] text-white shadow-[0_4px_15px_rgba(217,0,0,0.4)]' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'}`}
+            onClick={() => {
+              setActiveCategory(cat);
+              scrollToSection('fleet');
+            }}
+            className={`flex-shrink-0 text-[10px] md:text-xs font-bold uppercase tracking-widest px-5 py-3 rounded-full transition-all duration-300 ${activeCategory === cat ? 'bg-[#8B0000] text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'}`}
           >
             {cat === 'All' ? t.all : cat}
           </button>
@@ -604,7 +637,7 @@ export default function PremiumFleetApp() {
         ) : (
           <div className="flex flex-col gap-10 md:gap-12">
             {displayedVehicles.map(v => (
-              <div key={v.id} className="group flex flex-col md:flex-row bg-[#0A0A0A] border border-white/5 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden hover:border-white/10 transition-all duration-500 shadow-2xl">
+              <div key={v.id} className="group flex flex-col md:flex-row bg-[#0A0A0A] border border-white/5 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden hover:border-white/10 transition-all duration-500">
                 <div className="w-full md:w-1/2 aspect-[4/3] md:aspect-auto relative overflow-hidden bg-[#111]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={v.photos && v.photos.length > 0 ? v.photos[0] : '/brand-logo.png'} alt={v.model} className={`absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-[1.5s] ease-out opacity-90 group-hover:opacity-100 ${!v.photos || v.photos.length === 0 ? 'object-contain p-10 opacity-30' : ''}`} />
@@ -612,7 +645,7 @@ export default function PremiumFleetApp() {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] to-transparent opacity-100 md:opacity-0"></div>
                 </div>
                 <div className="w-full md:w-1/2 p-6 md:p-16 flex flex-col justify-center relative z-10">
-                  <div className="inline-block px-3 md:px-4 py-1 md:py-1.5 rounded-full bg-[#D90000]/10 text-[#D90000] text-[8px] md:text-[9px] font-bold uppercase tracking-widest w-fit mb-4 md:mb-6 border border-[#D90000]/20">{v.category}</div>
+                  <div className="inline-block px-3 md:px-4 py-1 md:py-1.5 rounded-full bg-[#8B0000]/10 text-[#8B0000] text-[8px] md:text-[9px] font-bold uppercase tracking-widest w-fit mb-4 md:mb-6 border border-[#8B0000]/20">{v.category}</div>
                   <h2 className="text-3xl md:text-5xl font-serif-premium font-light mb-4 md:mb-6 leading-tight">{v.model}</h2>
                   
                   <div className="flex gap-4 md:gap-8 mb-8 md:mb-10 pb-8 md:pb-10 border-b border-white/5">
@@ -641,7 +674,7 @@ export default function PremiumFleetApp() {
                         {activeAvailability === 'Leasing' && <span className="text-xs md:text-sm text-gray-500 ml-2">{t.perMonth}</span>}
                       </div>
                     </div>
-                    <button onClick={() => setSelectedVehicle(v)} className="w-full md:w-auto px-8 md:px-10 py-4 md:py-5 bg-white text-black rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#D90000] hover:text-white transition-all duration-300 shadow-lg hover:shadow-[0_10px_20px_rgba(217,0,0,0.3)]">
+                    <button onClick={() => setSelectedVehicle(v)} className="w-full md:w-auto px-8 md:px-10 py-4 md:py-5 bg-white text-black rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#8B0000] hover:text-white transition-all duration-300">
                       {activeAvailability === 'Πώληση' ? t.buyNow : t.select}
                     </button>
                   </div>
@@ -652,31 +685,58 @@ export default function PremiumFleetApp() {
         )}
       </main>
 
-      <footer id="contact" className="bg-[#050505] border-t border-white/5 px-6 md:px-12 py-16 md:py-20 pb-safe mt-4">
-        <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8 md:gap-10">
-          <AutoLazaridisLogo className="h-8 md:h-10 w-auto opacity-50 grayscale hover:grayscale-0 transition-all" />
-          <div className="flex flex-col md:flex-row gap-4 md:gap-8 text-center md:text-right text-[9px] md:text-[10px] uppercase tracking-widest text-gray-500">
-            <span>{t.address}</span>
-            <a href="tel:+306948766884" className="hover:text-white transition-colors">{t.tel}</a>
+      <footer id="contact" className="bg-[#050505] border-t border-white/5 pt-16 md:pt-20 pb-safe mt-4">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex flex-col md:flex-row gap-10 md:gap-16 mb-16">
+          
+          {/* Στοιχεία & Λογότυπο */}
+          <div className="w-full md:w-1/3 flex flex-col justify-start items-start md:items-start text-left gap-6 md:gap-8">
+            <AutoLazaridisLogo className="h-10 md:h-12 w-auto opacity-70" />
+            <div className="flex flex-col gap-4 text-[10px] md:text-xs uppercase tracking-widest text-gray-400">
+              <div>
+                <div className="text-gray-600 mb-1">Τοποθεσια</div>
+                <span className="text-white">{t.address}</span>
+              </div>
+              <div>
+                <div className="text-gray-600 mb-1">Τηλεφωνο</div>
+                <a href="tel:+306948766884" className="text-white hover:text-[#8B0000] transition-colors">{t.tel}</a>
+              </div>
+            </div>
           </div>
+
+          {/* Google Map */}
+          <div className="w-full md:w-2/3 h-64 md:h-80 rounded-2xl overflow-hidden border border-white/10 grayscale-[50%] hover:grayscale-0 transition-all duration-500">
+            <iframe 
+              src="https://maps.google.com/maps?q=41.1145067,24.2068323&hl=el&z=16&output=embed" 
+              width="100%" 
+              height="100%" 
+              style={{ border: 0 }} 
+              allowFullScreen={true} 
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </div>
+        
+        <div className="border-t border-white/5 py-6 text-center text-[9px] text-gray-700 uppercase tracking-widest">
+          © {new Date().getFullYear()} AUTO ΛΑΖΑΡΙΔΗΣ. ALL RIGHTS RESERVED.
         </div>
       </footer>
 
-      {/* --- BOOKING MODAL (ΜΕ ΚΟΥΜΠΙ ΕΠΙΣΤΡΟΦΗΣ) --- */}
+      {/* --- BOOKING MODAL --- */}
       {selectedVehicle && (
         <div className="fixed inset-0 z-[250] flex justify-end transition-opacity">
           {/* Κλικάρισμα στο φόντο για κλείσιμο */}
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onClick={() => { setSelectedVehicle(null); setSelectedRange({start: null, end: null}); }}></div>
           
-          <div className="relative w-full md:w-[550px] h-[100dvh] bg-[#0A0A0A] md:border-l border-white/10 shadow-2xl flex flex-col animate-in slide-in-from-bottom md:slide-in-from-right duration-500 md:rounded-l-[3rem] overflow-hidden">
+          <div className="relative w-full md:w-[550px] h-[100dvh] bg-[#0A0A0A] md:border-l border-white/10 flex flex-col animate-in slide-in-from-bottom md:slide-in-from-right duration-500 md:rounded-l-[3rem] overflow-hidden">
             
             {/* Header / Κουμπί Επιστροφής */}
             <div className="px-5 md:px-8 py-5 border-b border-white/5 flex justify-between items-center bg-[#050505] z-20 shrink-0">
               <button 
                 onClick={() => { setSelectedVehicle(null); setSelectedRange({start: null, end: null}); }} 
-                className="flex items-center gap-3 text-white hover:text-[#D90000] transition-colors group"
+                className="flex items-center gap-3 text-white hover:text-[#8B0000] transition-colors group"
               >
-                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 group-hover:bg-[#D90000]/20 transition-colors">
+                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 group-hover:bg-[#8B0000]/20 transition-colors">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-widest">{t.back}</span>
@@ -696,12 +756,13 @@ export default function PremiumFleetApp() {
                  </div>
               </div>
 
-              <DateRangePicker />
+              {/* Εμφάνιση Ημερολογίου ΜΟΝΟ στην Ενοικίαση */}
+              {activeAvailability === 'Ενοικίαση' && <DateRangePicker />}
 
               {/* Προσωπικά Στοιχεία Form */}
               <div className="bg-[#111] border border-white/5 p-6 md:p-8 rounded-[2.5rem]">
                 <div className="mb-5">
-                  <h4 className="text-[10px] text-[#D90000] uppercase tracking-[0.2em] font-bold mb-1">{t.personalInfoTitle}</h4>
+                  <h4 className="text-[10px] text-[#8B0000] uppercase tracking-[0.2em] font-bold mb-1">{t.personalInfoTitle}</h4>
                 </div>
                 <div className="space-y-4">
                   <input 
@@ -710,7 +771,7 @@ export default function PremiumFleetApp() {
                     placeholder={t.namePlaceholder} 
                     value={customerInfo.name} 
                     onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})} 
-                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-4 text-sm text-white focus:outline-none focus:border-[#D90000] transition-colors"
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-4 text-sm text-white focus:outline-none focus:border-[#8B0000] transition-colors"
                   />
                   <input 
                     type="tel" 
@@ -718,7 +779,7 @@ export default function PremiumFleetApp() {
                     placeholder={t.phonePlaceholder} 
                     value={customerInfo.phone} 
                     onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})} 
-                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-4 text-sm text-white focus:outline-none focus:border-[#D90000] transition-colors"
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-4 text-sm text-white focus:outline-none focus:border-[#8B0000] transition-colors"
                   />
                   <input 
                     type="email" 
@@ -726,14 +787,14 @@ export default function PremiumFleetApp() {
                     placeholder={t.emailPlaceholder} 
                     value={customerInfo.email} 
                     onChange={(e) => setCustomerInfo({...customerInfo, email: e.target.value})} 
-                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-4 text-sm text-white focus:outline-none focus:border-[#D90000] transition-colors"
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-4 text-sm text-white focus:outline-none focus:border-[#8B0000] transition-colors"
                   />
                 </div>
               </div>
 
               <div className="bg-[#111] border border-white/5 p-6 md:p-8 rounded-[2.5rem]">
                 <div className="mb-5">
-                  <h4 className="text-[10px] text-[#D90000] uppercase tracking-[0.2em] font-bold mb-1">Fast Track Check-In</h4>
+                  <h4 className="text-[10px] text-[#8B0000] uppercase tracking-[0.2em] font-bold mb-1">Fast Track Check-In</h4>
                   <p className="text-[10px] md:text-xs text-gray-500">{t.fastTrackSub}</p>
                 </div>
                 
@@ -753,28 +814,34 @@ export default function PremiumFleetApp() {
                 />
 
                 <div className="flex gap-3 md:gap-4">
-                  <button onClick={() => idInputRef.current?.click()} className={`flex-1 py-3 md:py-4 rounded-xl text-[9px] uppercase tracking-widest border transition-all ${idFile ? 'border-[#D90000] bg-[#D90000]/10 text-[#D90000]' : 'border-white/10 text-gray-400 hover:bg-white/5'}`}>
+                  <button onClick={() => idInputRef.current?.click()} className={`flex-1 py-3 md:py-4 rounded-xl text-[9px] uppercase tracking-widest border transition-all ${idFile ? 'border-[#8B0000] bg-[#8B0000]/10 text-[#8B0000]' : 'border-white/10 text-gray-400 hover:bg-white/5'}`}>
                     {idFile ? '✓ ' + idFile.name.substring(0, 8) + '...' : t.idCard}
                   </button>
-                  <button onClick={() => licenseInputRef.current?.click()} className={`flex-1 py-3 md:py-4 rounded-xl text-[9px] uppercase tracking-widest border transition-all ${licenseFile ? 'border-[#D90000] bg-[#D90000]/10 text-[#D90000]' : 'border-white/10 text-gray-400 hover:bg-white/5'}`}>
+                  <button onClick={() => licenseInputRef.current?.click()} className={`flex-1 py-3 md:py-4 rounded-xl text-[9px] uppercase tracking-widest border transition-all ${licenseFile ? 'border-[#8B0000] bg-[#8B0000]/10 text-[#8B0000]' : 'border-white/10 text-gray-400 hover:bg-white/5'}`}>
                     {licenseFile ? '✓ ' + licenseFile.name.substring(0, 8) + '...' : t.license}
                   </button>
                 </div>
               </div>
 
-              {selectedRange.start && selectedRange.end && (
-                <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-6 md:p-8 overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] mt-8">
+              {showPaymentSection && (
+                <div className="relative bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-8 overflow-hidden mt-8">
                   <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
                   
                   <div className="relative z-10">
-                    <h3 className="text-[10px] uppercase tracking-[0.3em] text-gray-400 mb-6 font-bold">{t.paymentOption}</h3>
+                    <h3 className="text-[10px] uppercase tracking-[0.3em] text-gray-400 mb-6 font-bold">
+                      {activeAvailability === 'Ενοικίαση' 
+                        ? `${t.rentPaymentInfo} (${getCalculatedDays()} ${t.daysSelected || 'ΗΜΕΡΕΣ'})` 
+                        : activeAvailability === 'Leasing' 
+                          ? t.leasePaymentInfo 
+                          : t.buyPaymentInfo}
+                    </h3>
                     
                     <div className="flex gap-3 md:gap-4 mb-8">
                       <div 
                         onClick={() => setPaymentMode('full')} 
-                        className={`flex-1 p-4 md:p-5 rounded-2xl border cursor-pointer transition-all duration-300 ${paymentMode === 'full' ? 'bg-[#D90000]/10 border-[#D90000]' : 'border-white/10 hover:border-white/30 bg-black/20'}`}
+                        className={`flex-1 p-4 md:p-5 rounded-2xl border cursor-pointer transition-all duration-300 ${paymentMode === 'full' ? 'bg-[#8B0000]/10 border-[#8B0000]' : 'border-white/10 hover:border-white/30 bg-black/20'}`}
                       >
-                        <div className={`text-[9px] uppercase tracking-widest mb-2 transition-colors ${paymentMode === 'full' ? 'text-[#D90000]' : 'text-gray-500'}`}>
+                        <div className={`text-[9px] uppercase tracking-widest mb-2 transition-colors ${paymentMode === 'full' ? 'text-[#8B0000]' : 'text-gray-500'}`}>
                           {t.fullPayment}
                         </div>
                         <div className="text-xl md:text-2xl font-light text-white">€{calculateTotal()}</div>
@@ -782,9 +849,9 @@ export default function PremiumFleetApp() {
 
                       <div 
                         onClick={() => setPaymentMode('deposit')} 
-                        className={`flex-1 p-4 md:p-5 rounded-2xl border cursor-pointer transition-all duration-300 ${paymentMode === 'deposit' ? 'bg-[#D90000]/10 border-[#D90000]' : 'border-white/10 hover:border-white/30 bg-black/20'}`}
+                        className={`flex-1 p-4 md:p-5 rounded-2xl border cursor-pointer transition-all duration-300 ${paymentMode === 'deposit' ? 'bg-[#8B0000]/10 border-[#8B0000]' : 'border-white/10 hover:border-white/30 bg-black/20'}`}
                       >
-                        <div className={`text-[9px] uppercase tracking-widest mb-2 transition-colors ${paymentMode === 'deposit' ? 'text-[#D90000]' : 'text-gray-500'}`}>
+                        <div className={`text-[9px] uppercase tracking-widest mb-2 transition-colors ${paymentMode === 'deposit' ? 'text-[#8B0000]' : 'text-gray-500'}`}>
                           {t.deposit}
                         </div>
                         <div className="text-xl md:text-2xl font-light text-white">€{Math.round(calculateTotal() * 0.3)}</div>
@@ -797,7 +864,7 @@ export default function PremiumFleetApp() {
                     <button 
                       onClick={handleBookingToStripe} 
                       disabled={isSubmitting} 
-                      className={`w-full py-5 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase transition-all duration-300 ${isSubmitting ? 'bg-white/5 text-gray-600 cursor-not-allowed' : 'bg-[#D90000] text-white hover:bg-red-700 shadow-[0_10px_20px_rgba(217,0,0,0.3)]'}`}
+                      className={`w-full py-5 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase transition-all duration-300 ${isSubmitting ? 'bg-white/5 text-gray-600 cursor-not-allowed' : 'bg-[#8B0000] text-white hover:bg-[#6A0000]'}`}
                     >
                       {isSubmitting ? t.processing : `${t.securePayment} (€${paymentMode === 'full' ? calculateTotal() : Math.round(calculateTotal() * 0.3)})`}
                     </button>
