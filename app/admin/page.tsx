@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 
 // --- Το Αυθεντικό Λογότυπο ---
@@ -132,6 +132,18 @@ type Note = {
   amount: number | null;
 };
 
+// Helpers Ημερολογίου
+const shortDays = ["ΚΥΡ", "ΔΕΥ", "ΤΡΙ", "ΤΕΤ", "ΠΕΜ", "ΠΑΡ", "ΣΑΒ"];
+const shortMonths = ["ΙΑΝ", "ΦΕΒ", "ΜΑΡ", "ΑΠΡ", "ΜΑΙ", "ΙΟΥΝ", "ΙΟΥΛ", "ΑΥΓ", "ΣΕΠ", "ΟΚΤ", "ΝΟΕ", "ΔΕΚ"];
+const longMonths = ["ΙΑΝΟΥΑΡΙΟΣ", "ΦΕΒΡΟΥΑΡΙΟΣ", "ΜΑΡΤΙΟΣ", "ΑΠΡΙΛΙΟΣ", "ΜΑΙΟΣ", "ΙΟΥΝΙΟΣ", "ΙΟΥΛΙΟΣ", "ΑΥΓΟΥΣΤΟΣ", "ΣΕΠΤΕΜΒΡΙΟΣ", "ΟΚΤΩΒΡΙΟΣ", "ΝΟΕΜΒΡΙΟΣ", "ΔΕΚΕΜΒΡΙΟΣ"];
+
+const getFormattedDateString = (d: Date) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'active' | 'draft' | 'bookings' | 'notes'>('dashboard'); 
   
@@ -155,8 +167,6 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
 
-  const [selectedBookingMonth, setSelectedBookingMonth] = useState<string>('all');
-
   const [manualBookingData, setManualBookingData] = useState({
     vehicle_model: '',
     customer_name: '',
@@ -167,6 +177,34 @@ function AdminDashboard() {
   });
 
   const [noteInput, setNoteInput] = useState({ tag: '', content: '', amount: '' });
+
+  // Νέα State για το Ημερήσιο Ημερολόγιο Κρατήσεων (με πλοήγηση ανά μήνα)
+  const [currentMonthView, setCurrentMonthView] = useState<Date>(new Date());
+  const [selectedDailyDate, setSelectedDailyDate] = useState<Date>(new Date());
+  
+  // Δυναμική παραγωγή ημερών για τον επιλεγμένο μήνα (currentMonthView)
+  const calendarDaysArray = useMemo(() => {
+    const year = currentMonthView.getFullYear();
+    const month = currentMonthView.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    const days = [];
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(new Date(year, month, i));
+    }
+    return days;
+  }, [currentMonthView]);
+
+  useEffect(() => {
+    if (activeTab === 'bookings') {
+      setTimeout(() => {
+        const activeEl = document.getElementById('calendar-active-day');
+        if (activeEl) {
+          activeEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      }, 100);
+    }
+  }, [activeTab, selectedDailyDate, currentMonthView]);
 
   useEffect(() => {
     async function initializeData() {
@@ -230,7 +268,6 @@ function AdminDashboard() {
     e.preventDefault();
     setIsUploading(true);
     
-    // Αφαίρεση υποχρεωτικότητας. Όλα γίνονται αυτόματα fallback αν είναι κενά.
     const finalCheckIn = manualBookingData.check_in || new Date().toISOString().split('T')[0];
     const finalCheckOut = manualBookingData.check_out || new Date().toISOString().split('T')[0];
 
@@ -435,36 +472,6 @@ function AdminDashboard() {
   const draftCount = vehicles.filter(v => !v.is_active).length;
   const totalRevenue = bookings.filter(b => b.total_price > 0).reduce((a, c) => a + c.total_price, 0);
 
-  const getSimpleStatus = (status: string) => {
-    if (status === 'Χειροκίνητη Δέσμευση') {
-      return { label: 'ΕΣΩΤΕΡΙΚΟ BLOCK', style: 'text-blue-400 border-blue-500/30 bg-blue-500/10' };
-    }
-    return { label: 'ΕΝΕΡΓΗ ΚΡΑΤΗΣΗ', style: 'text-red-500 border-red-500/30 bg-[#8B0000]/10' };
-  };
-
-  const getBookingMonths = () => {
-    const months = new Set<string>();
-    bookings.forEach(b => {
-      if (b.check_in) {
-        const monthStr = b.check_in.substring(0, 7); 
-        months.add(monthStr);
-      }
-    });
-    return Array.from(months).sort().reverse();
-  };
-
-  const formatMonthLabel = (yyyy_mm: string) => {
-    const [year, month] = yyyy_mm.split('-');
-    const monthNames = ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος", "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"];
-    return `${monthNames[parseInt(month) - 1]} ${year}`;
-  };
-
-  const availableMonths = getBookingMonths();
-  const displayedBookings = bookings.filter(b => {
-    if (selectedBookingMonth === 'all') return true;
-    return b.check_in && b.check_in.startsWith(selectedBookingMonth);
-  });
-
   const groupedNotes = notes.reduce((acc, note) => {
     const d = new Date(note.created_at);
     const dateStr = d.toLocaleDateString('el-GR', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -473,12 +480,15 @@ function AdminDashboard() {
     return acc;
   }, {} as Record<string, Note[]>);
 
+  // Ημερήσια λογική
+  const activeDateStr = getFormattedDateString(selectedDailyDate);
+  const dailyBookings = bookings.filter(b => activeDateStr >= b.check_in && activeDateStr <= b.check_out);
+
   const AdminDateVisualizer = () => {
     const year = adminCalDate.getFullYear();
     const month = adminCalDate.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const months = ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος", "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"];
-    const daysShort = ["Κυρ", "Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ"]; 
+    const daysShortLocal = ["Κυρ", "Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ"]; 
 
     const daysElements = [];
     for (let day = 1; day <= daysInMonth; day++) {
@@ -518,18 +528,24 @@ function AdminDashboard() {
              }
            }}
          >
-           <span className="text-[10px] uppercase font-bold tracking-widest mb-1">{daysShort[d.getDay()]}</span>
+           <span className="text-[10px] uppercase font-bold tracking-widest mb-1">{daysShortLocal[d.getDay()]}</span>
            <span className="text-xl font-bold">{day}</span>
          </div>
        );
     }
 
+    const monthsLocal = ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος", "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"];
+
     return (
       <div className="bg-[#111] py-5 px-1 md:px-6 md:p-6 rounded-3xl border border-white/5 mb-6 shadow-inner">
          <div className="flex justify-between items-center mb-6 px-4 md:px-0">
-           <button type="button" onClick={() => setAdminCalDate(new Date(year, month - 1, 1))} className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-full text-gray-400 hover:text-white transition-colors">&lt;</button>
-           <span className="text-sm font-bold text-white uppercase tracking-widest">{months[month]} {year}</span>
-           <button type="button" onClick={() => setAdminCalDate(new Date(year, month + 1, 1))} className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-full text-gray-400 hover:text-white transition-colors">&gt;</button>
+           <button type="button" onClick={() => setAdminCalDate(new Date(year, month - 1, 1))} className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-full text-gray-400 hover:text-white transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+           </button>
+           <span className="text-sm font-bold text-white uppercase tracking-widest">{monthsLocal[month]} {year}</span>
+           <button type="button" onClick={() => setAdminCalDate(new Date(year, month + 1, 1))} className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-full text-gray-400 hover:text-white transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+           </button>
          </div>
          
          <div className="flex overflow-x-auto gap-3 hide-scrollbar snap-x snap-mandatory px-4 md:px-0 pb-2">
@@ -674,7 +690,7 @@ function AdminDashboard() {
               {activeTab === 'dashboard' && 'Επισκοπηση Επιχειρησης'}
               {activeTab === 'active' && 'Ενεργος Στολος'}
               {activeTab === 'draft' && 'Οχηματα Αναμονης'}
-              {activeTab === 'bookings' && 'Διαχειριση Κρατησεων'}
+              {activeTab === 'bookings' && 'Ημερησιο Πρόγραμμα'}
               {activeTab === 'notes' && 'Αρχειο Καταγραφων'}
             </h2>
             {activeTab === 'bookings' && (
@@ -788,66 +804,91 @@ function AdminDashboard() {
               </div>
             )}
 
-            {/* --- BOOKINGS SECTION ΜΕ ΚΑΡΤΕΣ & ΜΗΝΕΣ --- */}
+            {/* --- ΝΕΟ ΗΜΕΡΗΣΙΟ ΠΡΟΓΡΑΜΜΑ (DAILY SCHEDULE) --- */}
             {activeTab === 'bookings' && (
-              <div className="space-y-6">
+              <div className="max-w-4xl space-y-6">
                 
-                {/* Μπάρα Φιλτραρίσματος Μηνών */}
-                <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2 px-1">
-                  <button 
-                    onClick={() => setSelectedBookingMonth('all')}
-                    className={`flex-shrink-0 px-5 py-2.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-all ${selectedBookingMonth === 'all' ? 'bg-[#8B0000] text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
-                  >
-                    Γενικη Προβολη
-                  </button>
-                  {availableMonths.map(monthStr => (
-                    <button 
-                      key={monthStr}
-                      onClick={() => setSelectedBookingMonth(monthStr)}
-                      className={`flex-shrink-0 px-5 py-2.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-all ${selectedBookingMonth === monthStr ? 'bg-[#8B0000] text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
-                    >
-                      {formatMonthLabel(monthStr)}
+                {/* 2. Scrollable Date Picker με Πλοήγηση Μήνα */}
+                <div className="mb-8">
+                  <div className="flex justify-between items-center mb-4 px-2">
+                    <button onClick={() => {
+                      const prev = new Date(currentMonthView.getFullYear(), currentMonthView.getMonth() - 1, 1);
+                      setCurrentMonthView(prev);
+                      setSelectedDailyDate(prev);
+                    }} className="text-gray-400 hover:text-white p-2 transition-colors">
+                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                     </button>
-                  ))}
+                    <span className="text-white font-bold tracking-widest uppercase text-sm">
+                       {longMonths[currentMonthView.getMonth()]} {currentMonthView.getFullYear()}
+                    </span>
+                    <button onClick={() => {
+                      const next = new Date(currentMonthView.getFullYear(), currentMonthView.getMonth() + 1, 1);
+                      setCurrentMonthView(next);
+                      setSelectedDailyDate(next);
+                    }} className="text-gray-400 hover:text-white p-2 transition-colors">
+                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 overflow-x-auto hide-scrollbar snap-x snap-mandatory px-2 pb-4">
+                    {calendarDaysArray.map((d, idx) => {
+                      const dStr = getFormattedDateString(d);
+                      const isSelected = dStr === activeDateStr;
+                      return (
+                        <div 
+                          key={dStr} 
+                          id={isSelected ? 'calendar-active-day' : undefined}
+                          onClick={() => setSelectedDailyDate(d)} 
+                          className={`snap-center flex-shrink-0 w-[4.5rem] h-[5.5rem] flex flex-col items-center justify-center rounded-2xl cursor-pointer transition-all duration-300 ${isSelected ? 'bg-[#8B0000] text-white shadow-lg scale-105' : 'bg-[#111] border border-white/5 text-gray-500 hover:bg-white/10 hover:text-white'}`}
+                        >
+                          <span className={`text-[10px] uppercase font-bold tracking-widest mb-1 ${isSelected ? 'text-white/80' : ''}`}>{shortDays[d.getDay()]}</span>
+                          <span className="text-2xl font-light mb-1">{d.getDate()}</span>
+                          <span className={`text-[9px] uppercase tracking-widest ${isSelected ? 'text-white/80' : ''}`}>{shortMonths[d.getMonth()]}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
 
-                {/* Grid Κρατήσεων */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {displayedBookings.length === 0 ? (
-                    <div className="text-gray-500 text-sm py-10 uppercase tracking-widest col-span-full">ΔΕΝ ΥΠΑΡΧΟΥΝ ΚΡΑΤΗΣΕΙΣ ΓΙΑ ΑΥΤΗ ΤΗΝ ΕΠΙΛΟΓΗ.</div>
+                {/* 3. Daily Bookings List (Redesigned) */}
+                <div className="space-y-3 pt-2">
+                  {dailyBookings.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12 opacity-50">
+                      <svg className="w-10 h-10 text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      <div className="text-center text-gray-500 text-[10px] uppercase tracking-widest font-bold">Καμια ενεργη κρατηση για την επιλεγμενη ημερομηνια.</div>
+                    </div>
                   ) : (
-                    displayedBookings.map(b => {
-                      const simpleStatus = getSimpleStatus(b.status);
-                      
-                      return (
-                        <div key={b.id} className="bg-[#0A0A0A] border border-white/10 rounded-[1.5rem] p-5 flex flex-col shadow-lg relative transition-colors hover:border-white/20 gap-4">
-                          
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <div className="text-[10px] font-mono text-gray-500 mb-1">#{String(b.id).padStart(4, '0')}</div>
-                              <div className="text-sm font-bold text-white uppercase tracking-wider">{b.vehicle_model}</div>
-                            </div>
-                            <button onClick={() => openEditBooking(b)} className="px-3 py-2 bg-white/5 border border-white/10 hover:bg-[#8B0000] hover:border-[#8B0000] text-gray-300 hover:text-white rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all shadow-sm">
-                              Επεξεργασια
-                            </button>
-                          </div>
-                          
-                          <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                             <span className={`px-2.5 py-1.5 text-[8px] md:text-[9px] font-bold uppercase tracking-wider border rounded-lg whitespace-nowrap ${simpleStatus.style}`}>
-                               {simpleStatus.label}
-                             </span>
-                             {b.total_price > 0 && <div className="text-sm md:text-base font-bold text-white tracking-tight">€{b.total_price}</div>}
-                          </div>
-                          
-                          <div className="bg-[#111] border border-white/5 rounded-xl p-3 flex items-center justify-center">
-                            <span className="text-[10px] font-bold text-gray-400 tracking-wider">
-                              {b.check_in} <span className="text-gray-600 mx-2">→</span> {b.check_out}
-                            </span>
-                          </div>
-
+                    dailyBookings.map(b => (
+                      <div key={b.id} className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-4 flex gap-4 items-center transition-colors hover:border-white/10 group">
+                        
+                        {/* Left side: ID & Status */}
+                        <div className="w-12 flex flex-col items-center justify-center shrink-0">
+                           <span className="text-[10px] font-mono text-gray-500 mb-2">#{String(b.id).padStart(4, '0')}</span>
+                           <div className={`w-2.5 h-2.5 rounded-full ${b.status === 'Χειροκίνητη Δέσμευση' ? 'bg-blue-500' : 'bg-[#8B0000]'} shadow-[0_0_8px_currentColor]`}></div>
                         </div>
-                      );
-                    })
+                        
+                        {/* Vertical Line */}
+                        <div className="w-px h-12 bg-white/10 shrink-0"></div>
+                        
+                        {/* Main Content */}
+                        <div className="flex-1 min-w-0 py-1">
+                          <div className="text-sm font-bold text-white uppercase tracking-wider truncate mb-1">{b.vehicle_model}</div>
+                          <div className="text-[10px] text-gray-400 truncate flex gap-2 items-center">
+                            <span className="font-bold text-gray-300">{b.customer_name || 'ΕΣΩΤΕΡΙΚΟ BLOCK'}</span>
+                            <span className="text-gray-600">|</span>
+                            <span className="font-mono text-[#8B0000]">{b.check_in.slice(5).replace('-','/')} <span className="text-gray-500 mx-0.5">➝</span> {b.check_out.slice(5).replace('-','/')}</span>
+                          </div>
+                        </div>
+
+                        {/* Right side: Actions */}
+                        <div className="flex flex-col md:flex-row items-end md:items-center gap-3 shrink-0">
+                          {b.total_price > 0 && <span className="text-sm font-bold text-white font-mono mr-2">€{b.total_price}</span>}
+                          <button onClick={() => openEditBooking(b)} className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-[#8B0000] text-gray-400 hover:text-white rounded-xl transition-all border border-transparent group-hover:border-white/10">
+                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                          </button>
+                        </div>
+                      </div>
+                    ))
                   )}
                 </div>
               </div>
