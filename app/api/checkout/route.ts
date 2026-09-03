@@ -1,48 +1,43 @@
-
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-// Αρχικοποίηση της Stripe με το Secret Key από το περιβάλλον
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
-    ; 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+ apiVersion: '2026-06-24.dahlia',// Χρήση πρόσφατης έκδοσης
+});
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
+    const body = await req.json();
     const { vehicleId, model, price, checkIn, checkOut, days } = body;
 
-    // Δημιουργία του Stripe Checkout Session
+    // Εδώ βρίσκουμε αυτόματα το URL του site (είτε είναι localhost είτε το live domain)
+    const origin = req.headers.get('origin') || 'http://localhost:3000';
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      
-      // Ζητάμε από τη Stripe να συλλέξει υποχρεωτικά το τηλέφωνο του πελάτη
-      phone_number_collection: {
-        enabled: true,
-      },
-      
       line_items: [
         {
           price_data: {
             currency: 'eur',
             product_data: {
-              name: `Κράτηση Οχήματος: ${model}`,
-              description: `Διάρκεια: ${days} Ημέρες | Από: ${checkIn} Έως: ${checkOut}`,
+              name: model,
+              description: checkIn && checkOut ? `Ημερομηνίες: ${checkIn} έως ${checkOut}` : 'Μη διαθέσιμες ημερομηνίες',
             },
-            unit_amount: Math.round(price * 100), // Η Stripe υπολογίζει σε cents
+            // Το Stripe παίρνει τα ποσά σε λεπτά (cents), άρα 1€ = 100 λεπτά
+            unit_amount: Math.round(price * 100), 
           },
           quantity: 1,
         },
       ],
       mode: 'payment',
-      // Αν επιτύχει η πληρωμή
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?payment=success`,
-      // Αν ακυρωθεί η πληρωμή
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/?payment=cancelled`,
+      // Στέλνουμε πίσω τις σωστές διευθύνσεις
+      success_url: `${origin}/?payment=success`,
+      cancel_url: `${origin}/?payment=cancelled`,
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (error: any) {
-    console.error('Stripe Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (err: any) {
+    console.error("Stripe Error:", err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

@@ -61,8 +61,10 @@ const TRANSLATIONS = {
     all: "Ολα",
     updating: "Ενημέρωση Στόλου...",
     power: "Ισχυς",
-    engine: "Κινητηρας",
+    engine: "Κυβικα",
     transmission: "Κιβωτιο",
+    fuel: "Καυσιμο",
+    mileage: "Χιλιομετρα",
     auto: "Αυτοματο",
     manual: "Χειροκινητο",
     cost: "Κοστος",
@@ -119,6 +121,8 @@ const TRANSLATIONS = {
     power: "Power",
     engine: "Engine",
     transmission: "Gearbox",
+    fuel: "Fuel",
+    mileage: "Mileage",
     auto: "Auto",
     manual: "Manual",
     cost: "Cost",
@@ -168,7 +172,8 @@ const TRANSLATIONS = {
 };
 
 type Vehicle = { 
-  id: number; plate: string; model: string; cc: string; hp: string; price: number; is_active: boolean; category: string; photos: string[]; transmission?: string; availability?: string[];
+  id: number; plate: string; model: string; price: number; is_active: boolean; category: string; photos: string[]; availability?: string[];
+  cc?: string; hp?: string; transmission?: string; fuel?: string; mileage?: string;
 };
 
 type DbCategory = { id: number; name: string; is_active: boolean; };
@@ -234,7 +239,7 @@ export default function PremiumFleetApp() {
 
   useEffect(() => {
     if (selectedVehicle && activeAvailability === 'Ενοικίαση') {
-      const currentVehicleId = selectedVehicle.id; // Λύση για το Typescript (ώστε να μην χαθεί το context στην ασύγχρονη κλήση)
+      const currentVehicleId = selectedVehicle.id; 
       async function fetchBookings() {
         const { data } = await supabase
           .from('bookings')
@@ -433,7 +438,6 @@ export default function PremiumFleetApp() {
         </div>
       </section>
 
-      {/* ΔΥΝΑΜΙΚΗ ΜΠΑΡΑ ΚΑΤΗΓΟΡΙΩΝ ΑΠΟ ΤΟΝ ΠΙΝΑΚΑ */}
       <div className="sticky-category-bar bg-[#030303]/95 backdrop-blur-xl px-5 md:px-12 py-3 flex justify-start md:justify-center gap-2 overflow-x-auto hide-scrollbar border-b border-[#8B0000]/10">
         {finalUiCategories.map(cat => (
           <button key={cat} onClick={() => { setActiveCategory(cat); scrollToSection('fleet'); }} className={`flex-shrink-0 text-[10px] md:text-xs font-bold uppercase tracking-widest px-5 py-3 rounded-full transition-all ${activeCategory === cat ? 'bg-[#8B0000] text-white' : 'bg-[#111] text-gray-400 hover:text-white border border-white/5'}`}>{cat === 'All' ? t.all : cat}</button>
@@ -456,14 +460,27 @@ export default function PremiumFleetApp() {
                   <img src={v.photos?.[0] || '/brand-logo.png'} alt={v.model} className="absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-[1.5s]" />
                 </div>
                 <div className="w-full md:w-1/2 p-6 md:p-16 flex flex-col justify-center relative z-10">
-                  <div className="inline-block px-4 py-1.5 rounded-full bg-[#8B0000]/10 text-[#8B0000] text-[8px] font-bold uppercase tracking-widest w-fit mb-4 border border-[#8B0000]/20">{v.category}</div>
-                  <h2 className="text-3xl md:text-5xl font-serif-premium font-light mb-6 text-white">{v.model}</h2>
-                  <div className="flex gap-8 mb-10 pb-10 border-b border-white/5">
-                    <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.engine}</div><div className="text-sm md:text-xl font-medium text-white">{v.cc} <span className="text-[10px] text-gray-300 font-light">CC</span></div></div>
-                    <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.power}</div><div className="text-sm md:text-xl font-medium text-white">{v.hp} <span className="text-[10px] text-gray-300 font-light">HP</span></div></div>
-                    <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.transmission}</div><div className="text-sm md:text-xl font-medium text-white">{v.transmission?.toLowerCase().includes('man') ? t.manual : t.auto}</div></div>
+                  <div className="flex flex-wrap items-center gap-3 mb-4">
+                    <div className="px-4 py-1.5 rounded-full bg-[#8B0000]/10 text-[#8B0000] text-[8px] font-bold uppercase tracking-widest border border-[#8B0000]/20">
+                      {v.category}
+                    </div>
+                    <div className="text-[10px] text-gray-500 font-mono font-bold tracking-widest uppercase bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+                      ID: #{String(v.id).padStart(4, '0')}
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center gap-8">
+
+                  <h2 className="text-3xl md:text-5xl font-serif-premium font-light mb-6 text-white">{v.model}</h2>
+                  
+                  {/* ΔΥΝΑΜΙΚΑ ΧΑΡΑΚΤΗΡΙΣΤΙΚΑ: Εμφανίζονται ΜΟΝΟ όσα έχουν συμπληρωθεί */}
+                  <div className="flex flex-wrap gap-6 md:gap-8 mb-10 pb-10 border-b border-white/5">
+                    {v.cc && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.engine}</div><div className="text-sm md:text-xl font-medium text-white">{v.cc} <span className="text-[10px] text-gray-300 font-light">CC</span></div></div>}
+                    {v.hp && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.power}</div><div className="text-sm md:text-xl font-medium text-white">{v.hp} <span className="text-[10px] text-gray-300 font-light">HP</span></div></div>}
+                    {v.transmission && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.transmission}</div><div className="text-sm md:text-xl font-medium text-white">{v.transmission?.toLowerCase().includes('man') ? t.manual : (v.transmission?.toLowerCase().includes('aut') ? t.auto : v.transmission)}</div></div>}
+                    {v.fuel && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.fuel}</div><div className="text-sm md:text-xl font-medium text-white">{v.fuel}</div></div>}
+                    {v.mileage && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.mileage}</div><div className="text-sm md:text-xl font-medium text-white">{v.mileage} <span className="text-[10px] text-gray-300 font-light">KM</span></div></div>}
+                  </div>
+
+                  <div className="flex justify-between items-center gap-8 mt-auto">
                     <div><div className="text-[9px] text-gray-500 uppercase tracking-widest mb-1">{t.cost}</div><div className="text-2xl md:text-4xl font-light text-white">€{v.price}</div></div>
                     <button onClick={() => setSelectedVehicle(v)} className="px-8 py-4 bg-white text-black rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-[#8B0000] hover:text-white transition-all shadow-md">{activeAvailability === 'Πώληση' ? t.buyNow : t.select}</button>
                   </div>
@@ -474,7 +491,6 @@ export default function PremiumFleetApp() {
         )}
       </main>
 
-      {/* --- FULL SCREEN MOBILE MENU --- */}
       <div className={`fixed inset-0 z-[200] bg-[#050505] flex flex-col transition-all duration-500 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
         <div className="px-5 md:px-12 py-4 flex justify-between items-center border-b border-white/5">
           <AutoLazaridisLogo className="h-10 md:h-12 w-auto" />
@@ -525,7 +541,11 @@ export default function PremiumFleetApp() {
             </div>
 
             <div className="flex-1 overflow-y-auto pb-safe px-5 md:px-8 pt-6 space-y-8 hide-scrollbar">
+              
               <div className="w-full aspect-video rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden relative border border-[#8B0000]/20 shadow-lg">
+                 <div className="absolute top-4 right-4 md:top-5 md:right-5 bg-black/80 backdrop-blur-xl px-3 py-1.5 rounded-xl border border-white/10 text-white font-mono text-[10px] font-bold tracking-widest z-10 shadow-lg">
+                   ID: #{String(selectedVehicle.id).padStart(4, '0')}
+                 </div>
                  <img src={selectedVehicle.photos?.[0] || '/brand-logo.png'} alt={selectedVehicle.model} className="w-full h-full object-cover grayscale-[10%]" />
                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
                  <div className="absolute bottom-4 left-5 md:left-6"><h2 className="text-xl md:text-2xl font-serif-premium text-white">{selectedVehicle.model}</h2></div>

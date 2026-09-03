@@ -53,25 +53,10 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           <h1 className="text-white text-xs font-bold uppercase tracking-[0.3em] mb-8 text-center">Συστημα Διαχειρισης</h1>
           <form onSubmit={handleLogin} className="w-full space-y-5">
             <div>
-              <input 
-                type="email" 
-                placeholder="Email Διαχειριστή" 
-                value={email}
-                onChange={(e) => { setEmail(e.target.value); setError(''); }}
-                className={`w-full bg-[#111] border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-4 text-sm text-center text-white focus:outline-none focus:border-[#8B0000] tracking-widest transition-colors`}
-                autoFocus
-                required
-              />
+              <input type="email" placeholder="Email Διαχειριστή" value={email} onChange={(e) => { setEmail(e.target.value); setError(''); }} className={`w-full bg-[#111] border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-4 text-sm text-center text-white focus:outline-none focus:border-[#8B0000] tracking-widest transition-colors`} autoFocus required />
             </div>
             <div>
-              <input 
-                type="password" 
-                placeholder="Κωδικός Πρόσβασης" 
-                value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                className={`w-full bg-[#111] border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-4 text-sm text-center text-white focus:outline-none focus:border-[#8B0000] tracking-widest font-mono transition-colors`}
-                required
-              />
+              <input type="password" placeholder="Κωδικός Πρόσβασης" value={password} onChange={(e) => { setPassword(e.target.value); setError(''); }} className={`w-full bg-[#111] border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-4 text-sm text-center text-white focus:outline-none focus:border-[#8B0000] tracking-widest font-mono transition-colors`} required />
             </div>
             {error && <p className="text-red-500 text-[9px] uppercase tracking-widest text-center font-bold">{error}</p>}
             <button type="submit" className="w-full py-4 bg-[#8B0000] hover:bg-[#6A0000] text-white rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all shadow-[0_10px_30px_rgba(139,0,0,0.3)] mt-2">
@@ -88,7 +73,8 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 // --- ΤΥΠΟΙ ΔΕΔΟΜΕΝΩΝ ---
 type Vehicle = {
-  id: number; plate: string; brand: string; model: string; cc: string; hp: string; transmission: string; price: number; is_active: boolean; agency_name: string; category: string; photos: string[]; availability: string[]; 
+  id: number; plate: string; brand: string; model: string; price: number; is_active: boolean; agency_name: string; category: string; photos: string[]; availability: string[]; 
+  cc?: string; hp?: string; transmission?: string; fuel?: string; mileage?: string;
 };
 
 type Booking = {
@@ -103,7 +89,6 @@ type DbCategory = {
   id: number; name: string; is_active: boolean;
 };
 
-// Helpers Ημερολογίου
 const shortDays = ["ΚΥΡ", "ΔΕΥ", "ΤΡΙ", "ΤΕΤ", "ΠΕΜ", "ΠΑΡ", "ΣΑΒ"];
 const shortMonths = ["ΙΑΝ", "ΦΕΒ", "ΜΑΡ", "ΑΠΡ", "ΜΑΙ", "ΙΟΥΝ", "ΙΟΥΛ", "ΑΥΓ", "ΣΕΠ", "ΟΚΤ", "ΝΟΕ", "ΔΕΚ"];
 const longMonths = ["ΙΑΝΟΥΑΡΙΟΣ", "ΦΕΒΡΟΥΑΡΙΟΣ", "ΜΑΡΤΙΟΣ", "ΑΠΡΙΛΙΟΣ", "ΜΑΙΟΣ", "ΙΟΥΝΙΟΣ", "ΙΟΥΛΙΟΣ", "ΑΥΓΟΥΣΤΟΣ", "ΣΕΠΤΕΜΒΡΙΟΣ", "ΟΚΤΩΒΡΙΟΣ", "ΝΟΕΜΒΡΙΟΣ", "ΔΕΚΕΜΒΡΙΟΣ"];
@@ -115,24 +100,19 @@ const getFormattedDateString = (d: Date) => {
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'active' | 'draft' | 'bookings' | 'notes' | 'categories'>('dashboard'); 
-  
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isManualBookingModalOpen, setIsManualBookingModalOpen] = useState(false);
-  
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
   const [editDates, setEditDates] = useState({ check_in: '', check_out: '', total_price: 0 });
-  
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [dbCategories, setDbCategories] = useState<DbCategory[]>([]);
-  
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [vehicleBookings, setVehicleBookings] = useState<Booking[]>([]);
   const [manualDates, setManualDates] = useState({ start: '', end: '' });
-  
   const [adminCalDate, setAdminCalDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -254,7 +234,10 @@ function AdminDashboard() {
     if (!error) setNotes(notes.filter(n => n.id !== id));
   };
 
-  const initialVehicleState = { brand: '', model: '', hp: '', transmission: 'Χειροκίνητο', category: '', price: '', existingPhotoUrl: '', availability: ['Ενοικίαση'] };
+  const initialVehicleState = { 
+    brand: '', model: '', category: '', price: '', existingPhotoUrl: '', availability: ['Ενοικίαση'],
+    cc: '', hp: '', transmission: '', fuel: '', mileage: ''
+  };
   const [newVehicle, setNewVehicle] = useState(initialVehicleState);
   const [vehiclePhoto, setVehiclePhoto] = useState<File | null>(null);
 
@@ -271,13 +254,26 @@ function AdminDashboard() {
     const preset = vehicles.find(v => v.id.toString() === val);
     if (preset) {
       setNewVehicle({
-        brand: preset.brand, model: preset.model, hp: preset.hp, transmission: preset.transmission, category: preset.category, price: preset.price.toString(), existingPhotoUrl: preset.photos && preset.photos.length > 0 ? preset.photos[0] : '', availability: preset.availability && preset.availability.length > 0 ? [preset.availability[0]] : ['Ενοικίαση']
+        brand: preset.brand, model: preset.model, category: preset.category, price: preset.price.toString(), 
+        existingPhotoUrl: preset.photos && preset.photos.length > 0 ? preset.photos[0] : '', 
+        availability: preset.availability && preset.availability.length > 0 ? preset.availability : ['Ενοικίαση'],
+        cc: preset.cc || '', hp: preset.hp || '', transmission: preset.transmission || '', fuel: preset.fuel || '', mileage: preset.mileage || ''
       });
       setVehiclePhoto(null);
     }
   };
 
-  const handleAvailabilityChange = (type: string) => { setNewVehicle(prev => ({ ...prev, availability: [type] })); };
+  // --- ΑΛΛΑΓΗ ΛΟΓΙΚΗΣ ΠΟΛΛΑΠΛΗΣ ΕΠΙΛΟΓΗΣ (CHECKBOXES) ---
+  const handleAvailabilityChange = (type: string) => { 
+    setNewVehicle(prev => {
+      const current = prev.availability;
+      if (current.includes(type)) {
+        return { ...prev, availability: current.filter(t => t !== type) };
+      } else {
+        return { ...prev, availability: [...current, type] };
+      }
+    }); 
+  };
 
   const handleAddVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -299,12 +295,18 @@ function AdminDashboard() {
 
     const randomPlate = `TBA-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
     const { data, error } = await supabase.from('vehicles').insert([{
-        plate: randomPlate, brand: newVehicle.brand, model: newVehicle.model, cc: 'N/A', hp: newVehicle.hp, transmission: newVehicle.transmission, category: newVehicle.category, price: Number(newVehicle.price), is_active: false, agency_name: 'AUTO ΛΑΖΑΡΙΔΗΣ', photos: [finalPhotoUrl], availability: newVehicle.availability
+        plate: randomPlate, brand: newVehicle.brand, model: newVehicle.model, 
+        cc: newVehicle.cc.trim() || null, 
+        hp: newVehicle.hp.trim() || null, 
+        transmission: newVehicle.transmission || null, 
+        fuel: newVehicle.fuel || null,
+        mileage: newVehicle.mileage.trim() || null,
+        category: newVehicle.category, price: Number(newVehicle.price), is_active: false, agency_name: 'AUTO ΛΑΖΑΡΙΔΗΣ', photos: [finalPhotoUrl], availability: newVehicle.availability
       }]).select();
 
     if (!error && data) {
       setVehicles([data[0], ...vehicles]); setNewVehicle(initialVehicleState); setVehiclePhoto(null); setIsUploadModalOpen(false); setActiveTab('draft');
-    } else if (error) { alert(`Σφάλμα βάσης δεδομένων: ${error.message}`); }
+    } else if (error) { alert(`Σφάλμα βάσης δεδομένων: ${error.message}.`); }
     setIsUploading(false);
   };
 
@@ -319,7 +321,6 @@ function AdminDashboard() {
     if (!error) setVehicles(vehicles.filter(v => v.id !== id));
   };
 
-  // --- ΝΕΑ ΜΑΖΙΚΗ ΔΙΑΓΡΑΦΗ ΟΧΗΜΑΤΩΝ ΣΕ ΑΝΑΜΟΝΗ ---
   const handleDeleteAllDrafts = async () => {
     const inactiveVehicles = vehicles.filter(v => !v.is_active);
     if (inactiveVehicles.length === 0) return;
@@ -346,17 +347,12 @@ function AdminDashboard() {
     if (!acc[dateStr]) acc[dateStr] = []; acc[dateStr].push(note); return acc;
   }, {} as Record<string, Note[]>);
 
-  // --- ΚΡΑΤΗΣΕΙΣ LOGIC ---
   const activeDateStr = getFormattedDateString(selectedDailyDate);
   const dailyBookings = bookings.filter(b => activeDateStr >= b.check_in && activeDateStr <= b.check_out);
   const recentBookings = bookings.slice(0, 5); 
 
   const renderBookingCard = (b: Booking) => (
-    <div 
-      key={`booking-${b.id}`} 
-      onClick={() => openEditBooking(b)} 
-      className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-4 flex gap-4 items-center group cursor-pointer hover:bg-white/[0.02] hover:border-white/20 transition-all shadow-lg"
-    >
+    <div key={`booking-${b.id}`} onClick={() => openEditBooking(b)} className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-4 flex gap-4 items-center group cursor-pointer hover:bg-white/[0.02] hover:border-white/20 transition-all shadow-lg">
       <div className="w-12 flex flex-col items-center justify-center shrink-0">
          <span className="text-[10px] font-mono text-gray-500 mb-2">#{String(b.id).padStart(4, '0')}</span>
          <div className={`w-2.5 h-2.5 rounded-full ${b.status === 'Χειροκίνητη Δέσμευση' ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-[#8B0000] shadow-[0_0_8px_#8B0000]'}`}></div>
@@ -372,10 +368,7 @@ function AdminDashboard() {
       </div>
       <div className="flex flex-row items-center justify-end gap-3 shrink-0">
         {b.total_price > 0 && <span className="text-sm font-bold text-white font-mono mr-2">€{b.total_price}</span>}
-        <button 
-          onClick={(e) => { e.stopPropagation(); openEditBooking(b); }} 
-          className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-[#8B0000] text-gray-400 hover:text-white rounded-xl transition-all"
-        >
+        <button onClick={(e) => { e.stopPropagation(); openEditBooking(b); }} className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-[#8B0000] text-gray-400 hover:text-white rounded-xl transition-all">
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
         </button>
       </div>
@@ -400,9 +393,7 @@ function AdminDashboard() {
        } else boxClass += "bg-black border-white/10 text-gray-500 hover:bg-white/10 hover:text-white hover:border-white/30";
 
        daysElements.push(
-         <div 
-           key={dateStr} className={boxClass} 
-           onClick={() => {
+         <div key={dateStr} className={boxClass} onClick={() => {
              if (!booking) {
                if (!manualDates.start || (manualDates.start && manualDates.end)) setManualDates({ start: dateStr, end: '' });
                else if (dateStr > manualDates.start) setManualDates({ ...manualDates, end: dateStr });
@@ -428,7 +419,7 @@ function AdminDashboard() {
          <div className="flex overflow-x-auto gap-3 hide-scrollbar snap-x snap-mandatory px-4 md:px-0 pb-2">{daysElements}</div>
          <div className="mt-5 flex flex-wrap gap-4 text-[9px] uppercase tracking-widest text-gray-500 justify-center">
             <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-black border border-white/10 rounded"></div> Ελευθερο</div>
-            <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-[#8B0000]/20 border border-red-500/40 rounded"></div> Κρατηση Πελατη (Κλικ για προβολη)</div>
+            <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-[#8B0000]/20 border border-red-500/40 rounded"></div> Κρατηση Πελατη</div>
             <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-blue-600/20 border border-blue-500/40 rounded"></div> Εσωτερικο Block</div>
          </div>
       </div>
@@ -471,9 +462,11 @@ function AdminDashboard() {
                       <span className="font-mono text-gray-600 bg-white/5 px-2 py-0.5 rounded border border-white/5">#{String(v.id).padStart(4, '0')}</span>
                     </div>
                     <h3 className="text-base md:text-lg font-bold text-white tracking-tight leading-tight">{v.model}</h3>
+                    
                     <div className="flex flex-wrap gap-1.5 md:gap-2 mt-2 md:mt-3">
-                      <span className="text-[9px] md:text-[10px] text-gray-300 font-mono bg-white/5 border border-white/10 px-2 py-1 rounded shadow-inner">{v.hp} HP</span>
-                      <span className="text-[9px] md:text-[10px] text-gray-300 font-mono bg-white/5 border border-white/10 px-2 py-1 rounded shadow-inner">{v.transmission}</span>
+                      {v.hp && <span className="text-[9px] md:text-[10px] text-gray-300 font-mono bg-white/5 border border-white/10 px-2 py-1 rounded shadow-inner">{v.hp} HP</span>}
+                      {v.transmission && <span className="text-[9px] md:text-[10px] text-gray-300 font-mono bg-white/5 border border-white/10 px-2 py-1 rounded shadow-inner">{v.transmission}</span>}
+                      {v.fuel && <span className="text-[9px] md:text-[10px] text-gray-300 font-mono bg-white/5 border border-white/10 px-2 py-1 rounded shadow-inner">{v.fuel}</span>}
                     </div>
                   </div>
                 </div>
@@ -544,18 +537,12 @@ function AdminDashboard() {
               {activeTab === 'notes' && 'Αρχειο Καταγραφων'}
             </h2>
             
-            {/* --- ΚΟΥΜΠΙ ΜΑΖΙΚΗΣ ΔΙΑΓΡΑΦΗΣ (ΜΟΝΟ ΣΤΗΝ ΑΝΑΜΟΝΗ) --- */}
             {activeTab === 'draft' && draftCount > 0 && (
-              <button 
-                onClick={handleDeleteAllDrafts} 
-                disabled={isUploading}
-                className="px-3 md:px-4 py-2 bg-red-900/50 hover:bg-red-600 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-lg transition-colors shadow-lg border border-red-500/50 whitespace-nowrap ml-2 disabled:opacity-50"
-              >
+              <button onClick={handleDeleteAllDrafts} disabled={isUploading} className="px-3 md:px-4 py-2 bg-red-900/50 hover:bg-red-600 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-lg transition-colors shadow-lg border border-red-500/50 whitespace-nowrap ml-2 disabled:opacity-50">
                 ΔΙΑΓΡΑΦΗ ΟΛΩΝ
               </button>
             )}
 
-            {/* --- ΚΟΥΜΠΙ ΝΕΑΣ ΚΡΑΤΗΣΗΣ (ΕΚΤΟΣ ΣΤΟΛΟΥ) --- */}
             {activeTab === 'bookings' && (
               <button onClick={() => setIsManualBookingModalOpen(true)} className="px-3 md:px-4 py-2 bg-[#8B0000] hover:bg-[#6A0000] text-white text-[8px] md:text-[10px] font-bold uppercase tracking-widest rounded-lg transition-colors shadow-lg border border-red-900/50 whitespace-nowrap ml-2">
                 + ΕΚΤΟΣ ΣΤΟΛΟΥ
@@ -617,8 +604,6 @@ function AdminDashboard() {
             {/* --- ΗΜΕΡΗΣΙΟ ΠΡΟΓΡΑΜΜΑ & ΝΕΕΣ ΚΡΑΤΗΣΕΙΣ --- */}
             {activeTab === 'bookings' && (
               <div className="max-w-4xl space-y-10">
-                
-                {/* SECTION: ΠΡΟΣΦΑΤΕΣ ΚΡΑΤΗΣΕΙΣ */}
                 <div>
                   <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e] animate-pulse"></span>
@@ -633,7 +618,6 @@ function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* SECTION: ΗΜΕΡΗΣΙΟ ΠΡΟΓΡΑΜΜΑ */}
                 <div>
                   <div className="flex justify-between items-center mb-6 px-2">
                     <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
@@ -669,7 +653,6 @@ function AdminDashboard() {
                     )}
                   </div>
                 </div>
-
               </div>
             )}
 
@@ -775,7 +758,6 @@ function AdminDashboard() {
             <div className="overflow-y-auto hide-scrollbar p-5 md:p-8">
               <form onSubmit={handleAddVehicle} className="space-y-5">
                 
-                {/* --- ΓΡΗΓΟΡΗ ΕΙΣΑΓΩΓΗ ΠΡΟΤΥΠΟΥ (PRESETS) --- */}
                 {uniqueVehicles.length > 0 && (
                   <div className="bg-[#8B0000]/10 border border-[#8B0000]/20 p-4 md:p-5 rounded-xl mb-4 md:mb-6">
                     <label className="block text-[9px] md:text-[10px] font-bold text-[#8B0000] uppercase tracking-widest mb-2">Γρηγορη Εισαγωγη (Απο Υπαρχοντα)</label>
@@ -796,18 +778,18 @@ function AdminDashboard() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Μαρκα</label>
+                    <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Μαρκα *</label>
                     <input type="text" required placeholder="Suzuki" value={newVehicle.brand} onChange={(e) => setNewVehicle({...newVehicle, brand: e.target.value})} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-[#8B0000]" />
                   </div>
                   <div>
-                    <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Μοντελο</label>
+                    <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Μοντελο *</label>
                     <input type="text" required placeholder="Swift" value={newVehicle.model} onChange={(e) => setNewVehicle({...newVehicle, model: e.target.value})} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-[#8B0000]" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Κατηγορια</label>
+                    <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Κατηγορια *</label>
                     <select required value={newVehicle.category} onChange={(e) => setNewVehicle({...newVehicle, category: e.target.value})} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-[#8B0000] font-bold appearance-none">
                       <option value="">-- Επιλογή Κατηγορίας --</option>
                       {dbCategories.filter(c => c.is_active).map(c => (
@@ -816,33 +798,63 @@ function AdminDashboard() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Αλογα (HP)</label>
-                    <input type="number" required placeholder="90" value={newVehicle.hp} onChange={(e) => setNewVehicle({...newVehicle, hp: e.target.value})} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-[#8B0000]" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Κιβωτιο</label>
-                    <select required value={newVehicle.transmission} onChange={(e) => setNewVehicle({...newVehicle, transmission: e.target.value})} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-[#8B0000] font-bold">
-                      <option value="Χειροκίνητο">Χειροκίνητο</option>
-                      <option value="Αυτόματο">Αυτόματο</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Τιμη (€)</label>
+                    <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Τιμη (€) *</label>
                     <input type="number" required placeholder="45" value={newVehicle.price} onChange={(e) => setNewVehicle({...newVehicle, price: e.target.value})} className="w-full bg-[#050505] border border-white/10 rounded-xl px-3 py-3 text-xs text-white focus:outline-none focus:border-[#8B0000] font-bold" />
                   </div>
                 </div>
 
+                {/* --- ΤΕΧΝΙΚΑ ΧΑΡΑΚΤΗΡΙΣΤΙΚΑ --- */}
+                <div className="bg-[#111] border border-white/5 p-4 md:p-5 rounded-xl space-y-4">
+                  <label className="block text-[9px] font-bold text-[#8B0000] uppercase tracking-widest">Τεχνικα Χαρακτηριστικα (Προαιρετικα - Μην συμπληρωνετε οσα δεν θελετε να φαινονται)</label>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-[8px] text-gray-500 uppercase tracking-widest mb-1.5">Κυβικα (CC)</label>
+                      <input type="text" placeholder="π.χ. 1400" value={newVehicle.cc} onChange={(e) => setNewVehicle({...newVehicle, cc: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#8B0000]" />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] text-gray-500 uppercase tracking-widest mb-1.5">Αλογα (HP)</label>
+                      <input type="text" placeholder="π.χ. 120" value={newVehicle.hp} onChange={(e) => setNewVehicle({...newVehicle, hp: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#8B0000]" />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] text-gray-500 uppercase tracking-widest mb-1.5">Χιλιομετρα</label>
+                      <input type="text" placeholder="π.χ. 45.000" value={newVehicle.mileage} onChange={(e) => setNewVehicle({...newVehicle, mileage: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#8B0000]" />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] text-gray-500 uppercase tracking-widest mb-1.5">Κιβωτιο</label>
+                      <select value={newVehicle.transmission} onChange={(e) => setNewVehicle({...newVehicle, transmission: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#8B0000]">
+                        <option value="">- Κενό -</option>
+                        <option value="Χειροκίνητο">Χειροκίνητο</option>
+                        <option value="Αυτόματο">Αυτόματο</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[8px] text-gray-500 uppercase tracking-widest mb-1.5">Καυσιμο</label>
+                      <select value={newVehicle.fuel} onChange={(e) => setNewVehicle({...newVehicle, fuel: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#8B0000]">
+                        <option value="">- Κενό -</option>
+                        <option value="Βενζίνη">Βενζίνη</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Υβριδικό">Υβριδικό</option>
+                        <option value="Ηλεκτρικό">Ηλεκτρικό</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* --- MULTIPLE CHOICE ΓΙΑ ΤΗ ΔΙΑΘΕΣΙΜΟΤΗΤΑ (CHECKBOXES) --- */}
                 <div className="bg-[#111] border border-white/5 p-4 rounded-xl">
-                  <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3">Διαθεσιμοτητα</label>
+                  <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3">Διαθεσιμοτητα (Μπορειτε να επιλεξετε πολλαπλα) *</label>
                   <div className="flex gap-6">
                     {['Ενοικίαση', 'Leasing', 'Πώληση'].map(type => (
                       <label key={type} className="flex items-center gap-2 text-xs text-white cursor-pointer group">
-                        <input type="radio" name="availability" checked={newVehicle.availability.includes(type)} onChange={() => handleAvailabilityChange(type)} className="peer sr-only" />
-                        <div className="w-4 h-4 border-2 border-white/20 rounded-full bg-black peer-checked:border-[#8B0000] flex items-center justify-center">
-                          <div className="w-2 h-2 rounded-full bg-[#8B0000] opacity-0 peer-checked:opacity-100"></div>
+                        <input 
+                          type="checkbox" 
+                          checked={newVehicle.availability.includes(type)} 
+                          onChange={() => handleAvailabilityChange(type)} 
+                          className="peer sr-only" 
+                        />
+                        <div className="w-4 h-4 border-2 border-white/20 rounded bg-black peer-checked:border-[#8B0000] flex items-center justify-center transition-colors">
+                          <svg className="w-2.5 h-2.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                         </div>
                         <span className="text-[9px] uppercase tracking-widest font-bold text-gray-300 group-hover:text-white">{type}</span>
                       </label>
@@ -851,7 +863,7 @@ function AdminDashboard() {
                 </div>
 
                 <div className="bg-black/20 border border-white/5 p-4 rounded-xl">
-                  <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3">Φωτογραφια Οχηματος</label>
+                  <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3">Φωτογραφια Οχηματος *</label>
                   
                   {newVehicle.existingPhotoUrl && !vehiclePhoto && (
                     <div className="mb-3 text-[9px] md:text-[10px] text-green-500 font-bold uppercase tracking-widest flex items-center gap-2">
