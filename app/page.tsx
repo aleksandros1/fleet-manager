@@ -58,6 +58,7 @@ const TRANSLATIONS = {
     heroTitle1: "Ανακαλύψτε Την Απόλυτη",
     heroTitle2: "Οδηγική Εμπειρία.",
     heroSub: "Η πιο αυστηρά επιλεγμένη συλλογή οχημάτων στη Βόρεια Ελλάδα. Καθαρή διαφάνεια, αδιαπραγμάτευτη ποιότητα.",
+    exploreFleet: "ΕΞΕΡΕΥΝΗΣΗ ΣΤΟΛΟΥ",
     all: "Ολα",
     updating: "Ενημέρωση Στόλου...",
     power: "Ισχυς",
@@ -116,6 +117,7 @@ const TRANSLATIONS = {
     heroTitle1: "Discover The Ultimate",
     heroTitle2: "Driving Experience.",
     heroSub: "The most strictly selected vehicle collection in Northern Greece. Pure transparency, non-negotiable quality.",
+    exploreFleet: "EXPLORE FLEET",
     all: "All",
     updating: "Updating Fleet...",
     power: "Power",
@@ -185,6 +187,9 @@ export default function PremiumFleetApp() {
   
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [activeAvailability, setActiveAvailability] = useState<string>('Ενοικίαση');
+  
+  // Το νέο state που ελέγχει αν έχει εμφανιστεί ο στόλος ή όχι
+  const [showFleet, setShowFleet] = useState(false);
   
   const [introVisible, setIntroVisible] = useState(true);
   const [introRendered, setIntroRendered] = useState(true);
@@ -414,7 +419,7 @@ export default function PremiumFleetApp() {
         </div>
       )}
 
-      <header className="fixed top-0 w-full z-40 bg-black border-b border-[#8B0000]/20 px-5 md:px-12 py-4 flex justify-between items-center">
+      <header className="fixed top-0 w-full z-40 bg-black/90 backdrop-blur-md border-b border-[#8B0000]/20 px-5 md:px-12 py-4 flex justify-between items-center">
         <AutoLazaridisLogo className="h-10 md:h-12 w-auto" />
         <div className="flex items-center gap-6">
           <button onClick={toggleLanguage} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest bg-[#111] px-3 py-2 rounded-lg border border-white/10">
@@ -424,72 +429,98 @@ export default function PremiumFleetApp() {
         </div>
       </header>
 
-      <section id="home" className="relative w-full h-[50vh] flex flex-col justify-center items-center text-center px-5 mt-16 overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none scale-150"><AutoLazaridisLogo className="w-full max-w-5xl h-auto opacity-[0.25]" /></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#030303]/90 via-[#030303]/60 to-[#030303]"></div>
-        <div className="relative z-10 max-w-4xl w-full px-2 mt-4">
-          <h1 className="text-4xl md:text-6xl font-serif-premium font-light leading-tight mb-4">{t.heroTitle1} <br/><span className="italic text-gray-300">{t.heroTitle2}</span></h1>
-          <p className="text-[11px] md:text-sm text-gray-400 max-w-xl mx-auto font-light leading-relaxed tracking-wide mb-8">{t.heroSub}</p>
-          <div className="w-full max-w-[320px] md:max-w-md mx-auto bg-[#111]/80 backdrop-blur-md p-1.5 rounded-full border border-white/10 grid grid-cols-3 gap-1 shadow-2xl">
-            {['Ενοικίαση', 'Leasing', 'Πώληση'].map(type => (
-              <button key={type} onClick={() => handleAvailabilityClick(type)} className={`w-full py-3 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-wider transition-all ${activeAvailability === type ? 'bg-[#8B0000] text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}>{type === 'Ενοικίαση' ? t.rentals : type === 'Leasing' ? t.leasing : t.forSale}</button>
-            ))}
-          </div>
+      <section id="home" className="relative w-full h-[90vh] flex flex-col justify-center items-center text-center px-5 overflow-hidden mt-16">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=2069&auto=format&fit=crop')] bg-cover bg-center opacity-30"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#030303]/40 via-[#030303]/60 to-[#030303]"></div>
+        
+        <div className="relative z-10 max-w-5xl w-full px-2 mt-10 flex flex-col items-center">
+          <h1 className="text-4xl md:text-7xl font-serif-premium font-light leading-tight mb-6 animate-intro-title">
+            {t.heroTitle1} <br/><span className="italic text-white">{t.heroTitle2}</span>
+          </h1>
+          <p className="text-[11px] md:text-base text-gray-300 max-w-2xl mx-auto font-light leading-relaxed tracking-widest mb-12 animate-intro-subtitle">
+            {t.heroSub}
+          </p>
+          
+          {/* Το κουμπί που εξαφανίζεται όταν πατηθεί, χωρίς neon */}
+          {!showFleet && (
+            <button 
+              onClick={() => { 
+                setShowFleet(true); 
+                setTimeout(() => scrollToSection('fleet'), 100); 
+              }} 
+              className="mb-14 px-10 py-5 bg-[#8B0000] text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-[#8B0000] transition-all duration-300 hover:scale-105"
+            >
+              {t.exploreFleet}
+            </button>
+          )}
+
+          {/* Εμφανίζονται τα 3 φίλτρα ενοικίασης μόνο όταν έχει πατηθεί το κουμπί */}
+          {showFleet && (
+            <div className="w-full max-w-[320px] md:max-w-md mx-auto bg-[#111]/80 backdrop-blur-md p-1.5 rounded-full border border-white/10 grid grid-cols-3 gap-1 shadow-2xl mt-8">
+              {['Ενοικίαση', 'Leasing', 'Πώληση'].map(type => (
+                <button key={type} onClick={() => handleAvailabilityClick(type)} className={`w-full py-3 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-wider transition-all ${activeAvailability === type ? 'bg-[#8B0000] text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}>{type === 'Ενοικίαση' ? t.rentals : type === 'Leasing' ? t.leasing : t.forSale}</button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
-      <div className="sticky-category-bar bg-[#030303]/95 backdrop-blur-xl px-5 md:px-12 py-3 flex justify-start md:justify-center gap-2 overflow-x-auto hide-scrollbar border-b border-[#8B0000]/10">
-        {finalUiCategories.map(cat => (
-          <button key={cat} onClick={() => { setActiveCategory(cat); scrollToSection('fleet'); }} className={`flex-shrink-0 text-[10px] md:text-xs font-bold uppercase tracking-widest px-5 py-3 rounded-full transition-all ${activeCategory === cat ? 'bg-[#8B0000] text-white' : 'bg-[#111] text-gray-400 hover:text-white border border-white/5'}`}>{cat === 'All' ? t.all : cat}</button>
-        ))}
-      </div>
-
-      <main id="fleet" className="px-5 md:px-12 py-16 max-w-[1400px] mx-auto pb-safe min-h-[40vh]">
-        {loading ? (
-          <div className="text-center py-32 text-[#8B0000] text-[10px] uppercase tracking-widest animate-pulse">{t.updating}</div>
-        ) : displayedVehicles.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 opacity-70">
-            <svg className="w-12 h-12 text-[#8B0000]/50 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-            <div className="text-gray-400 text-[10px] uppercase tracking-widest font-bold">ΔΕΝ ΒΡΕΘΗΚΑΝ ΟΧΗΜΑΤΑ ΓΙΑ ΑΥΤΗ ΤΗΝ ΕΠΙΛΟΓΗ.</div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-10">
-            {displayedVehicles.map(v => (
-              <div key={v.id} className="group flex flex-col md:flex-row bg-[#0A0A0A] border border-white/5 rounded-[2rem] overflow-hidden hover:border-[#8B0000]/40 transition-all duration-500 shadow-lg">
-                <div className="w-full md:w-1/2 aspect-[4/3] md:aspect-auto relative overflow-hidden bg-[#111]">
-                  <img src={v.photos?.[0] || '/brand-logo.png'} alt={v.model} className="absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-[1.5s]" />
-                </div>
-                <div className="w-full md:w-1/2 p-6 md:p-16 flex flex-col justify-center relative z-10">
-                  <div className="flex flex-wrap items-center gap-3 mb-4">
-                    <div className="px-4 py-1.5 rounded-full bg-[#8B0000]/10 text-[#8B0000] text-[8px] font-bold uppercase tracking-widest border border-[#8B0000]/20">
-                      {v.category}
-                    </div>
-                    <div className="text-[10px] text-gray-500 font-mono font-bold tracking-widest uppercase bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
-                      ID: #{String(v.id).padStart(4, '0')}
-                    </div>
-                  </div>
-
-                  <h2 className="text-3xl md:text-5xl font-serif-premium font-light mb-6 text-white">{v.model}</h2>
-                  
-                  {/* ΔΥΝΑΜΙΚΑ ΧΑΡΑΚΤΗΡΙΣΤΙΚΑ: Εμφανίζονται ΜΟΝΟ όσα έχουν συμπληρωθεί */}
-                  <div className="flex flex-wrap gap-6 md:gap-8 mb-10 pb-10 border-b border-white/5">
-                    {v.cc && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.engine}</div><div className="text-sm md:text-xl font-medium text-white">{v.cc} <span className="text-[10px] text-gray-300 font-light">CC</span></div></div>}
-                    {v.hp && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.power}</div><div className="text-sm md:text-xl font-medium text-white">{v.hp} <span className="text-[10px] text-gray-300 font-light">HP</span></div></div>}
-                    {v.transmission && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.transmission}</div><div className="text-sm md:text-xl font-medium text-white">{v.transmission?.toLowerCase().includes('man') ? t.manual : (v.transmission?.toLowerCase().includes('aut') ? t.auto : v.transmission)}</div></div>}
-                    {v.fuel && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.fuel}</div><div className="text-sm md:text-xl font-medium text-white">{v.fuel}</div></div>}
-                    {v.mileage && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.mileage}</div><div className="text-sm md:text-xl font-medium text-white">{v.mileage} <span className="text-[10px] text-gray-300 font-light">KM</span></div></div>}
-                  </div>
-
-                  <div className="flex justify-between items-center gap-8 mt-auto">
-                    <div><div className="text-[9px] text-gray-500 uppercase tracking-widest mb-1">{t.cost}</div><div className="text-2xl md:text-4xl font-light text-white">€{v.price}</div></div>
-                    <button onClick={() => setSelectedVehicle(v)} className="px-8 py-4 bg-white text-black rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-[#8B0000] hover:text-white transition-all shadow-md">{activeAvailability === 'Πώληση' ? t.buyNow : t.select}</button>
-                  </div>
-                </div>
-              </div>
+      {/* Η μπάρα κατηγοριών και ο στόλος εμφανίζονται μόνο αν showFleet === true */}
+      {showFleet && (
+        <>
+          <div className="sticky-category-bar bg-[#030303]/95 backdrop-blur-xl px-5 md:px-12 py-3 flex justify-start md:justify-center gap-2 overflow-x-auto hide-scrollbar border-b border-[#8B0000]/10">
+            {finalUiCategories.map(cat => (
+              <button key={cat} onClick={() => { setActiveCategory(cat); scrollToSection('fleet'); }} className={`flex-shrink-0 text-[10px] md:text-xs font-bold uppercase tracking-widest px-5 py-3 rounded-full transition-all ${activeCategory === cat ? 'bg-[#8B0000] text-white' : 'bg-[#111] text-gray-400 hover:text-white border border-white/5'}`}>{cat === 'All' ? t.all : cat}</button>
             ))}
           </div>
-        )}
-      </main>
+
+          <main id="fleet" className="px-5 md:px-12 py-16 max-w-[1400px] mx-auto pb-safe min-h-[40vh]">
+            {loading ? (
+              <div className="text-center py-32 text-[#8B0000] text-[10px] uppercase tracking-widest animate-pulse">{t.updating}</div>
+            ) : displayedVehicles.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 opacity-70">
+                <svg className="w-12 h-12 text-[#8B0000]/50 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                <div className="text-gray-400 text-[10px] uppercase tracking-widest font-bold">ΔΕΝ ΒΡΕΘΗΚΑΝ ΟΧΗΜΑΤΑ ΓΙΑ ΑΥΤΗ ΤΗΝ ΕΠΙΛΟΓΗ.</div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-10">
+                {displayedVehicles.map(v => (
+                  <div key={v.id} className="group flex flex-col md:flex-row bg-[#0A0A0A] border border-white/5 rounded-[2rem] overflow-hidden hover:border-[#8B0000]/40 transition-all duration-500 shadow-lg">
+                    <div className="w-full md:w-1/2 aspect-[4/3] md:aspect-auto relative overflow-hidden bg-[#111]">
+                      <img src={v.photos?.[0] || '/brand-logo.png'} alt={v.model} className="absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-[1.5s]" />
+                    </div>
+                    <div className="w-full md:w-1/2 p-6 md:p-16 flex flex-col justify-center relative z-10">
+                      <div className="flex flex-wrap items-center gap-3 mb-4">
+                        <div className="px-4 py-1.5 rounded-full bg-[#8B0000]/10 text-[#8B0000] text-[8px] font-bold uppercase tracking-widest border border-[#8B0000]/20">
+                          {v.category}
+                        </div>
+                        <div className="text-[10px] text-gray-500 font-mono font-bold tracking-widest uppercase bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+                          ID: #{String(v.id).padStart(4, '0')}
+                        </div>
+                      </div>
+
+                      <h2 className="text-3xl md:text-5xl font-serif-premium font-light mb-6 text-white">{v.model}</h2>
+                      
+                      <div className="flex flex-wrap gap-6 md:gap-8 mb-10 pb-10 border-b border-white/5">
+                        {v.cc && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.engine}</div><div className="text-sm md:text-xl font-medium text-white">{v.cc} <span className="text-[10px] text-gray-300 font-light">CC</span></div></div>}
+                        {v.hp && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.power}</div><div className="text-sm md:text-xl font-medium text-white">{v.hp} <span className="text-[10px] text-gray-300 font-light">HP</span></div></div>}
+                        {v.transmission && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.transmission}</div><div className="text-sm md:text-xl font-medium text-white">{v.transmission?.toLowerCase().includes('man') ? t.manual : (v.transmission?.toLowerCase().includes('aut') ? t.auto : v.transmission)}</div></div>}
+                        {v.fuel && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.fuel}</div><div className="text-sm md:text-xl font-medium text-white">{v.fuel}</div></div>}
+                        {v.mileage && <div><div className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">{t.mileage}</div><div className="text-sm md:text-xl font-medium text-white">{v.mileage} <span className="text-[10px] text-gray-300 font-light">KM</span></div></div>}
+                      </div>
+
+                      <div className="flex justify-between items-center gap-8 mt-auto">
+                        <div><div className="text-[9px] text-gray-500 uppercase tracking-widest mb-1">{t.cost}</div><div className="text-2xl md:text-4xl font-light text-white">€{v.price}</div></div>
+                        <button onClick={() => setSelectedVehicle(v)} className="px-8 py-4 bg-white text-black rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-[#8B0000] hover:text-white transition-all shadow-md">{activeAvailability === 'Πώληση' ? t.buyNow : t.select}</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </main>
+        </>
+      )}
 
       <div className={`fixed inset-0 z-[200] bg-[#050505] flex flex-col transition-all duration-500 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
         <div className="px-5 md:px-12 py-4 flex justify-between items-center border-b border-white/5">
@@ -498,7 +529,7 @@ export default function PremiumFleetApp() {
         </div>
         <div className="flex-1 flex flex-col items-center justify-center gap-10">
           <button onClick={() => scrollToSection('home')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#8B0000] transition-colors uppercase">{t.menuHome}</button>
-          <button onClick={() => scrollToSection('fleet')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#8B0000] transition-colors uppercase">{t.menuFleet}</button>
+          <button onClick={() => { setShowFleet(true); setTimeout(() => scrollToSection('fleet'), 100); }} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#8B0000] transition-colors uppercase">{t.menuFleet}</button>
           <button onClick={() => scrollToSection('contact')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#8B0000] transition-colors uppercase">{t.menuLocation}</button>
           <button onClick={() => scrollToSection('contact')} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#8B0000] transition-colors uppercase">{t.menuContact}</button>
         </div>

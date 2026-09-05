@@ -1,41 +1,31 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
+// Εδώ ορίζουμε τον τίτλο της καρτέλας και το λογότυπο (favicon) για όλο το site
 export const metadata: Metadata = {
-  title: "Auto Lazaridis | Premium Fleet",
-  description: "Η πιο αυστηρά επιλεγμένη συλλογή οχημάτων στη Βόρεια Ελλάδα.",
+  title: 'Auto Lazaridis | Premium Fleet',
+  description: 'Η πιο αυστηρά επιλεγμένη συλλογή οχημάτων στη Βόρεια Ελλάδα. Καθαρή διαφάνεια, αδιαπραγμάτευτη ποιότητα.',
   icons: {
-    icon: [
-      { url: '/auto-laz-icon.png', sizes: 'any' },
-    ],
-    apple: [
-      { url: '/auto-laz-icon.png' },
-    ],
+    icon: '/brand-logo.png',
+    shortcut: '/brand-logo.png',
+    apple: '/brand-logo.png',
   },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html
-      lang="el"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="el">
+      <head>
+        {/* Force προσθήκη των εικονιδίων για τον Safari και τα κινητά */}
+        <link rel="icon" href="/brand-logo.png" />
+        <link rel="apple-touch-icon" href="/brand-logo.png" />
+      </head>
+      <body style={{ margin: 0, padding: 0, backgroundColor: '#030303' }}>
+        {children}
+      </body>
     </html>
   );
 }
