@@ -3,23 +3,22 @@ import Stripe from 'stripe';
 
 export async function POST(req: Request) {
   try {
-    // 1. ΜΕΤΑΦΟΡΑ: Αρχικοποιούμε το Stripe ΜΕΣΑ στη συνάρτηση.
-    // Στο Cloudflare, πρέπει να το καλούμε τη στιγμή που τρέχει το request, 
-    // αλλιώς το process.env.STRIPE_SECRET_KEY βγαίνει κενό και χτυπάει σφάλμα "pattern mismatch".
-    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    // Παίρνουμε το κλειδί και "καθαρίζουμε" τυχόν κενά ή αλλαγές γραμμής με το .trim()
+    const rawKey = process.env.STRIPE_SECRET_KEY || "";
+    const stripeKey = rawKey.trim();
     
     if (!stripeKey) {
       throw new Error("Λείπει το STRIPE_SECRET_KEY. Πρέπει να το προσθέσετε στα Settings του Cloudflare.");
     }
 
     const stripe = new Stripe(stripeKey, {
-      apiVersion: '2026-06-24.dahlia' as any, // Χρήση πρόσφατης έκδοσης
+      apiVersion: '2026-06-24.dahlia' as any, 
     });
 
     const body = await req.json();
     const { vehicleId, model, price, checkIn, checkOut, days } = body;
 
-    // 2. ΔΙΟΡΘΩΣΗ URL: Αν δεν βρει το origin, πάει απευθείας στο live domain σας, όχι στο localhost!
+    // Δικλείδα ασφαλείας για το origin URL
     const origin = req.headers.get('origin') || 'https://autolazaridis.gr';
 
     const session = await stripe.checkout.sessions.create({
@@ -29,17 +28,16 @@ export async function POST(req: Request) {
           price_data: {
             currency: 'eur',
             product_data: {
-              name: model,
+              // Βάζουμε ένα default όνομα σε περίπτωση που το 'model' έρθει κενό (undefined)
+              name: model || 'Ενοικίαση Οχήματος',
               description: checkIn && checkOut ? `Ημερομηνίες: ${checkIn} έως ${checkOut}` : 'Μη διαθέσιμες ημερομηνίες',
             },
-            // Το Stripe παίρνει τα ποσά σε λεπτά (cents), άρα 1€ = 100 λεπτά
             unit_amount: Math.round(price * 100), 
           },
           quantity: 1,
         },
       ],
       mode: 'payment',
-      // Στέλνουμε πίσω τις σωστές διευθύνσεις
       success_url: `${origin}/?payment=success`,
       cancel_url: `${origin}/?payment=cancelled`,
     });
