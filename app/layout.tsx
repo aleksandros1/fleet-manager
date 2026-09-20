@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import './globals.css'; // <-- ΑΥΤΗ Η ΓΡΑΜΜΗ ΕΛΕΙΠΕ ΚΑΙ "ΕΣΠΑΣΕ" ΤΟ DESIGN!
 
 // Εδώ ορίζουμε τον τίτλο της καρτέλας και το λογότυπο (favicon) για όλο το site
 export const metadata: Metadata = {

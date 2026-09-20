@@ -1,12 +1,39 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase'; // Αν το αρχείο σου έχει άλλο path για το supabase, άλλαξέ το
 
 // --- Το Αυθεντικό Λογότυπο ---
 const AutoLazaridisLogo = ({ className = "h-14 w-auto" }) => (
   /* eslint-disable-next-line @next/next/no-img-element */
-  <img src="/brand-logo.png" alt="Auto Lazaridis" className={className} style={{ objectFit: 'contain' }} />
+  <img src="/brand-logo.png" alt="Auto Lazaridis" className={className} style={{ objectFit: 'contain', filter: 'invert(1) hue-rotate(180deg) saturate(3) contrast(1.2)' }} />
+);
+
+// --- CSS ΓΙΑ ΕΚΤΥΠΩΣΗ (Για το Συμβόλαιο) ---
+const PrintStyles = () => (
+  <style jsx global>{`
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-contract, #printable-contract * {
+        visibility: visible;
+      }
+      #printable-contract {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        background: white !important;
+        color: black !important;
+      }
+      #printable-contract {
+        box-shadow: none !important;
+      }
+    }
+  `}</style>
 );
 
 // --- ΠΡΑΓΜΑΤΙΚΗ ΠΥΛΗ ΑΣΦΑΛΕΙΑΣ (SUPABASE AUTH) ---
@@ -104,6 +131,13 @@ function AdminDashboard() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isManualBookingModalOpen, setIsManualBookingModalOpen] = useState(false);
+  
+  // --- STATE ΓΙΑ ΤΟ MODAL ΣΥΜΒΟΛΑΙΩΝ ---
+  const [isContractModalOpen, setIsContractModalOpen] = useState(false);
+  const [contractData, setContractData] = useState({
+    customerName: '', customerId: '', customerPhone: '', customerEmail: '', vehicleModel: '', plateNumber: '', dateFrom: '', dateTo: '', totalPrice: ''
+  });
+
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
   const [editDates, setEditDates] = useState({ check_in: '', check_out: '', total_price: 0 });
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -263,7 +297,6 @@ function AdminDashboard() {
     }
   };
 
-  // --- ΑΛΛΑΓΗ ΛΟΓΙΚΗΣ ΠΟΛΛΑΠΛΗΣ ΕΠΙΛΟΓΗΣ (CHECKBOXES) ---
   const handleAvailabilityChange = (type: string) => { 
     setNewVehicle(prev => {
       const current = prev.availability;
@@ -492,7 +525,8 @@ function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-gray-200 font-sans selection:bg-[#8B0000]/30 flex overflow-x-hidden">
+    <div className="min-h-screen bg-[#050505] text-gray-200 font-sans selection:bg-[#8B0000]/30 flex overflow-x-hidden relative">
+      <PrintStyles />
       
       {/* MOBILE HEADER */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-white/5 z-40 flex items-center justify-between px-5">
@@ -527,7 +561,7 @@ function AdminDashboard() {
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 md:ml-64 p-5 md:p-10 pt-24 md:pt-10 relative w-full max-w-[100vw]">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-10 pb-4 border-b border-white/5 gap-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full md:w-auto">
             <h2 className="text-xl md:text-2xl font-bold tracking-widest text-white uppercase drop-shadow-md">
               {activeTab === 'dashboard' && 'Επισκοπηση Επιχειρησης'}
               {activeTab === 'active' && 'Ενεργος Στολος'}
@@ -556,14 +590,28 @@ function AdminDashboard() {
         ) : (
           <div className="animate-in fade-in duration-500">
             {activeTab === 'dashboard' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl">
-                <div className="bg-[#0A0A0A]/80 border border-white/10 p-6 rounded-3xl">
-                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Ενεργος Στολος</span>
-                  <div className="text-5xl font-bold text-white mt-2">{activeCount}</div>
+              <div className="space-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl">
+                  <div className="bg-[#0A0A0A]/80 border border-white/10 p-6 rounded-3xl">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Ενεργος Στολος</span>
+                    <div className="text-5xl font-bold text-white mt-2">{activeCount}</div>
+                  </div>
+                  <div className="bg-[#0A0A0A]/80 border border-white/10 p-6 rounded-3xl">
+                    <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest">Συνολικα Εσοδα</span>
+                    <div className="text-5xl font-bold text-white mt-2">€{totalRevenue.toLocaleString('el-GR')}</div>
+                  </div>
                 </div>
-                <div className="bg-[#0A0A0A]/80 border border-white/10 p-6 rounded-3xl">
-                  <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest">Συνολικα Εσοδα</span>
-                  <div className="text-5xl font-bold text-white mt-2">€{totalRevenue.toLocaleString('el-GR')}</div>
+
+                {/* --- ΤΟ ΝΕΟ ΕΠΙΒΛΗΤΙΚΟ ΚΟΥΜΠΙ ΓΙΑ ΤΟ ΣΥΜΒΟΛΑΙΟ --- */}
+                <div className="pt-6 border-t border-white/5 max-w-4xl">
+                  <button 
+                    onClick={() => setIsContractModalOpen(true)}
+                    className="group relative w-full sm:w-auto px-10 py-6 bg-gradient-to-r from-[#8B0000] to-[#5A0000] text-white rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(139,0,0,0.4)] hover:shadow-[0_10px_40px_rgba(139,0,0,0.6)] transition-all duration-300 hover:-translate-y-1 border border-white/10 flex items-center justify-center sm:justify-start gap-4"
+                  >
+                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+                    <svg className="w-8 h-8 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <span className="relative z-10 font-bold uppercase tracking-[0.2em] text-sm md:text-base text-shadow-sm">ΔΗΜΙΟΥΡΓΙΑ ΝΕΟΥ ΣΥΜΒΟΛΑΙΟΥ</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -1028,6 +1076,157 @@ function AdminDashboard() {
                   ) : (
                     vehicleBookings.map(renderBookingCard)
                   )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- ΝΕΟ MODAL ΓΙΑ ΔΗΜΙΟΥΡΓΙΑ/ΕΚΤΥΠΩΣΗ ΣΥΜΒΟΛΑΙΟΥ --- */}
+      {isContractModalOpen && (
+        <div className="fixed inset-0 z-[600] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-8">
+          <div className="w-full max-w-[1600px] h-[95vh] bg-[#0A0A0A] rounded-[2rem] border border-white/10 shadow-2xl flex flex-col overflow-hidden relative animate-fadeIn">
+            
+            {/* Modal Header */}
+            <div className="px-8 py-5 border-b border-white/10 flex justify-between items-center bg-[#050505]">
+              <div className="flex items-center gap-4">
+                <div className="w-3 h-3 rounded-full bg-[#8B0000] animate-pulse"></div>
+                <h2 className="text-white font-bold tracking-[0.2em] uppercase text-sm">Πανελ Συμβολαιων / Live Preview</h2>
+              </div>
+              <button onClick={() => setIsContractModalOpen(false)} className="text-gray-400 hover:text-[#8B0000] transition-colors flex items-center gap-2 text-xs uppercase tracking-widest font-bold">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                Κλεισιμο
+              </button>
+            </div>
+
+            <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+              
+              {/* ΑΡΙΣΤΕΡΑ: Η ΦΟΡΜΑ ΣΥΜΠΛΗΡΩΣΗΣ (DARK UI) */}
+              <div className="w-full lg:w-1/3 bg-[#0A0A0A] border-r border-white/5 p-8 overflow-y-auto hide-scrollbar">
+                <h3 className="text-[#8B0000] text-xs font-bold uppercase tracking-widest mb-6 border-b border-white/5 pb-4">Στοιχεια Πελατη</h3>
+                <div className="space-y-4 mb-8">
+                  <input type="text" placeholder="Ονοματεπώνυμο" value={contractData.customerName} onChange={(e) => setContractData({...contractData, customerName: e.target.value})} className="w-full bg-[#111] border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:border-[#8B0000] focus:outline-none transition-all" />
+                  <input type="text" placeholder="ΑΔΤ ή Διαβατήριο" value={contractData.customerId} onChange={(e) => setContractData({...contractData, customerId: e.target.value})} className="w-full bg-[#111] border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:border-[#8B0000] focus:outline-none transition-all" />
+                  <input type="tel" placeholder="Τηλέφωνο" value={contractData.customerPhone} onChange={(e) => setContractData({...contractData, customerPhone: e.target.value})} className="w-full bg-[#111] border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:border-[#8B0000] focus:outline-none transition-all" />
+                  <input type="email" placeholder="Email (Για αποστολή)" value={contractData.customerEmail} onChange={(e) => setContractData({...contractData, customerEmail: e.target.value})} className="w-full bg-[#111] border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:border-[#8B0000] focus:outline-none transition-all" />
+                </div>
+
+                <h3 className="text-[#8B0000] text-xs font-bold uppercase tracking-widest mb-6 border-b border-white/5 pb-4">Στοιχεια Μισθωσης</h3>
+                <div className="space-y-4 mb-10">
+                  <input type="text" placeholder="Μοντέλο Οχήματος" value={contractData.vehicleModel} onChange={(e) => setContractData({...contractData, vehicleModel: e.target.value})} className="w-full bg-[#111] border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:border-[#8B0000] focus:outline-none transition-all" />
+                  <input type="text" placeholder="Πινακίδα Κυκλοφορίας" value={contractData.plateNumber} onChange={(e) => setContractData({...contractData, plateNumber: e.target.value})} className="w-full bg-[#111] border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:border-[#8B0000] focus:outline-none transition-all" />
+                  <div className="flex gap-4">
+                    <div className="w-1/2">
+                      <label className="text-[9px] text-gray-500 uppercase tracking-widest mb-2 block">Απο</label>
+                      <input type="date" value={contractData.dateFrom} onChange={(e) => setContractData({...contractData, dateFrom: e.target.value})} className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-4 text-sm text-white focus:border-[#8B0000] focus:outline-none transition-all [color-scheme:dark]" />
+                    </div>
+                    <div className="w-1/2">
+                      <label className="text-[9px] text-gray-500 uppercase tracking-widest mb-2 block">Εως</label>
+                      <input type="date" value={contractData.dateTo} onChange={(e) => setContractData({...contractData, dateTo: e.target.value})} className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-4 text-sm text-white focus:border-[#8B0000] focus:outline-none transition-all [color-scheme:dark]" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-gray-500 uppercase tracking-widest mb-2 block">Συνολικο Κοστος (€)</label>
+                    <input type="number" placeholder="π.χ. 450" value={contractData.totalPrice} onChange={(e) => setContractData({...contractData, totalPrice: e.target.value})} className="w-full bg-[#111] border border-[#8B0000]/30 rounded-xl px-5 py-4 text-lg text-[#8B0000] font-bold focus:border-[#8B0000] focus:outline-none transition-all" />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <button onClick={() => window.print()} className="w-full py-5 bg-white text-black rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center justify-center gap-2 shadow-lg">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                    Εκτυπωση σε Α4
+                  </button>
+                  <button onClick={() => {
+                      if (!contractData.customerEmail) { alert('Παρακαλώ συμπληρώστε το Email του πελάτη.'); return; }
+                      const subject = encodeURIComponent(`Συμβόλαιο Ενοικίασης Οχήματος - AUTO LAZARIDIS`);
+                      const body = encodeURIComponent(`Αγαπητέ/ή ${contractData.customerName},\n\nΣας αποστέλλουμε τα στοιχεία του μισθωτηρίου συμβολαίου σας για το όχημα ${contractData.vehicleModel}.\n\nΕίμαστε στη διάθεσή σας για οποιαδήποτε απορία.\n\nΜε εκτίμηση,\nAUTO LAZARIDIS`);
+                      window.location.href = `mailto:${contractData.customerEmail}?subject=${subject}&body=${body}`;
+                    }} 
+                    className="w-full py-5 bg-[#8B0000] text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#6A0000] transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(139,0,0,0.3)]"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    Αποστολη στο Email
+                  </button>
+                </div>
+              </div>
+
+              {/* ΔΕΞΙΑ: ΤΟ ΛΕΥΚΟ ΧΑΡΤΙ Α4 (LIVE PREVIEW & PRINTABLE AREA) */}
+              <div className="w-full lg:w-2/3 bg-[#1A1A1A] p-4 md:p-12 overflow-y-auto flex justify-center">
+                <div id="printable-contract" className="w-full max-w-[800px] bg-white text-black p-10 md:p-16 shadow-2xl relative" style={{ minHeight: '1122px' /* Α4 Height */ }}>
+                  
+                  {/* Header Χαρτιού */}
+                  <div className="flex justify-between items-start border-b-2 border-black pb-8 mb-8">
+                     <div>
+                        {/* Χρησιμοποιούμε μαύρο/κανονικό logo για το χαρτί */}
+                        <h1 className="text-4xl font-serif font-bold text-black tracking-tighter">AUTO <br/>LAZARIDIS</h1>
+                        <p className="text-xs text-gray-600 mt-2 font-mono">PREMIUM FLEET SERVICES</p>
+                     </div>
+                     <div className="text-right text-xs text-gray-600 space-y-1">
+                        <p>7ο χλμ. Δράμας - Καβάλας</p>
+                        <p>Τηλ: 6948 766884</p>
+                        <p>Email: autolazaridisgr@gmail.com</p>
+                        <p className="mt-4 font-bold text-black">ΗΜΕΡΟΜΗΝΙΑ: {new Date().toLocaleDateString('el-GR')}</p>
+                     </div>
+                  </div>
+
+                  <h2 className="text-2xl font-bold text-center uppercase tracking-widest mb-10 decoration-2 underline-offset-8 underline">Μισθωτηριο Συμβολαιο Οχηματος</h2>
+
+                  <div className="space-y-6 text-sm">
+                     <p>Στη Δράμα σήμερα, {new Date().toLocaleDateString('el-GR')}, μεταξύ της εταιρείας <strong>«AUTO LAZARIDIS»</strong> (εφεξής ο Εκμισθωτής) και του κατωτέρω αναφερόμενου πελάτη (εφεξής ο Μισθωτής), συμφωνήθηκαν τα εξής:</p>
+                     
+                     <div className="bg-gray-100 p-6 rounded-lg border border-gray-300 grid grid-cols-2 gap-4">
+                        <div><span className="text-xs text-gray-500 uppercase block">Ονοματεπωνυμο</span><span className="font-bold text-lg">{contractData.customerName || '...........................................'}</span></div>
+                        <div><span className="text-xs text-gray-500 uppercase block">ΑΔΤ / Διαβατηριο</span><span className="font-bold">{contractData.customerId || '........................'}</span></div>
+                        <div><span className="text-xs text-gray-500 uppercase block">Τηλεφωνο</span><span className="font-bold">{contractData.customerPhone || '........................'}</span></div>
+                        <div><span className="text-xs text-gray-500 uppercase block">Email</span><span className="font-bold">{contractData.customerEmail || '........................'}</span></div>
+                     </div>
+
+                     <h3 className="font-bold uppercase tracking-widest border-b border-gray-300 pb-2 mt-8">1. Στοιχεια Οχηματος & Χρεωσεις</h3>
+                     <table className="w-full text-left border-collapse border border-gray-300">
+                        <tbody>
+                          <tr>
+                            <td className="border border-gray-300 p-3 bg-gray-50 w-1/3 text-xs uppercase font-bold">Μοντελο</td>
+                            <td className="border border-gray-300 p-3 font-bold">{contractData.vehicleModel || '...........................................'}</td>
+                          </tr>
+                          <tr>
+                            <td className="border border-gray-300 p-3 bg-gray-50 text-xs uppercase font-bold">Πινακιδα</td>
+                            <td className="border border-gray-300 p-3 font-mono">{contractData.plateNumber || '................'}</td>
+                          </tr>
+                          <tr>
+                            <td className="border border-gray-300 p-3 bg-gray-50 text-xs uppercase font-bold">Διαρκεια</td>
+                            <td className="border border-gray-300 p-3">Από: <strong>{contractData.dateFrom || '..../..../......'}</strong> Έως: <strong>{contractData.dateTo || '..../..../......'}</strong></td>
+                          </tr>
+                          <tr>
+                            <td className="border border-gray-300 p-3 bg-gray-50 text-xs uppercase font-bold">Συνολικο Ποσο</td>
+                            <td className="border border-gray-300 p-3 text-xl font-bold">€ {contractData.totalPrice || '..........'}</td>
+                          </tr>
+                        </tbody>
+                     </table>
+
+                     <h3 className="font-bold uppercase tracking-widest border-b border-gray-300 pb-2 mt-8">2. Οροι Μισθωσης</h3>
+                     <ul className="list-disc pl-5 space-y-2 text-xs text-justify leading-relaxed">
+                        <li>Ο Μισθωτής παρέλαβε το όχημα σε άριστη κατάσταση. Υποχρεούται να το επιστρέψει στην ίδια κατάσταση, με τα ίδια εργαλεία και εξαρτήματα.</li>
+                        <li>Το όχημα απαγορεύεται να χρησιμοποιηθεί: α) Για μεταφορά προσώπων ή πραγμάτων έναντι κομίστρου, β) Για ρυμούλκηση άλλου οχήματος, γ) Σε αγώνες ταχύτητας, δ) Από πρόσωπο που τελεί υπό την επήρεια αλκοόλ ή φαρμάκων.</li>
+                        <li>Τυχόν ζημιές στο όχημα από υπαιτιότητα του Μισθωτή (κάτω του ορίου της Μικτής Ασφάλειας, εφόσον υπάρχει), βαρύνουν αποκλειστικά τον ίδιο.</li>
+                        <li>Ο Μισθωτής είναι αποκλειστικά υπεύθυνος για τυχόν τροχαίες παραβάσεις και πρόστιμα κατά τη διάρκεια της μίσθωσης.</li>
+                     </ul>
+                  </div>
+
+                  {/* Υπογραφές */}
+                  <div className="mt-20 pt-10 flex justify-between px-10">
+                     <div className="text-center">
+                        <div className="w-40 border-b border-black mb-2"></div>
+                        <p className="text-xs uppercase font-bold">Ο Εκμισθωτης</p>
+                        <p className="text-[10px] text-gray-500">AUTO LAZARIDIS</p>
+                     </div>
+                     <div className="text-center">
+                        <div className="w-40 border-b border-black mb-2"></div>
+                        <p className="text-xs uppercase font-bold">Ο Μισθωτης</p>
+                        <p className="text-[10px] text-gray-500">{contractData.customerName || 'Υπογραφή'}</p>
+                     </div>
+                  </div>
+
                 </div>
               </div>
             </div>

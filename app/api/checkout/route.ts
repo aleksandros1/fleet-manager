@@ -1,25 +1,36 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
+export const runtime = 'edge';
+
 export async function POST(req: Request) {
   try {
-    // Παίρνουμε το κλειδί και "καθαρίζουμε" τυχόν κενά ή αλλαγές γραμμής με το .trim()
     const rawKey = process.env.STRIPE_SECRET_KEY || "";
     const stripeKey = rawKey.trim();
     
     if (!stripeKey) {
-      throw new Error("Λείπει το STRIPE_SECRET_KEY. Πρέπει να το προσθέσετε στα Settings του Cloudflare.");
+      throw new Error("Λείπει το STRIPE_SECRET_KEY.");
     }
 
     const stripe = new Stripe(stripeKey, {
-      apiVersion: '2026-06-24.dahlia' as any, 
+      apiVersion: '2024-06-20' as any, 
     });
 
     const body = await req.json();
     const { vehicleId, model, price, checkIn, checkOut, days } = body;
 
-    // Δικλείδα ασφαλείας για το origin URL
-    const origin = req.headers.get('origin') || 'https://autolazaridis.gr';
+    // ΠΙΟ ΑΣΦΑΛΗΣ ΜΕΘΟΔΟΣ ΕΥΡΕΣΗΣ URL ΓΙΑ STRIPE:
+    let originUrl = 'https://autolazaridis.gr'; // Το default αν όλα τα άλλα αποτύχουν
+    
+    try {
+        const reqUrl = new URL(req.url);
+        // Αν το request έρχεται από localhost, κράτα το localhost, αλλιώς βάλε το domain σου
+        if (reqUrl.hostname === 'localhost' || reqUrl.hostname === '127.0.0.1') {
+             originUrl = `${reqUrl.protocol}//${reqUrl.host}`;
+        }
+    } catch (e) {
+        console.log("URL Parse error, using default origin");
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -28,7 +39,6 @@ export async function POST(req: Request) {
           price_data: {
             currency: 'eur',
             product_data: {
-              // Βάζουμε ένα default όνομα σε περίπτωση που το 'model' έρθει κενό (undefined)
               name: model || 'Ενοικίαση Οχήματος',
               description: checkIn && checkOut ? `Ημερομηνίες: ${checkIn} έως ${checkOut}` : 'Μη διαθέσιμες ημερομηνίες',
             },
@@ -38,8 +48,8 @@ export async function POST(req: Request) {
         },
       ],
       mode: 'payment',
-      success_url: `${origin}/?payment=success`,
-      cancel_url: `${origin}/?payment=cancelled`,
+      success_url: `${originUrl}/?payment=success`,
+      cancel_url: `${originUrl}/?payment=cancelled`,
     });
 
     return NextResponse.json({ url: session.url });
