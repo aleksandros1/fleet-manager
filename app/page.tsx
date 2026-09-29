@@ -62,9 +62,9 @@ const AutoLazaridisLogo = ({ className = "h-14 w-auto" }) => (
 const TRANSLATIONS = {
   el: {
     introSubtitle: "Not everyone drives the same.",
-    heroTitle1: "Ανακαλύψτε Την Απόλυτη",
-    heroTitle2: "Οδηγική Εμπειρία.",
-    heroSub: "Η πιο αυστηρά επιλεγμένη συλλογή οχημάτων στη Βόρεια Ελλάδα. Καθαρή διαφάνεια, αδιαπραγμάτευτη ποιότητα.",
+    heroTitle1: "Ενοικίαση, Leasing",
+    heroTitle2: "& Πωλήσεις Οχημάτων.",
+    heroSub: "Ευέλικτες επιλογές, απόλυτη διαφάνεια και άμεση εξυπηρέτηση για κάθε σας ανάγκη.",
     exploreFleet: "ΕΞΕΡΕΥΝΗΣΗ ΣΤΟΛΟΥ",
     all: "Ολα",
     updating: "Ενημέρωση Στόλου...",
@@ -84,7 +84,8 @@ const TRANSLATIONS = {
     leasing: "Leasing",
     forSale: "Προς Πωληση",
     address: "7ο χλμ. Δράμας - Καβάλας",
-    tel: "Τηλ: 6948 766884",
+    tel: "Κιν: 6948 766884",
+    telLandline: "Σταθ: 25210 26912",
     bookingTitle: "Αιτημα Ενδιαφεροντος",
     fastTrackSub: "Φωτογραφίστε ή ανεβάστε τα έγγραφά σας (JPG, PNG, PDF).",
     personalInfoTitle: "Στοιχεια Πελατη",
@@ -109,10 +110,9 @@ const TRANSLATIONS = {
     fileTooLarge: "Το αρχείο είναι πολύ μεγάλο. Μέγιστο μέγεθος: 10MB.",
     months: ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος", "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"],
     daysShort: ["Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ", "Κυρ"],
-    menuFleet: "ΣΤΟΛΟΣ",
+    menuFleet: "ΑΥΤΟΚΙΝΗΤΑ",
     menuLocation: "ΤΟΠΟΘΕΣΙΑ",
     menuDetails: "ΣΤΟΙΧΕΙΑ",
-    menuParts: "ΑΝΤΑΛΛΑΚΤΙΚΑ",
     back: "ΕΠΙΣΤΡΟΦΗ",
     rentPaymentInfo: "ΠΛΗΡΩΜΗ ΕΝΟΙΚΙΑΣΗΣ",
     leasePaymentInfo: "ΠΛΗΡΩΜΗ LEASING (1ΟΣ ΜΗΝΑΣ)",
@@ -121,9 +121,9 @@ const TRANSLATIONS = {
   },
   en: {
     introSubtitle: "Not everyone drives the same.",
-    heroTitle1: "Discover The Ultimate",
-    heroTitle2: "Driving Experience.",
-    heroSub: "The most strictly selected vehicle collection in Northern Greece. Pure transparency, non-negotiable quality.",
+    heroTitle1: "Rentals, Leasing",
+    heroTitle2: "& Vehicle Sales.",
+    heroSub: "Flexible options, absolute transparency, and immediate service for all your needs.",
     exploreFleet: "EXPLORE FLEET",
     all: "All",
     updating: "Updating Fleet...",
@@ -143,7 +143,8 @@ const TRANSLATIONS = {
     leasing: "Leasing",
     forSale: "For Sale",
     address: "7th km Drama - Kavala",
-    tel: "Tel: +30 6948 766884",
+    tel: "Mob: +30 6948 766884",
+    telLandline: "Tel: +30 25210 26912",
     bookingTitle: "Vehicle Request",
     fastTrackSub: "Photograph or upload your documents (JPG, PNG, PDF).",
     personalInfoTitle: "Customer Details",
@@ -168,10 +169,9 @@ const TRANSLATIONS = {
     fileTooLarge: "File is too large. Maximum allowed size: 10MB.",
     months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     daysShort: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    menuFleet: "FLEET",
+    menuFleet: "CARS",
     menuLocation: "LOCATION",
     menuDetails: "DETAILS",
-    menuParts: "SPARE PARTS",
     back: "BACK",
     rentPaymentInfo: "RENTAL PAYMENT",
     leasePaymentInfo: "LEASING PAYMENT (1ST MONTH)",
@@ -181,7 +181,7 @@ const TRANSLATIONS = {
 };
 
 type Vehicle = { 
-  id: number; plate: string; model: string; price: number; is_active: boolean; category: string; photos: string[]; availability?: string[];
+  id: number; plate: string; brand: string; model: string; price: number; is_active: boolean; category: string; photos: string[]; availability?: string[];
   cc?: string; hp?: string; transmission?: string; fuel?: string; mileage?: string;
   price_per_day?: number; 
   price_per_month?: number;
@@ -366,10 +366,11 @@ export default function PremiumFleetApp() {
       const paymentStatus = paymentMode === 'full' ? '100% Εξόφληση' : '30% Προκαταβολή';
       const fastTrackStatus = (uploadedIdUrl && uploadedLicenseUrl) ? ' (Fast Track Attached)' : '';
       const bookingTypeLabel = activeAvailability === 'Πώληση' ? 'Αγορά' : activeAvailability === 'Leasing' ? 'Leasing' : 'Ενοικίαση';
+      const vehicleFullName = selectedVehicle.brand ? `${selectedVehicle.brand} ${selectedVehicle.model}` : selectedVehicle.model;
 
       const { error: supabaseError } = await supabase.from('bookings').insert([{ 
         vehicle_id: selectedVehicle.id, 
-        vehicle_model: `${selectedVehicle.model} [${bookingTypeLabel}]`, 
+        vehicle_model: `${vehicleFullName} [${bookingTypeLabel}]`, 
         check_in: checkInDate, 
         check_out: checkOutDate, 
         total_price: totalCost, 
@@ -386,7 +387,7 @@ export default function PremiumFleetApp() {
 
       const response = await fetch('/api/checkout', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vehicleId: selectedVehicle.id, model: `${selectedVehicle.model} [${bookingTypeLabel}] ${stripeDescriptionModifier}`, price: amountToPay, checkIn: checkInDate, checkOut: checkOutDate, days: activeAvailability === 'Ενοικίαση' ? getCalculatedDays() : 1 }),
+        body: JSON.stringify({ vehicleId: selectedVehicle.id, model: `${vehicleFullName} [${bookingTypeLabel}] ${stripeDescriptionModifier}`, price: amountToPay, checkIn: checkInDate, checkOut: checkOutDate, days: activeAvailability === 'Ενοικίαση' ? getCalculatedDays() : 1 }),
       });
       const data = await response.json();
       if (data.url) window.location.href = data.url; else throw new Error('Payment token generation failed.');
@@ -485,9 +486,6 @@ export default function PremiumFleetApp() {
           <button onClick={() => setShowDetailsBanner(true)} className="text-[10px] font-bold uppercase tracking-widest text-gray-300 hover:text-white transition-colors hover:scale-105 transform duration-300">
             {t.menuDetails}
           </button>
-          <button onClick={() => alert('Η ενότητα ανταλλακτικών θα προστεθεί σύντομα.')} className="text-[10px] font-bold uppercase tracking-widest text-[#8B0000] hover:text-red-400 bg-[#8B0000]/10 border border-[#8B0000]/30 px-4 py-1.5 rounded-full transition-all hover:shadow-[0_0_15px_rgba(139,0,0,0.4)]">
-            {t.menuParts}
-          </button>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -500,22 +498,70 @@ export default function PremiumFleetApp() {
         </div>
       </header>
 
-      {/* --- DETAILS MODAL --- */}
-      <div className={`fixed inset-0 z-[300] flex items-center justify-center p-5 transition-all duration-500 ${showDetailsBanner ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowDetailsBanner(false)}></div>
-        <div className={`relative bg-[#0A0A0A]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-10 flex flex-col md:flex-row items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.7)] gap-8 w-full max-w-3xl transform transition-transform duration-500 ${showDetailsBanner ? 'scale-100' : 'scale-95'}`}>
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 w-full md:w-auto">
-            <div className="flex items-center gap-4 group">
-              <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-white group-hover:bg-[#8B0000]/20 group-hover:border-[#8B0000]/50 group-hover:text-[#8B0000] transition-all"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg></div>
-              <div className="text-left"><p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Τηλεφωνο Επικοινωνιας</p><a href="tel:+306948766884" className="text-xl md:text-2xl font-bold text-white hover:text-[#8B0000] transition-colors">6948 766884</a></div>
+      {/* --- DETAILS MODAL (ΣΤΟΙΧΕΙΑ ΕΠΙΚΟΙΝΩΝΙΑΣ) --- */}
+      <div className={`fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-6 transition-all duration-300 ${showDetailsBanner ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowDetailsBanner(false)}></div>
+        
+        <div className={`relative bg-[#0A0A0A] border border-white/10 rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-[0_25px_60px_rgba(0,0,0,0.85)] w-full max-w-2xl transform transition-all duration-300 ${showDetailsBanner ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'} flex flex-col gap-6`}>
+          
+          <div className="flex justify-between items-center border-b border-white/5 pb-4">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-full bg-[#8B0000] shadow-[0_0_8px_#8B0000]"></span>
+              <span className="text-[10px] md:text-xs uppercase font-bold tracking-[0.25em] text-white">Στοιχεια Επικοινωνιας</span>
             </div>
-            <div className="hidden md:block w-px h-16 bg-white/10"></div>
-            <div className="flex items-center gap-4 group">
-              <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-white group-hover:bg-[#8B0000]/20 group-hover:border-[#8B0000]/50 group-hover:text-[#8B0000] transition-all"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div>
-              <div className="text-left"><p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Email Αποστολης</p><a href="mailto:autolazaridisgr@gmail.com" className="text-xl md:text-2xl font-bold text-white hover:text-[#8B0000] transition-colors">autolazaridisgr@gmail.com</a></div>
+            <button 
+              onClick={() => setShowDetailsBanner(false)} 
+              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors text-sm"
+              aria-label="Κλείσιμο"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-[#111] border border-white/5 rounded-2xl p-5 flex flex-col justify-between hover:border-[#8B0000]/40 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-[#8B0000]/10 border border-[#8B0000]/30 text-[#8B0000] flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                </div>
+                <span className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Τηλεφωνα</span>
+              </div>
+              <div className="space-y-2">
+                <a href="tel:+306948766884" className="flex items-center justify-between text-white hover:text-[#8B0000] transition-colors py-1 group">
+                  <span className="font-mono text-base md:text-lg font-bold tracking-wider whitespace-nowrap">6948 766884</span>
+                  <span className="text-[9px] uppercase tracking-widest text-gray-400 font-bold bg-white/5 border border-white/10 px-2 py-0.5 rounded">ΚΙΝ</span>
+                </a>
+                <a href="tel:+302521026912" className="flex items-center justify-between text-white hover:text-[#8B0000] transition-colors py-1 group">
+                  <span className="font-mono text-base md:text-lg font-bold tracking-wider whitespace-nowrap">25210 26912</span>
+                  <span className="text-[9px] uppercase tracking-widest text-gray-400 font-bold bg-white/5 border border-white/10 px-2 py-0.5 rounded">ΣΤΑΘ</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="bg-[#111] border border-white/5 rounded-2xl p-5 flex flex-col justify-between hover:border-[#8B0000]/40 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-[#8B0000]/10 border border-[#8B0000]/30 text-[#8B0000] flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                </div>
+                <span className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Email Αποστολης</span>
+              </div>
+              <div className="pt-2">
+                <a href="mailto:autolazaridisgr@gmail.com" className="text-sm md:text-base font-medium text-white hover:text-[#8B0000] transition-colors break-all block leading-tight">
+                  autolazaridisgr@gmail.com
+                </a>
+                <span className="text-[9px] text-gray-400 uppercase tracking-widest mt-2 block font-medium">Αμεση εξυπηρετηση</span>
+              </div>
             </div>
           </div>
-          <button onClick={() => setShowDetailsBanner(false)} className="w-full md:w-auto px-8 py-4 bg-white/10 hover:bg-[#8B0000] text-white rounded-full text-[10px] uppercase tracking-widest font-bold transition-all duration-300 border border-transparent hover:border-[#8B0000]/50 hover:shadow-[0_0_15px_rgba(139,0,0,0.4)]">Κλεισιμο</button>
+
+          <div className="pt-2 flex justify-end">
+            <button 
+              onClick={() => setShowDetailsBanner(false)} 
+              className="w-full sm:w-auto px-8 py-3.5 bg-white/5 hover:bg-[#8B0000] text-white border border-white/10 hover:border-[#8B0000] rounded-xl text-[10px] uppercase font-bold tracking-widest transition-all shadow-md"
+            >
+              Κλεισιμο
+            </button>
+          </div>
         </div>
       </div>
 
@@ -523,13 +569,24 @@ export default function PremiumFleetApp() {
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=2069&auto=format&fit=crop')] bg-cover bg-center opacity-30"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#030303]/20 via-[#030303]/60 to-[#030303]"></div>
         
-        <div className="relative z-10 max-w-5xl w-full px-2 mt-10 flex flex-col items-center">
-          <h1 className="text-4xl md:text-7xl font-serif-premium font-light leading-tight mb-6 animate-intro-title text-white">
-            {t.heroTitle1} <br/><span className="italic text-white">{t.heroTitle2}</span>
+        {/* --- ΕΠΑΝΑΦΟΡΑ ΣΤΟ ΚΕΝΤΡΟ ΚΑΙ ΚΟΜΨΑ ΜΑΡΓΙΝΣ --- */}
+        <div className="relative z-10 max-w-5xl w-full px-5 mt-16 md:mt-20 flex flex-col items-center">
+          
+          <h1 className="text-2xl md:text-4xl font-serif-premium font-bold leading-tight mb-3 animate-intro-title text-center text-white drop-shadow-lg">
+            {t.heroTitle1} {t.heroTitle2}
           </h1>
-          <p className="text-[11px] md:text-base text-gray-300 max-w-2xl mx-auto font-light leading-relaxed tracking-widest mb-12 animate-intro-subtitle">
+          
+          <p className="text-[10px] md:text-xs text-gray-300 max-w-2xl mx-auto font-light leading-relaxed tracking-widest mb-6 animate-intro-subtitle text-center drop-shadow-md">
             {t.heroSub}
           </p>
+          
+          <div className="animate-intro-subtitle flex justify-center w-full mb-8">
+            <img 
+              src="/lazar.png" 
+              alt="Auto Lazaridis Signature" 
+              className="w-full max-w-[180px] md:max-w-[250px] opacity-80 object-contain drop-shadow-2xl"
+            />
+          </div>
           
           {!showFleet && (
             <button 
@@ -537,14 +594,14 @@ export default function PremiumFleetApp() {
                 setShowFleet(true); 
                 setTimeout(() => scrollToSection('fleet'), 100); 
               }} 
-              className="mb-14 px-10 py-5 bg-[#8B0000] text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-[#8B0000] transition-all duration-300 hover:scale-105"
+              className="px-10 py-4 bg-[#8B0000] text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-[#8B0000] transition-all duration-300 hover:scale-105 shadow-2xl"
             >
               {t.exploreFleet}
             </button>
           )}
 
           {showFleet && (
-            <div className="w-full max-w-[320px] md:max-w-md mx-auto bg-[#111]/80 backdrop-blur-md p-1.5 rounded-full border border-white/10 grid grid-cols-3 gap-1 shadow-2xl mt-8">
+            <div className="w-full max-w-[320px] md:max-w-md mx-auto bg-[#111]/80 backdrop-blur-md p-1.5 rounded-full border border-white/10 grid grid-cols-3 gap-1 shadow-2xl mt-4">
               {['Ενοικίαση', 'Leasing', 'Πώληση'].map(type => (
                 <button key={type} onClick={() => handleAvailabilityClick(type)} className={`w-full py-3 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-wider transition-all ${activeAvailability === type ? 'bg-[#8B0000] text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}>{type === 'Ενοικίαση' ? t.rentals : type === 'Leasing' ? t.leasing : t.forSale}</button>
               ))}
@@ -576,6 +633,9 @@ export default function PremiumFleetApp() {
                   if (activeAvailability === 'Ενοικίαση') { displayPrice = v.price_per_day || v.price; priceLabel = t.perDay; } 
                   else if (activeAvailability === 'Leasing') { displayPrice = v.price_per_month || v.price; priceLabel = t.perMonth; if (v.price_per_day) subPrice = `ή €${v.price_per_day} ${t.perDay}`; } 
                   else { displayPrice = v.price; }
+                  
+                  // ΕΝΩΣΗ ΜΑΡΚΑΣ ΚΑΙ ΜΟΝΤΕΛΟΥ ΜΕ ΦΥΣΙΚΟ ΚΕΦΑΛΑΙΟ (Capitalize)
+                  const fullName = v.brand ? `${v.brand} ${v.model}` : v.model;
 
                   return (
                     <div key={v.id} className="group flex flex-col bg-[#0A0A0A] border border-white/5 rounded-[2rem] overflow-hidden hover:border-[#8B0000]/50 transition-all duration-500 hover:shadow-[0_10px_40px_rgba(139,0,0,0.2)] relative">
@@ -596,7 +656,8 @@ export default function PremiumFleetApp() {
                       </div>
                       
                       <div className="p-6 md:p-8 flex flex-col flex-1 relative z-10 bg-gradient-to-t from-[#050505] to-[#0A0A0A]">
-                        <h2 className="text-2xl md:text-3xl font-serif-premium font-bold mb-6 text-white uppercase tracking-wider">{v.model}</h2>
+                        {/* ΕΔΩ ΑΛΛΑΞΕ ΣΕ CAPITALIZE ΑΝΤΙ ΓΙΑ UPPERCASE */}
+                        <h2 className="text-2xl md:text-3xl font-serif-premium font-bold mb-6 text-white capitalize tracking-wide">{fullName}</h2>
                         
                         <div className="grid grid-cols-2 gap-3 mb-8">
                           {v.cc && <div className="bg-white/5 rounded-xl p-3 border border-white/5"><div className="text-[8px] text-gray-500 uppercase tracking-widest mb-1">{t.engine}</div><div className="text-sm font-bold text-white">{v.cc} <span className="text-[9px] font-normal text-gray-400">CC</span></div></div>}
@@ -637,7 +698,6 @@ export default function PremiumFleetApp() {
           <button onClick={() => { setShowFleet(true); setIsMenuOpen(false); setTimeout(() => scrollToSection('fleet'), 100); }} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#8B0000] transition-colors uppercase">{t.menuFleet}</button>
           <button onClick={() => { setIsMenuOpen(false); scrollToSection('contact'); }} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#8B0000] transition-colors uppercase">{t.menuLocation}</button>
           <button onClick={() => { setShowDetailsBanner(true); setIsMenuOpen(false); }} className="text-2xl md:text-4xl font-serif-premium tracking-widest text-white hover:text-[#8B0000] transition-colors uppercase">{t.menuDetails}</button>
-          <button onClick={() => { alert('Η ενότητα ανταλλακτικών θα προστεθεί σύντομα.'); setIsMenuOpen(false); }} className="text-xl md:text-3xl mt-4 font-serif-premium tracking-widest text-[#8B0000] hover:text-red-400 transition-colors uppercase border border-[#8B0000]/30 rounded-full px-6 py-3">{t.menuParts}</button>
         </div>
         <div className="pb-12 flex justify-center items-center gap-8"><a href="#" className="text-gray-400 hover:text-[#8B0000] transition-colors"><svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 1.76-6.98 6.237-.058 1.281-.072 1.688-.072 4.947s.014 3.666.072 4.947c.2 4.482 2.617 6.036 6.98 6.237 1.28.058 1.688.072 4.947.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-1.76 6.979-6.237.059-1.281.073-1.689.073-4.947s-.014-3.666-.073-4.947c-.197-4.478-2.62-6.037-6.979-6.237-1.28-.058-1.688-.072-4.948-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a><a href="tel:+306948766884" className="text-gray-400 hover:text-[#8B0000] transition-colors"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg></a>
         </div>
@@ -649,7 +709,13 @@ export default function PremiumFleetApp() {
             <AutoLazaridisLogo className="h-10 md:h-12 w-auto opacity-70" />
             <div className="flex flex-col gap-4 text-[10px] md:text-xs uppercase tracking-widest text-gray-400">
               <div><div className="text-[#8B0000] mb-1">Τοποθεσια</div><span className="text-white">{t.address}</span></div>
-              <div><div className="text-[#8B0000] mb-1">Τηλεφωνο</div><a href="tel:+306948766884" className="text-white hover:text-[#8B0000] transition-colors">{t.tel}</a></div>
+              <div>
+                <div className="text-[#8B0000] mb-1">Τηλεφωνα</div>
+                <div className="flex flex-col gap-1">
+                  <a href="tel:+306948766884" className="text-white hover:text-[#8B0000] transition-colors">{t.tel}</a>
+                  <a href="tel:+302521026912" className="text-white hover:text-[#8B0000] transition-colors">{t.telLandline}</a>
+                </div>
+              </div>
             </div>
           </div>
           <div className="w-full md:w-2/3 h-64 md:h-80 rounded-2xl overflow-hidden border border-white/10 grayscale-[50%] hover:grayscale-0 transition-all duration-500 hover:border-[#8B0000]/30 shadow-lg hover:shadow-[0_0_15px_rgba(139,0,0,0.2)]">
@@ -678,7 +744,7 @@ export default function PremiumFleetApp() {
                  <div className="absolute top-4 right-4 md:top-5 md:right-5 bg-black/80 backdrop-blur-xl px-3 py-1.5 rounded-xl border border-white/10 text-white font-mono text-[10px] font-bold tracking-widest z-10 shadow-lg">ID: #{String(selectedVehicle.id).padStart(4, '0')}</div>
                  <img src={selectedVehicle.photos?.[0] || '/brand-logo.png'} alt={selectedVehicle.model} className="w-full h-full object-cover grayscale-[10%]" />
                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
-                 <div className="absolute bottom-4 left-5 md:left-6"><h2 className="text-xl md:text-2xl font-serif-premium text-white">{selectedVehicle.model}</h2></div>
+                 <div className="absolute bottom-4 left-5 md:left-6"><h2 className="text-xl md:text-2xl font-serif-premium text-white">{selectedVehicle.brand ? `${selectedVehicle.brand} ${selectedVehicle.model}` : selectedVehicle.model}</h2></div>
               </div>
 
               {activeAvailability === 'Ενοικίαση' && <DateRangePicker />}

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { supabase } from '../../lib/supabase'; // Αν το αρχείο σου έχει άλλο path για το supabase, άλλαξέ το
+import { supabase } from '../../lib/supabase';
 
 // --- Το Αυθεντικό Λογότυπο ---
 const AutoLazaridisLogo = ({ className = "h-14 w-auto" }) => (
@@ -125,6 +125,12 @@ const getFormattedDateString = (d: Date) => {
   return `${year}-${month}-${day}`;
 };
 
+// Οι προεπιλεγμένοι όροι του συμβολαίου
+const DEFAULT_CONTRACT_TERMS = `Ο Μισθωτής παρέλαβε το όχημα σε άριστη κατάσταση. Υποχρεούται να το επιστρέψει στην ίδια κατάσταση, με τα ίδια εργαλεία και εξαρτήματα.
+Το όχημα απαγορεύεται να χρησιμοποιηθεί: α) Για μεταφορά προσώπων ή πραγμάτων έναντι κομίστρου, β) Για ρυμούλκηση άλλου οχήματος, γ) Σε αγώνες ταχύτητας, δ) Από πρόσωπο που τελεί υπό την επήρεια αλκοόλ ή φαρμάκων.
+Τυχόν ζημιές στο όχημα από υπαιτιότητα του Μισθωτή (κάτω του ορίου της Μικτής Ασφάλειας, εφόσον υπάρχει), βαρύνουν αποκλειστικά τον ίδιο.
+Ο Μισθωτής είναι αποκλειστικά υπεύθυνος για τυχόν τροχαίες παραβάσεις και πρόστιμα κατά τη διάρκεια της μίσθωσης.`;
+
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'active' | 'draft' | 'bookings' | 'notes' | 'categories'>('dashboard'); 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
@@ -135,7 +141,7 @@ function AdminDashboard() {
   // --- STATE ΓΙΑ ΤΟ MODAL ΣΥΜΒΟΛΑΙΩΝ ---
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
   const [contractData, setContractData] = useState({
-    customerName: '', customerId: '', customerPhone: '', customerEmail: '', vehicleModel: '', plateNumber: '', dateFrom: '', dateTo: '', totalPrice: ''
+    customerName: '', customerId: '', customerPhone: '', customerEmail: '', vehicleModel: '', plateNumber: '', dateFrom: '', dateTo: '', totalPrice: '', terms: DEFAULT_CONTRACT_TERMS
   });
 
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
@@ -1130,6 +1136,18 @@ function AdminDashboard() {
                     <label className="text-[9px] text-gray-500 uppercase tracking-widest mb-2 block">Συνολικο Κοστος (€)</label>
                     <input type="number" placeholder="π.χ. 450" value={contractData.totalPrice} onChange={(e) => setContractData({...contractData, totalPrice: e.target.value})} className="w-full bg-[#111] border border-[#8B0000]/30 rounded-xl px-5 py-4 text-lg text-[#8B0000] font-bold focus:border-[#8B0000] focus:outline-none transition-all" />
                   </div>
+                  
+                  {/* --- ΝΕΟ: ΕΠΕΞΕΡΓΑΣΙΑ ΟΡΩΝ --- */}
+                  <div className="mt-8 pt-6 border-t border-white/5">
+                    <label className="text-[9px] text-[#8B0000] font-bold uppercase tracking-widest mb-3 block">Οροι Μισθωσης (Επεξεργασιμοι)</label>
+                    <textarea
+                      rows={8}
+                      value={contractData.terms}
+                      onChange={(e) => setContractData({...contractData, terms: e.target.value})}
+                      className="w-full bg-[#111] border border-white/10 rounded-xl px-5 py-4 text-xs text-white focus:border-[#8B0000] focus:outline-none transition-all leading-relaxed resize-y"
+                    />
+                    <p className="text-[8px] text-gray-500 mt-3 uppercase tracking-widest font-bold">Καθε νεα γραμμη (Enter) εμφανιζεται ως ξεχωριστος ορος (κουκκιδα).</p>
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-3">
@@ -1205,11 +1223,10 @@ function AdminDashboard() {
                      </table>
 
                      <h3 className="font-bold uppercase tracking-widest border-b border-gray-300 pb-2 mt-8">2. Οροι Μισθωσης</h3>
-                     <ul className="list-disc pl-5 space-y-2 text-xs text-justify leading-relaxed">
-                        <li>Ο Μισθωτής παρέλαβε το όχημα σε άριστη κατάσταση. Υποχρεούται να το επιστρέψει στην ίδια κατάσταση, με τα ίδια εργαλεία και εξαρτήματα.</li>
-                        <li>Το όχημα απαγορεύεται να χρησιμοποιηθεί: α) Για μεταφορά προσώπων ή πραγμάτων έναντι κομίστρου, β) Για ρυμούλκηση άλλου οχήματος, γ) Σε αγώνες ταχύτητας, δ) Από πρόσωπο που τελεί υπό την επήρεια αλκοόλ ή φαρμάκων.</li>
-                        <li>Τυχόν ζημιές στο όχημα από υπαιτιότητα του Μισθωτή (κάτω του ορίου της Μικτής Ασφάλειας, εφόσον υπάρχει), βαρύνουν αποκλειστικά τον ίδιο.</li>
-                        <li>Ο Μισθωτής είναι αποκλειστικά υπεύθυνος για τυχόν τροχαίες παραβάσεις και πρόστιμα κατά τη διάρκεια της μίσθωσης.</li>
+                     <ul className="list-disc pl-5 space-y-3 text-xs text-justify leading-relaxed">
+                        {contractData.terms.split('\n').map((term, index) => term.trim() ? (
+                          <li key={index}>{term}</li>
+                        ) : null)}
                      </ul>
                   </div>
 
