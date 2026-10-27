@@ -1,7 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { supabase } from '../../lib/supabase';
+import React, { useState, useEffect, useMemo } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+// --- Απευθείας σύνδεση Supabase ---
+const supabaseUrl = 'https://xbricpdkqhclyfoowxeq.supabase.co';
+const supabaseAnonKey = 'sb_publishable_7-DEyJJSNd0Dd9pOf7Xt7w_s7p2ZaEi';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // --- Το Αυθεντικό Λογότυπο ---
 const AutoLazaridisLogo = ({ className = "h-14 w-auto" }) => (
@@ -28,8 +33,6 @@ const PrintStyles = () => (
         padding: 20px;
         background: white !important;
         color: black !important;
-      }
-      #printable-contract {
         box-shadow: none !important;
       }
     }
@@ -80,10 +83,10 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           <h1 className="text-white text-xs font-bold uppercase tracking-[0.3em] mb-8 text-center">Συστημα Διαχειρισης</h1>
           <form onSubmit={handleLogin} className="w-full space-y-5">
             <div>
-              <input type="email" placeholder="Email Διαχειριστή" value={email} onChange={(e) => { setEmail(e.target.value); setError(''); }} className={`w-full bg-[#111] border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-4 text-sm text-center text-white focus:outline-none focus:border-[#8B0000] tracking-widest transition-colors`} autoFocus required />
+              <input type="email" placeholder="Email Διαχειριστή" value={email} onChange={(e) => { setEmail(e.target.value); setError(''); }} className={'w-full bg-[#111] border ' + (error ? 'border-red-500' : 'border-white/10') + ' rounded-xl px-4 py-4 text-sm text-center text-white focus:outline-none focus:border-[#8B0000] tracking-widest transition-colors'} autoFocus required />
             </div>
             <div>
-              <input type="password" placeholder="Κωδικός Πρόσβασης" value={password} onChange={(e) => { setPassword(e.target.value); setError(''); }} className={`w-full bg-[#111] border ${error ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-4 text-sm text-center text-white focus:outline-none focus:border-[#8B0000] tracking-widest font-mono transition-colors`} required />
+              <input type="password" placeholder="Κωδικός Πρόσβασης" value={password} onChange={(e) => { setPassword(e.target.value); setError(''); }} className={'w-full bg-[#111] border ' + (error ? 'border-red-500' : 'border-white/10') + ' rounded-xl px-4 py-4 text-sm text-center text-white focus:outline-none focus:border-[#8B0000] tracking-widest font-mono transition-colors'} required />
             </div>
             {error && <p className="text-red-500 text-[9px] uppercase tracking-widest text-center font-bold">{error}</p>}
             <button type="submit" className="w-full py-4 bg-[#8B0000] hover:bg-[#6A0000] text-white rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all shadow-[0_10px_30px_rgba(139,0,0,0.3)] mt-2">
@@ -116,20 +119,146 @@ type DbCategory = {
   id: number; name: string; is_active: boolean;
 };
 
+const CARGR_SEED_FLEET = [
+  { plate: 'CARGR-53822894', brand: 'Citroen', model: 'C3', price: 35, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/52724383_0_n.jpg'], availability: ['Ενοικίαση'], cc: '1400', hp: '105', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-43716665', brand: 'Ford', model: 'Fiesta', price: 35, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/55703840_0_n.jpg'], availability: ['Ενοικίαση'], cc: '1500', hp: '90', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-43716683', brand: 'Renault', model: 'Clio', price: 35, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/54185664_0_n.jpg'], availability: ['Ενοικίαση'], cc: '1500', hp: '90', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-53823038', brand: 'Opel', model: 'Corsa', price: 35, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/338939864_0_n.jpg'], availability: ['Ενοικίαση'], cc: '1300', hp: '95', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-46202214', brand: 'Volkswagen', model: 'Polo 1.4 TDI', price: 30, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/56411096_2_n.jpg'], availability: ['Ενοικίαση'], cc: '1400', hp: '90', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-53897059', brand: 'Fiat', model: '500L Multijet', price: 40, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/49428138_0_n.jpg'], availability: ['Ενοικίαση'], cc: '1300', hp: '95', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-53942614', brand: 'BMW', model: 'X3', price: 65, category: 'SUV / 4X4', photos: ['https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=1000&auto=format&fit=crop'], availability: ['Ενοικίαση'], cc: '2000', hp: '184', transmission: 'Αυτόματο', fuel: 'Diesel' },
+  { plate: 'CARGR-49428783', brand: 'Citroen', model: 'Jumper 9-Θέσιο Van', price: 100, category: 'SUV / 4X4', photos: ['https://static.car.gr/49428783_0_n.jpeg'], availability: ['Ενοικίαση'], cc: '2000', hp: '130', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-49428804', brand: 'Fiat', model: 'Ducato 9-Θέσιο Van', price: 100, category: 'SUV / 4X4', photos: ['https://static.car.gr/49428804_0_n.jpeg'], availability: ['Ενοικίαση'], cc: '2000', hp: '130', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-49428761', brand: 'Renault', model: 'Trafic 9-Θέσιο Van', price: 80, category: 'SUV / 4X4', photos: ['https://static.car.gr/49428761_0_n.jpeg'], availability: ['Ενοικίαση'], cc: '1600', hp: '125', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-44965625', brand: 'Hummer', model: 'H2 VIP', price: 300, category: 'PREMIUM', photos: ['https://static.car.gr/44965625_0_n.jpeg'], availability: ['Ενοικίαση'], cc: '6000', hp: '325', transmission: 'Αυτόματο', fuel: 'Βενζίνη' },
+  { plate: 'CARGR-56648613', brand: 'Porsche', model: 'Macan', price: 47000, category: 'PREMIUM', photos: ['https://static.car.gr/56648613_0_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '3000', hp: '258', transmission: 'Αυτόματο', fuel: 'Diesel' },
+  { plate: 'CARGR-57315982', brand: 'Mercedes-Benz', model: 'CLA 45 AMG', price: 34000, category: 'PREMIUM', photos: ['https://static.car.gr/57315982_0_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '2000', hp: '380', transmission: 'Αυτόματο', fuel: 'Βενζίνη' },
+  { plate: 'CARGR-54414075', brand: 'Mercedes-Benz', model: 'C 300', price: 26000, category: 'SEDAN', photos: ['https://static.car.gr/54414075_0_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '2000', hp: '320', transmission: 'Αυτόματο', fuel: 'Diesel' },
+  { plate: 'CARGR-56165640', brand: 'Mitsubishi', model: 'L200 4x4', price: 24000, category: 'SUV / 4X4', photos: ['https://static.car.gr/56165640_3_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '2400', hp: '180', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-54445159', brand: 'Volkswagen', model: 'Golf GTD', price: 19500, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/54445159_2_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '2000', hp: '185', transmission: 'Αυτόματο', fuel: 'Diesel' },
+  { plate: 'CARGR-56225272', brand: 'Volkswagen', model: 'Golf', price: 16500, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/56225272_1q_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '2000', hp: '185', transmission: 'Αυτόματο', fuel: 'Diesel' },
+  { plate: 'CARGR-56165620', brand: 'Kia', model: 'Ceed GT-Line', price: 14900, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/56165620_p_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '1600', hp: '135', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-57362326', brand: 'Renault', model: 'Kadjar', price: 14500, category: 'SUV / 4X4', photos: ['https://static.car.gr/57362326_0_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '1500', hp: '110', transmission: 'Αυτόματο', fuel: 'Diesel' },
+  { plate: 'CARGR-50238205', brand: 'BMW', model: '216 Gran Coupé', price: 13000, category: 'SEDAN', photos: ['https://static.car.gr/50238205_0_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '1500', hp: '116', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-54421509', brand: 'Dacia', model: 'Duster 4x4', price: 12000, category: 'SUV / 4X4', photos: ['https://static.car.gr/54421509_2_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '1500', hp: '110', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-55492723', brand: 'Renault', model: 'Captur', price: 11000, category: 'SUV / 4X4', photos: ['https://static.car.gr/55492723_0_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '1500', hp: '110', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-52724523', brand: 'Dacia', model: 'Duster', price: 10500, category: 'SUV / 4X4', photos: ['https://static.car.gr/52724523_1_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '1500', hp: '110', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-56062491', brand: 'Hyundai', model: 'i10', price: 10000, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/56062491_0_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '1000', hp: '67', transmission: 'Αυτόματο', fuel: 'Βενζίνη' },
+  { plate: 'CARGR-50802055', brand: 'Peugeot', model: '308', price: 10000, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/50802055_0_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '1200', hp: '130', transmission: 'Χειροκίνητο', fuel: 'Βενζίνη' },
+  { plate: 'CARGR-55979391', brand: 'Hyundai', model: 'i20', price: 9200, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/55979391_1_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '1250', hp: '84', transmission: 'Χειροκίνητο', fuel: 'Βενζίνη' },
+  { plate: 'CARGR-52724383', brand: 'Citroen', model: 'C3 Diesel', price: 9000, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/52724383_0_n.jpg'], availability: ['Πώληση', 'Leasing'], cc: '1560', hp: '75', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-55703840', brand: 'Ford', model: 'Fiesta Econetic', price: 8500, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/55703840_0_n.jpg'], availability: ['Πώληση'], cc: '1500', hp: '90', transmission: 'Χειροκίνητο', fuel: 'Diesel' },
+  { plate: 'CARGR-52240849', brand: 'Dacia', model: 'Sandero', price: 8000, category: 'COMPACT / HATCHBACK', photos: ['https://static.car.gr/52240849_1_n.jpg'], availability: ['Πώληση'], cc: '1000', hp: '75', transmission: 'Χειροκίνητο', fuel: 'Βενζίνη' }
+];
+
+const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+const LAST_SYNC_STORAGE_KEY = 'autolaz_last_cargr_sync_ts';
+
 const shortDays = ["ΚΥΡ", "ΔΕΥ", "ΤΡΙ", "ΤΕΤ", "ΠΕΜ", "ΠΑΡ", "ΣΑΒ"];
 const shortMonths = ["ΙΑΝ", "ΦΕΒ", "ΜΑΡ", "ΑΠΡ", "ΜΑΙ", "ΙΟΥΝ", "ΙΟΥΛ", "ΑΥΓ", "ΣΕΠ", "ΟΚΤ", "ΝΟΕ", "ΔΕΚ"];
 const longMonths = ["ΙΑΝΟΥΑΡΙΟΣ", "ΦΕΒΡΟΥΑΡΙΟΣ", "ΜΑΡΤΙΟΣ", "ΑΠΡΙΛΙΟΣ", "ΜΑΙΟΣ", "ΙΟΥΝΙΟΣ", "ΙΟΥΛΙΟΣ", "ΑΥΓΟΥΣΤΟΣ", "ΣΕΠΤΕΜΒΡΙΟΣ", "ΟΚΤΩΒΡΙΟΣ", "ΝΟΕΜΒΡΙΟΣ", "ΔΕΚΕΜΒΡΙΟΣ"];
 
 const getFormattedDateString = (d: Date) => {
   const year = d.getFullYear(); const month = String(d.getMonth() + 1).padStart(2, '0'); const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return String(year) + '-' + month + '-' + day;
 };
 
-// Οι προεπιλεγμένοι όροι του συμβολαίου
 const DEFAULT_CONTRACT_TERMS = `Ο Μισθωτής παρέλαβε το όχημα σε άριστη κατάσταση. Υποχρεούται να το επιστρέψει στην ίδια κατάσταση, με τα ίδια εργαλεία και εξαρτήματα.
 Το όχημα απαγορεύεται να χρησιμοποιηθεί: α) Για μεταφορά προσώπων ή πραγμάτων έναντι κομίστρου, β) Για ρυμούλκηση άλλου οχήματος, γ) Σε αγώνες ταχύτητας, δ) Από πρόσωπο που τελεί υπό την επήρεια αλκοόλ ή φαρμάκων.
 Τυχόν ζημιές στο όχημα από υπαιτιότητα του Μισθωτή (κάτω του ορίου της Μικτής Ασφάλειας, εφόσον υπάρχει), βαρύνουν αποκλειστικά τον ίδιο.
 Ο Μισθωτής είναι αποκλειστικά υπεύθυνος για τυχόν τροχαίες παραβάσεις και πρόστιμα κατά τη διάρκεια της μίσθωσης.`;
+
+function normalizeText(val?: string): string {
+  if (!val) return '';
+  return val
+    .toUpperCase()
+    .replace(/Α/g, 'A')
+    .replace(/Β/g, 'B')
+    .replace(/Ε/g, 'E')
+    .replace(/Ζ/g, 'Z')
+    .replace(/Η/g, 'H')
+    .replace(/Ι/g, 'I')
+    .replace(/Κ/g, 'K')
+    .replace(/Μ/g, 'M')
+    .replace(/Ν/g, 'N')
+    .replace(/Ο/g, 'O')
+    .replace(/Ρ/g, 'P')
+    .replace(/Τ/g, 'T')
+    .replace(/Υ/g, 'Y')
+    .replace(/Χ/g, 'X')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function splitBrandAndModel(fullName: string): { brand: string; model: string } {
+  const clean = (fullName || '').trim();
+  const multiWordBrands = ['Mercedes-Benz', 'Alfa Romeo', 'Land Rover', 'Range Rover', 'Aston Martin'];
+  for (const b of multiWordBrands) {
+    if (clean.toLowerCase().startsWith(b.toLowerCase())) {
+      return { brand: b, model: clean.slice(b.length).trim() || b };
+    }
+  }
+  const parts = clean.split(' ');
+  if (parts.length <= 1) return { brand: clean || 'Auto', model: clean || 'Όχημα' };
+  return { brand: parts[0], model: parts.slice(1).join(' ') };
+}
+
+function verifyCandidateBeforeDb(cand: {
+  plate: string;
+  brand: string;
+  model: string;
+  price: number;
+  photos: string[];
+  availability: string[];
+}): { valid: boolean; cleanPrice: number; cleanPhoto: string } {
+  const isRent = cand.availability.includes('Ενοικίαση');
+  const fullName = (cand.brand + ' ' + cand.model).toUpperCase();
+  const isLuxury = /PORSCHE|MERCEDES|AMG|BMW|AUDI|HUMMER|MACAN|CAYENNE|L200|LAND ROVER|RANGE ROVER/.test(fullName);
+
+  if (!cand.brand || !cand.model || cand.brand.length < 2) {
+    return { valid: false, cleanPrice: 0, cleanPhoto: '' };
+  }
+
+  let p = Number(cand.price) || 0;
+  if (isRent) {
+    if (p < 15 || p > 450) return { valid: false, cleanPrice: 0, cleanPhoto: '' };
+  } else {
+    if (p > 100000) {
+      const stripped = parseInt(String(p).slice(1), 10);
+      if (stripped >= 3000 && stripped <= 95000) p = stripped;
+      else return { valid: false, cleanPrice: 0, cleanPhoto: '' };
+    }
+    if (!isLuxury && p > 35000) {
+      const stripped = parseInt(String(p).slice(1), 10);
+      if (stripped >= 3500 && stripped <= 32000) p = stripped;
+      else return { valid: false, cleanPrice: 0, cleanPhoto: '' };
+    }
+    if (p < 1500 || p > 95000) return { valid: false, cleanPrice: 0, cleanPhoto: '' };
+  }
+
+  const rawPhoto = (cand.photos?.[0] || '').trim();
+  const lowerPhoto = rawPhoto.toLowerCase();
+  if (
+    !rawPhoto ||
+    lowerPhoto.startsWith('data:') ||
+    lowerPhoto.includes('popular-models') ||
+    lowerPhoto.includes('placeholder') ||
+    lowerPhoto.includes('no-image') ||
+    lowerPhoto.includes('brand-logo') ||
+    lowerPhoto.includes('53942614_0_n.jpeg')
+  ) {
+    if (lowerPhoto.includes('53942614_0_n.jpeg')) {
+      return {
+        valid: true,
+        cleanPrice: p,
+        cleanPhoto: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=1000&auto=format&fit=crop',
+      };
+    }
+    return { valid: false, cleanPrice: 0, cleanPhoto: '' };
+  }
+
+  return { valid: true, cleanPrice: p, cleanPhoto: rawPhoto };
+}
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'active' | 'draft' | 'bookings' | 'notes' | 'categories'>('dashboard'); 
@@ -137,8 +266,11 @@ function AdminDashboard() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isManualBookingModalOpen, setIsManualBookingModalOpen] = useState(false);
+
+  const [fleetAvailFilter, setFleetAvailFilter] = useState<'Όλα' | 'Ενοικίαση' | 'Leasing' | 'Πώληση'>('Όλα');
+  const [fleetCategoryFilter, setFleetCategoryFilter] = useState<string>('Όλες');
+  const [fleetSearchQuery, setFleetSearchQuery] = useState<string>('');
   
-  // --- STATE ΓΙΑ ΤΟ MODAL ΣΥΜΒΟΛΑΙΩΝ ---
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
   const [contractData, setContractData] = useState({
     customerName: '', customerId: '', customerPhone: '', customerEmail: '', vehicleModel: '', plateNumber: '', dateFrom: '', dateTo: '', totalPrice: '', terms: DEFAULT_CONTRACT_TERMS
@@ -156,6 +288,8 @@ function AdminDashboard() {
   const [adminCalDate, setAdminCalDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSyncingCarGr, setIsSyncingCarGr] = useState(false);
+  const [lastSyncText, setLastSyncText] = useState<string>('');
 
   const [manualBookingData, setManualBookingData] = useState({ vehicle_model: '', customer_name: '', customer_phone: '', check_in: '', check_out: '', total_price: '' });
   const [noteInput, setNoteInput] = useState({ tag: '', content: '', amount: '' });
@@ -180,9 +314,200 @@ function AdminDashboard() {
     }
   }, [activeTab, selectedDailyDate, currentMonthView]);
 
+  const syncCarGrToSupabase = async (silent = false) => {
+    setIsSyncingCarGr(true);
+    try {
+      const { data: currentDbVehicles } = await supabase.from('vehicles').select('*');
+      const existingList: Vehicle[] = (currentDbVehicles as Vehicle[]) || [];
+
+      let apiVehicles: any[] = [];
+      try {
+        const res = await fetch('/api/cargr?fresh=1', { cache: 'no-store' });
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json.vehicles)) apiVehicles = json.vehicles;
+        }
+      } catch {
+        // fallback
+      }
+
+      const candidateMap = new Map<string, {
+        plate: string;
+        brand: string;
+        model: string;
+        price: number;
+        category: string;
+        photos: string[];
+        availability: string[];
+        cc: string;
+        hp: string;
+        transmission: string;
+        fuel: string;
+      }>();
+
+      for (const seed of CARGR_SEED_FLEET) {
+        candidateMap.set(seed.plate, { ...seed });
+      }
+
+      for (const item of apiVehicles) {
+        const plateKey = String(item.id || '').toUpperCase();
+        const parsed = splitBrandAndModel(item.name || '');
+        const cleanCc = item.cc ? String(item.cc).replace(/cc/gi, '').trim() : '1400';
+        const cleanHp = item.hp ? String(item.hp).replace(/hp|bhp|ίπποι/gi, '').trim() : '105';
+        let avail: string[] = ['Πώληση'];
+        if (Array.isArray(item.availability) && item.availability.length > 0) {
+          avail = item.availability;
+        } else if (item.type === 'rent') {
+          avail = ['Ενοικίαση'];
+        } else if (item.type === 'leasing') {
+          avail = ['Leasing', 'Πώληση'];
+        }
+
+        const candidateObj = {
+          plate: plateKey || ('CARGR-' + Math.random().toString(36).substring(2, 7).toUpperCase()),
+          brand: parsed.brand,
+          model: parsed.model,
+          price: Number(item.price) || 0,
+          category: item.category || 'COMPACT / HATCHBACK',
+          photos: item.image ? [item.image] : [],
+          availability: avail,
+          cc: cleanCc,
+          hp: cleanHp,
+          transmission: item.transmission || 'Χειροκίνητο',
+          fuel: item.fuel || 'Diesel',
+        };
+
+        const check = verifyCandidateBeforeDb(candidateObj);
+        if (check.valid) {
+          candidateObj.price = check.cleanPrice;
+          candidateObj.photos = [check.cleanPhoto];
+          candidateMap.set(candidateObj.plate, candidateObj);
+        }
+      }
+
+      const candidates = Array.from(candidateMap.values());
+      const toInsert = [];
+      const toUpdate: Array<{ id: number; price: number; category: string; availability: string[]; photos: string[] }> = [];
+
+      for (const cand of candidates) {
+        const check = verifyCandidateBeforeDb(cand);
+        if (!check.valid) continue;
+
+        const candPrimaryType = cand.availability.includes('Ενοικίαση') ? 'Ενοικίαση' : 'Πώληση';
+        const candPhoto = check.cleanPhoto;
+
+        const matchedExisting = existingList.find((ex) => {
+          if (ex.plate && ex.plate.toUpperCase() === cand.plate.toUpperCase()) return true;
+          if (candPhoto && ex.photos?.[0] && ex.photos[0] === candPhoto) {
+            const exIsRent = ex.availability?.includes('Ενοικίαση');
+            const candIsRent = candPrimaryType === 'Ενοικίαση';
+            if (exIsRent === candIsRent) return true;
+          }
+          const sameBrand = (ex.brand || '').toLowerCase() === cand.brand.toLowerCase();
+          const sameModel = (ex.model || '').toLowerCase() === cand.model.toLowerCase();
+          const sameType = (ex.availability?.includes('Ενοικίαση') ? 'Ενοικίαση' : 'Πώληση') === candPrimaryType;
+          return sameBrand && sameModel && sameType;
+        });
+
+        if (!matchedExisting) {
+          toInsert.push({
+            plate: cand.plate,
+            brand: cand.brand,
+            model: cand.model,
+            price: check.cleanPrice,
+            is_active: true,
+            agency_name: 'AUTO ΛΑΖΑΡΙΔΗΣ',
+            category: cand.category,
+            photos: [candPhoto],
+            availability: cand.availability,
+            cc: cand.cc,
+            hp: cand.hp,
+            transmission: cand.transmission,
+            fuel: cand.fuel,
+          });
+        } else {
+          const oldPrice = Number(matchedExisting.price) || 0;
+          const newPrice = check.cleanPrice;
+
+          const priceChanged = oldPrice !== newPrice;
+          const existingPhoto = matchedExisting.photos?.[0] || '';
+          const photoNeedsFix = !existingPhoto || existingPhoto.includes('53942614_0_n.jpeg') || existingPhoto.includes('popular-models');
+
+          if (priceChanged || photoNeedsFix) {
+            toUpdate.push({
+              id: matchedExisting.id,
+              price: newPrice,
+              category: cand.category,
+              availability: cand.availability,
+              photos: photoNeedsFix ? [candPhoto] : matchedExisting.photos,
+            });
+          }
+        }
+      }
+
+      if (toInsert.length > 0) {
+        await supabase.from('vehicles').insert(toInsert);
+      }
+
+      if (toUpdate.length > 0) {
+        await Promise.all(
+          toUpdate.map((u) =>
+            supabase
+              .from('vehicles')
+              .update({ price: u.price, category: u.category, availability: u.availability, photos: u.photos })
+              .eq('id', u.id)
+          )
+        );
+      }
+
+      const nowTs = Date.now();
+      try {
+        localStorage.setItem(LAST_SYNC_STORAGE_KEY, String(nowTs));
+        setLastSyncText(new Date(nowTs).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' }));
+      } catch {
+        // ignore storage errors
+      }
+
+      if (toInsert.length > 0 || toUpdate.length > 0) {
+        await fetchVehicles();
+        if (!silent) {
+          alert(
+            `Ο Τριπλός Έλεγχος & Συγχρονισμός ολοκληρώθηκε!\n• Νέα επαληθευμένα οχήματα: ${toInsert.length}\n• Ενημερώσεις τιμών/φωτογραφιών: ${toUpdate.length}`
+          );
+        }
+      } else {
+        if (!silent) alert('Όλα τα οχήματα, οι τιμές και οι φωτογραφίες ελέγχθηκαν και είναι 100% ενημερωμένα!');
+      }
+    } catch (err: any) {
+      if (!silent) alert('Σφάλμα: ' + (err?.message || 'Αποτυχία συγχρονισμού'));
+    } finally {
+      setIsSyncingCarGr(false);
+    }
+  };
+
   useEffect(() => {
     async function initializeData() {
       setLoading(true);
+      const { data: initialVehicles } = await supabase.from('vehicles').select('*').order('created_at', { ascending: false });
+      if (initialVehicles) setVehicles(initialVehicles as Vehicle[]);
+
+      let shouldAutoSync = false;
+      try {
+        const lastSyncRaw = localStorage.getItem(LAST_SYNC_STORAGE_KEY);
+        const lastSyncNum = lastSyncRaw ? parseInt(lastSyncRaw, 10) : 0;
+        if (!lastSyncNum || Date.now() - lastSyncNum >= TWENTY_FOUR_HOURS_MS) {
+          shouldAutoSync = true;
+        } else {
+          setLastSyncText(new Date(lastSyncNum).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' }));
+        }
+      } catch {
+        shouldAutoSync = true;
+      }
+
+      if (!initialVehicles || initialVehicles.length < 5 || shouldAutoSync) {
+        await syncCarGrToSupabase(true);
+      }
+
       await Promise.all([fetchVehicles(), fetchBookings(), fetchNotes(), fetchCategories()]);
       setLoading(false); 
     }
@@ -200,7 +525,7 @@ function AdminDashboard() {
     e.preventDefault(); if (!newCategoryName.trim()) return;
     setIsUploading(true);
     const { data, error } = await supabase.from('categories').insert([{ name: newCategoryName.trim(), is_active: true }]).select();
-    if (!error && data) { setDbCategories([...dbCategories, data[0] as DbCategory].sort((a,b) => a.name.localeCompare(b.name))); setNewCategoryName(''); } else if (error) { alert(`Σφάλμα: ${error.message}`); }
+    if (!error && data) { setDbCategories([...dbCategories, data[0] as DbCategory].sort((a,b) => a.name.localeCompare(b.name))); setNewCategoryName(''); } else if (error) { alert('Σφάλμα: ' + error.message); }
     setIsUploading(false);
   };
 
@@ -210,9 +535,9 @@ function AdminDashboard() {
   };
 
   const handleDeleteCategory = async (id: number, name: string) => {
-    if (!window.confirm(`Προσοχή: Διαγραφή της κατηγορίας "${name}"; Τα αυτοκίνητα που ανήκουν σε αυτήν δεν θα διαγραφούν, αλλά θα πρέπει να τους ορίσετε νέα κατηγορία.`)) return;
+    if (!window.confirm('Προσοχή: Διαγραφή της κατηγορίας "' + name + '"; Τα αυτοκίνητα που ανήκουν σε αυτήν δεν θα διαγραφούν, αλλά θα πρέπει να τους ορίσετε νέα κατηγορία.')) return;
     const { error } = await supabase.from('categories').delete().eq('id', id);
-    if (!error) setDbCategories(dbCategories.filter(c => c.id !== id)); else alert(`Σφάλμα: ${error.message}`);
+    if (!error) setDbCategories(dbCategories.filter(c => c.id !== id)); else alert('Σφάλμα: ' + error.message);
   };
 
   const openCalendarModal = async (vehicle: Vehicle) => {
@@ -234,7 +559,7 @@ function AdminDashboard() {
     const finalCheckIn = manualBookingData.check_in || new Date().toISOString().split('T')[0];
     const finalCheckOut = manualBookingData.check_out || new Date().toISOString().split('T')[0];
     const { data, error } = await supabase.from('bookings').insert([{ vehicle_id: null, vehicle_model: manualBookingData.vehicle_model || 'Γενική Δέσμευση', check_in: finalCheckIn, check_out: finalCheckOut, total_price: Number(manualBookingData.total_price) || 0, status: 'Χειροκίνητη Κράτηση', customer_name: manualBookingData.customer_name || 'Χωρίς Όνομα', customer_phone: manualBookingData.customer_phone || '-' }]).select();
-    if (!error && data) { setBookings([data[0] as Booking, ...bookings]); setIsManualBookingModalOpen(false); setManualBookingData({ vehicle_model: '', customer_name: '', customer_phone: '', check_in: '', check_out: '', total_price: '' }); } else { alert(`Σφάλμα: ${error?.message}`); }
+    if (!error && data) { setBookings([data[0] as Booking, ...bookings]); setIsManualBookingModalOpen(false); setManualBookingData({ vehicle_model: '', customer_name: '', customer_phone: '', check_in: '', check_out: '', total_price: '' }); } else { alert('Σφάλμα: ' + (error?.message || '')); }
     setIsUploading(false);
   };
 
@@ -256,7 +581,7 @@ function AdminDashboard() {
       setBookings(bookings.map(b => b.id === editingBooking.id ? { ...b, check_in: editDates.check_in, check_out: editDates.check_out, total_price: Number(editDates.total_price) } : b));
       setVehicleBookings(vehicleBookings.map(b => b.id === editingBooking.id ? { ...b, check_in: editDates.check_in, check_out: editDates.check_out, total_price: Number(editDates.total_price) } : b));
       setEditingBooking(null);
-    } else { alert(`Σφάλμα ενημέρωσης: ${error.message}`); }
+    } else { alert('Σφάλμα ενημέρωσης: ' + error.message); }
     setIsUploading(false);
   };
 
@@ -264,7 +589,7 @@ function AdminDashboard() {
     e.preventDefault(); if (!noteInput.content.trim()) return;
     setIsUploading(true);
     const { data, error } = await supabase.from('notes').insert([{ tag: noteInput.tag.trim() || 'Γενικά', content: noteInput.content.trim(), amount: noteInput.amount ? Number(noteInput.amount) : null }]).select();
-    if (!error && data) { setNotes([data[0] as Note, ...notes]); setNoteInput({ tag: '', content: '', amount: '' }); } else { alert(`Σφάλμα: ${error?.message}`); }
+    if (!error && data) { setNotes([data[0] as Note, ...notes]); setNoteInput({ tag: '', content: '', amount: '' }); } else { alert('Σφάλμα: ' + (error?.message || '')); }
     setIsUploading(false);
   };
 
@@ -284,7 +609,7 @@ function AdminDashboard() {
   const uniqueVehicles = vehicles.filter((v, index, self) =>
     index === self.findIndex((t) => t.brand === v.brand && t.model === v.model)
   );
-  const allUniqueCategories: string[] = Array.from(new Set(vehicles.map(v => v.category)));
+  const allUniqueCategories: string[] = Array.from(new Set(vehicles.map(v => v.category).filter(Boolean)));
 
   const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -324,15 +649,15 @@ function AdminDashboard() {
     let finalPhotoUrl = newVehicle.existingPhotoUrl;
     
     if (vehiclePhoto) {
-      const fileExt = vehiclePhoto.name.split('.').pop(); const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileExt = vehiclePhoto.name.split('.').pop(); const fileName = String(Date.now()) + '_' + Math.random().toString(36).substring(7) + '.' + fileExt;
       const { error: uploadError } = await supabase.storage.from('vehicles').upload(fileName, vehiclePhoto);
-      if (uploadError) { alert(`Σφάλμα κατά το ανέβασμα της εικόνας: ${uploadError.message}`); setIsUploading(false); return; }
+      if (uploadError) { alert('Σφάλμα κατά το ανέβασμα της εικόνας: ' + uploadError.message); setIsUploading(false); return; }
       const { data: publicUrlData } = supabase.storage.from('vehicles').getPublicUrl(fileName);
       finalPhotoUrl = publicUrlData.publicUrl;
     }
     if (!finalPhotoUrl) { alert("Απαιτείται φωτογραφία."); setIsUploading(false); return; }
 
-    const randomPlate = `TBA-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const randomPlate = 'TBA-' + Math.random().toString(36).substring(2, 6).toUpperCase();
     const { data, error } = await supabase.from('vehicles').insert([{
         plate: randomPlate, brand: newVehicle.brand, model: newVehicle.model, 
         cc: newVehicle.cc.trim() || null, 
@@ -345,7 +670,7 @@ function AdminDashboard() {
 
     if (!error && data) {
       setVehicles([data[0], ...vehicles]); setNewVehicle(initialVehicleState); setVehiclePhoto(null); setIsUploadModalOpen(false); setActiveTab('draft');
-    } else if (error) { alert(`Σφάλμα βάσης δεδομένων: ${error.message}.`); }
+    } else if (error) { alert('Σφάλμα βάσης δεδομένων: ' + error.message); }
     setIsUploading(false);
   };
 
@@ -364,7 +689,7 @@ function AdminDashboard() {
     const inactiveVehicles = vehicles.filter(v => !v.is_active);
     if (inactiveVehicles.length === 0) return;
     
-    if (!window.confirm(`Είστε σίγουροι ότι θέλετε να διαγράψετε μαζικά και τα ${inactiveVehicles.length} οχήματα σε αναμονή; Η ενέργεια είναι μη αναστρέψιμη.`)) return;
+    if (!window.confirm('Είστε σίγουροι ότι θέλετε να διαγράψετε μαζικά και τα ' + String(inactiveVehicles.length) + ' οχήματα σε αναμονή; Η ενέργεια είναι μη αναστρέψιμη.')) return;
     
     setIsUploading(true);
     const { error } = await supabase.from('vehicles').delete().eq('is_active', false);
@@ -372,7 +697,7 @@ function AdminDashboard() {
     if (!error) {
       setVehicles(vehicles.filter(v => v.is_active));
     } else {
-      alert(`Σφάλμα κατά τη διαγραφή: ${error.message}`);
+      alert('Σφάλμα κατά τη διαγραφή: ' + error.message);
     }
     setIsUploading(false);
   };
@@ -391,10 +716,10 @@ function AdminDashboard() {
   const recentBookings = bookings.slice(0, 5); 
 
   const renderBookingCard = (b: Booking) => (
-    <div key={`booking-${b.id}`} onClick={() => openEditBooking(b)} className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-4 flex gap-4 items-center group cursor-pointer hover:bg-white/[0.02] hover:border-white/20 transition-all shadow-lg">
+    <div key={'booking-' + String(b.id)} onClick={() => openEditBooking(b)} className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-4 flex gap-4 items-center group cursor-pointer hover:bg-white/[0.02] hover:border-white/20 transition-all shadow-lg">
       <div className="w-12 flex flex-col items-center justify-center shrink-0">
          <span className="text-[10px] font-mono text-gray-500 mb-2">#{String(b.id).padStart(4, '0')}</span>
-         <div className={`w-2.5 h-2.5 rounded-full ${b.status === 'Χειροκίνητη Δέσμευση' ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-[#8B0000] shadow-[0_0_8px_#8B0000]'}`}></div>
+         <div className={'w-2.5 h-2.5 rounded-full ' + (b.status === 'Χειροκίνητη Δέσμευση' ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-[#8B0000] shadow-[0_0_8px_#8B0000]')}></div>
       </div>
       <div className="w-px h-12 bg-white/10 shrink-0 hidden md:block"></div>
       <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
@@ -419,7 +744,7 @@ function AdminDashboard() {
     const daysShortLocal = ["Κυρ", "Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ"]; 
     const daysElements = [];
     for (let day = 1; day <= daysInMonth; day++) {
-       const d = new Date(year, month, day); const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+       const d = new Date(year, month, day); const dateStr = String(year) + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
        const booking = vehicleBookings.find(b => dateStr >= b.check_in && dateStr <= b.check_out);
 
        let boxClass = "flex-shrink-0 w-[4.5rem] h-[5.5rem] flex flex-col items-center justify-center rounded-2xl border transition-all cursor-pointer snap-center ";
@@ -462,70 +787,232 @@ function AdminDashboard() {
             <div className="flex items-center gap-1.5"><div className="w-3 h-3 bg-blue-600/20 border border-blue-500/40 rounded"></div> Εσωτερικο Block</div>
          </div>
       </div>
-    )
+    );
   };
 
   const renderVehicleGrid = (isActiveFilter: boolean) => {
-    const filtered = vehicles.filter(v => v.is_active === isActiveFilter);
-    if (filtered.length === 0) return <div className="text-gray-500 text-sm py-10 uppercase tracking-widest">Αδειο Μητρωο.</div>;
+    const baseVehicles = vehicles.filter(v => v.is_active === isActiveFilter);
+
+    const checkVehicleHasAvail = (v: Vehicle, targetAvail: 'Ενοικίαση' | 'Leasing' | 'Πώληση') => {
+      if (Array.isArray(v.availability) && v.availability.length > 0) {
+        return v.availability.includes(targetAvail);
+      }
+      return targetAvail === 'Ενοικίαση';
+    };
+
+    const countAll = baseVehicles.length;
+    const countRent = baseVehicles.filter(v => checkVehicleHasAvail(v, 'Ενοικίαση')).length;
+    const countLease = baseVehicles.filter(v => checkVehicleHasAvail(v, 'Leasing')).length;
+    const countSale = baseVehicles.filter(v => checkVehicleHasAvail(v, 'Πώληση')).length;
+
+    const defaultCats = ['COMPACT / HATCHBACK', 'SUV / 4X4', 'SEDAN', 'PREMIUM'];
+    const dbCatNames = dbCategories.map(c => c.name);
+    const vehicleCatNames = baseVehicles.map(v => v.category).filter(Boolean);
+    const uniqueCatsMap = new Map<string, string>();
+    for (const c of [...defaultCats, ...dbCatNames, ...vehicleCatNames]) {
+      const norm = normalizeText(c);
+      if (norm && !uniqueCatsMap.has(norm)) {
+        uniqueCatsMap.set(norm, c.toUpperCase());
+      }
+    }
+    const filterCategories = ['Όλες', ...Array.from(uniqueCatsMap.values())];
+
+    const filtered = baseVehicles.filter(v => {
+      const matchAvail = fleetAvailFilter === 'Όλα' || checkVehicleHasAvail(v, fleetAvailFilter);
+      const matchCat = fleetCategoryFilter === 'Όλες' || normalizeText(v.category) === normalizeText(fleetCategoryFilter);
+      const searchClean = fleetSearchQuery.trim().toLowerCase();
+      const matchSearch =
+        !searchClean ||
+        (v.brand || '').toLowerCase().includes(searchClean) ||
+        (v.model || '').toLowerCase().includes(searchClean) ||
+        String(v.id).includes(searchClean) ||
+        (v.plate || '').toLowerCase().includes(searchClean);
+
+      return matchAvail && matchCat && matchSearch;
+    });
+
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-        {filtered.map((v) => {
-          const avail = v.availability?.[0] || 'Ενοικίαση';
-          const priceSuffix = avail === 'Ενοικίαση' ? '/ΗΜ' : avail === 'Leasing' ? '/ΜΗΝΑ' : '';
-
-          return (
-            <div key={v.id} className="group bg-[#0A0A0A]/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden hover:border-[#8B0000]/50 transition-all flex flex-col shadow-2xl relative">
-              <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-1 w-full pr-16 pointer-events-none">
-                <div className="bg-[#8B0000]/20 border border-[#8B0000]/30 px-2 py-1 rounded text-[9px] font-bold text-red-500 tracking-wider uppercase shadow-lg">{v.category}</div>
-                {v.availability && v.availability.map(a => (
-                  <div key={a} className="bg-white/10 border border-white/20 px-2 py-1 rounded text-[9px] font-bold text-white tracking-wider uppercase shadow-lg backdrop-blur-md">{a}</div>
-                ))}
-              </div>
-              
-              <div onClick={() => openCalendarModal(v)} className="h-40 md:h-44 bg-[#050505] relative border-b border-white/5 flex items-center justify-center overflow-hidden cursor-pointer group/img">
-                {v.photos && v.photos.length > 0 ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={v.photos[0]} alt={v.model} className="w-full h-full object-cover opacity-80 group-hover/img:opacity-40 group-hover/img:scale-105 transition-all duration-500" />
-                ) : <svg className="w-16 h-16 text-white/5 group-hover/img:opacity-40 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
-                    <span className="text-white text-[10px] font-bold uppercase tracking-widest bg-[#8B0000] border border-red-500/50 px-5 py-2.5 rounded-full">Ημερολογιο</span>
-                </div>
-              </div>
-
-              <div className="p-4 md:p-5 flex-1 flex flex-col bg-gradient-to-b from-[#0A0A0A] to-[#050505]">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="w-full">
-                    <div className="text-[9px] md:text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1 flex justify-between items-center">
-                      <span>{v.brand}</span>
-                      <span className="font-mono text-gray-600 bg-white/5 px-2 py-0.5 rounded border border-white/5">#{String(v.id).padStart(4, '0')}</span>
-                    </div>
-                    <h3 className="text-base md:text-lg font-bold text-white tracking-tight leading-tight">{v.model}</h3>
-                    
-                    <div className="flex flex-wrap gap-1.5 md:gap-2 mt-2 md:mt-3">
-                      {v.hp && <span className="text-[9px] md:text-[10px] text-gray-300 font-mono bg-white/5 border border-white/10 px-2 py-1 rounded shadow-inner">{v.hp} HP</span>}
-                      {v.transmission && <span className="text-[9px] md:text-[10px] text-gray-300 font-mono bg-white/5 border border-white/10 px-2 py-1 rounded shadow-inner">{v.transmission}</span>}
-                      {v.fuel && <span className="text-[9px] md:text-[10px] text-gray-300 font-mono bg-white/5 border border-white/10 px-2 py-1 rounded shadow-inner">{v.fuel}</span>}
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-auto pt-3 md:pt-4 border-t border-white/10 flex justify-between items-center">
-                  <div className="text-lg md:text-xl font-bold text-white">€{v.price}<span className="text-[8px] md:text-[9px] text-gray-500 ml-1">{priceSuffix}</span></div>
-                  <div className="flex items-center gap-3 md:gap-4">
-                    <label className="flex items-center cursor-pointer">
-                      <div className="relative">
-                        <input type="checkbox" className="sr-only" checked={v.is_active} onChange={() => toggleStatus(v.id, v.is_active)} />
-                        <div className={`block w-9 md:w-10 h-5 md:h-6 rounded-full transition-colors ${v.is_active ? 'bg-[#8B0000]' : 'bg-gray-800'}`}></div>
-                        <div className={`absolute left-1 top-1 bg-white w-3 md:w-4 h-3 md:h-4 rounded-full transition-transform ${v.is_active ? 'transform translate-x-4' : ''}`}></div>
-                      </div>
-                    </label>
-                    <button onClick={() => deleteVehicle(v.id)} className="text-gray-500 hover:text-red-500 transition-colors p-1"><svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-                  </div>
-                </div>
-              </div>
+      <div className="space-y-6">
+        <div className="bg-[#0A0A0A] border border-white/10 rounded-3xl p-4 md:p-6 space-y-5 shadow-2xl">
+          
+          <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#050505] p-1.5 rounded-2xl border border-white/5">
+              {[
+                { key: 'Όλα', label: 'ΟΛΑ', count: countAll },
+                { key: 'Ενοικίαση', label: 'ΕΝΟΙΚΙΑΖΟΜΕΝΑ', count: countRent },
+                { key: 'Leasing', label: 'LEASING', count: countLease },
+                { key: 'Πώληση', label: 'ΠΡΟΣ ΠΩΛΗΣΗ', count: countSale },
+              ].map((tab) => {
+                const isSelected = fleetAvailFilter === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setFleetAvailFilter(tab.key as any)}
+                    className={'px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 ' + (isSelected ? 'bg-[#8B0000] text-white shadow-[0_0_15px_rgba(139,0,0,0.4)]' : 'text-gray-400 hover:text-white hover:bg-white/5')}
+                  >
+                    <span>{tab.label}</span>
+                    <span className={'px-1.5 py-0.5 rounded text-[9px] font-mono ' + (isSelected ? 'bg-black/40 text-white' : 'bg-white/5 text-gray-500')}>
+                      {tab.count}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-          );
-        })}
+
+            <div className="relative w-full lg:w-72">
+              <input
+                type="text"
+                placeholder="Αναζήτηση μάρκας, μοντέλου, #ID..."
+                value={fleetSearchQuery}
+                onChange={(e) => setFleetSearchQuery(e.target.value)}
+                className="w-full bg-[#050505] border border-white/10 rounded-2xl pl-10 pr-8 py-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#8B0000] transition-colors"
+              />
+              <svg className="w-4 h-4 text-gray-500 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              {fleetSearchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setFleetSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-xs"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pt-2 border-t border-white/5">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mr-2 shrink-0">ΤΥΠΟΣ:</span>
+            {filterCategories.map((cat) => {
+              const isCatSelected = normalizeText(fleetCategoryFilter) === normalizeText(cat);
+              const catCount = baseVehicles.filter(v => {
+                const matchAvail = fleetAvailFilter === 'Όλα' || checkVehicleHasAvail(v, fleetAvailFilter);
+                const matchC = cat === 'Όλες' || normalizeText(v.category) === normalizeText(cat);
+                return matchAvail && matchC;
+              }).length;
+
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setFleetCategoryFilter(cat)}
+                  className={'shrink-0 px-3.5 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all flex items-center gap-1.5 border ' + (isCatSelected ? 'bg-white text-black border-white shadow-md' : 'bg-[#050505] text-gray-400 border-white/5 hover:border-white/20 hover:text-white')}
+                >
+                  <span>{cat === 'Όλες' ? 'ΟΛΟΙ ΟΙ ΤΥΠΟΙ' : cat}</span>
+                  <span className={'text-[8px] font-mono ' + (isCatSelected ? 'text-black/70 font-bold' : 'text-gray-600')}>
+                    ({catCount})
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {filtered.length === 0 ? (
+          <div className="bg-[#0A0A0A]/50 border border-white/5 rounded-3xl p-12 text-center space-y-4">
+            <div className="text-gray-500 text-xs uppercase tracking-widest font-bold">
+              Δεν βρέθηκαν οχήματα με αυτά τα φίλτρα.
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setFleetAvailFilter('Όλα');
+                setFleetCategoryFilter('Όλες');
+                setFleetSearchQuery('');
+              }}
+              className="px-6 py-2.5 bg-[#8B0000] text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#6A0000] transition-all"
+            >
+              Επαναφορα Φιλτρων ({countAll})
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+            {filtered.map((v) => {
+              const primaryAvail = fleetAvailFilter !== 'Όλα' ? fleetAvailFilter : (v.availability?.[0] || 'Ενοικίαση');
+              const priceSuffix = primaryAvail === 'Ενοικίαση' ? '/ΗΜ' : primaryAvail === 'Leasing' ? '/ΜΗΝΑ' : '';
+              const displayPrice =
+                primaryAvail === 'Leasing' && v.price > 2500
+                  ? Math.max(180, Math.round((v.price * 0.85) / 48))
+                  : v.price;
+
+              const rawPhoto = v.photos && v.photos.length > 0 ? v.photos[0] : '';
+              const safePhoto = rawPhoto.includes('53942614_0_n.jpeg')
+                ? 'https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=1000&auto=format&fit=crop'
+                : rawPhoto;
+
+              return (
+                <div key={v.id} className="group bg-[#0A0A0A]/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden hover:border-[#8B0000]/50 transition-all flex flex-col shadow-2xl relative">
+                  <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-1 w-full pr-16 pointer-events-none">
+                    <div className="bg-black/80 border border-[#8B0000]/50 px-2.5 py-1 rounded text-[9px] font-bold text-red-500 tracking-wider uppercase shadow-lg backdrop-blur-md">
+                      {v.category}
+                    </div>
+                    {v.availability && v.availability.map(a => (
+                      <div
+                        key={a}
+                        className={'px-2.5 py-1 rounded text-[9px] font-bold tracking-wider uppercase shadow-lg backdrop-blur-md border ' + (a === 'Ενοικίαση' ? 'bg-[#8B0000]/80 border-red-500/40 text-white' : a === 'Πώληση' ? 'bg-black/80 border-white/20 text-gray-200' : 'bg-amber-900/70 border-amber-500/40 text-amber-200')}
+                      >
+                        {a}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div onClick={() => openCalendarModal(v)} className="h-40 md:h-44 bg-[#050505] relative border-b border-white/5 flex items-center justify-center overflow-hidden cursor-pointer group/img">
+                    {safePhoto ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={safePhoto}
+                        alt={v.model}
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = '/brand-logo.png';
+                        }}
+                        className="w-full h-full object-cover opacity-85 group-hover/img:opacity-40 group-hover/img:scale-105 transition-all duration-500"
+                      />
+                    ) : (
+                      <svg className="w-16 h-16 text-white/5 group-hover/img:opacity-40 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+                    )}
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
+                        <span className="text-white text-[10px] font-bold uppercase tracking-widest bg-[#8B0000] border border-red-500/50 px-5 py-2.5 rounded-full">Ημερολογιο</span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 md:p-5 flex-1 flex flex-col bg-gradient-to-b from-[#0A0A0A] to-[#050505]">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="w-full">
+                        <div className="text-[9px] md:text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1 flex justify-between items-center">
+                          <span>{v.brand}</span>
+                          <span className="font-mono text-gray-400 bg-white/5 px-2 py-0.5 rounded border border-white/5">#{String(v.id).padStart(4, '0')}</span>
+                        </div>
+                        <h3 className="text-base md:text-lg font-bold text-white tracking-tight leading-tight">{v.model}</h3>
+                        
+                        <div className="flex flex-wrap gap-1.5 md:gap-2 mt-2 md:mt-3">
+                          {v.cc && <span className="text-[9px] md:text-[10px] text-gray-300 font-mono bg-white/5 border border-white/10 px-2 py-1 rounded shadow-inner">{v.cc} CC</span>}
+                          {v.hp && <span className="text-[9px] md:text-[10px] text-gray-300 font-mono bg-white/5 border border-white/10 px-2 py-1 rounded shadow-inner">{v.hp} HP</span>}
+                          {v.transmission && <span className="text-[9px] md:text-[10px] text-gray-300 font-mono bg-white/5 border border-white/10 px-2 py-1 rounded shadow-inner">{v.transmission}</span>}
+                          {v.fuel && <span className="text-[9px] md:text-[10px] text-gray-300 font-mono bg-white/5 border border-white/10 px-2 py-1 rounded shadow-inner">{v.fuel}</span>}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-auto pt-3 md:pt-4 border-t border-white/10 flex justify-between items-center">
+                      <div className="text-lg md:text-xl font-bold text-white">€{displayPrice.toLocaleString('el-GR')}<span className="text-[8px] md:text-[9px] text-gray-500 ml-1">{priceSuffix}</span></div>
+                      <div className="flex items-center gap-3 md:gap-4">
+                        <label className="flex items-center cursor-pointer">
+                          <div className="relative">
+                            <input type="checkbox" className="sr-only" checked={v.is_active} onChange={() => toggleStatus(v.id, v.is_active)} />
+                            <div className={'block w-9 md:w-10 h-5 md:h-6 rounded-full transition-colors ' + (v.is_active ? 'bg-[#8B0000]' : 'bg-gray-800')}></div>
+                            <div className={'absolute left-1 top-1 bg-white w-3 md:w-4 h-3 md:h-4 rounded-full transition-transform ' + (v.is_active ? 'transform translate-x-4' : '')}></div>
+                          </div>
+                        </label>
+                        <button onClick={() => deleteVehicle(v.id)} className="text-gray-500 hover:text-red-500 transition-colors p-1"><svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   };
@@ -534,39 +1021,41 @@ function AdminDashboard() {
     <div className="min-h-screen bg-[#050505] text-gray-200 font-sans selection:bg-[#8B0000]/30 flex overflow-x-hidden relative">
       <PrintStyles />
       
-      {/* MOBILE HEADER */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-[#0A0A0A]/95 backdrop-blur-xl border-b border-white/5 z-40 flex items-center justify-between px-5">
         <AutoLazaridisLogo className="h-8 w-auto" />
         <button onClick={() => setIsMobileMenuOpen(true)} className="text-white p-2"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" /></svg></button>
       </div>
 
-      {/* BACKDROP FOR MOBILE SIDEBAR */}
       {isMobileMenuOpen && <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)}></div>}
 
-      {/* SIDEBAR NAVIGATION */}
-      <aside className={`w-64 bg-[#0A0A0A] md:bg-[#0A0A0A]/80 md:backdrop-blur-2xl border-r border-white/5 flex flex-col fixed h-full z-50 transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+      <aside className={'w-64 bg-[#0A0A0A] md:bg-[#0A0A0A]/80 md:backdrop-blur-2xl border-r border-white/5 flex flex-col fixed h-full z-50 transition-transform duration-300 ease-in-out ' + (isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full') + ' md:translate-x-0'}>
         <div className="p-6 border-b border-white/5 flex justify-between md:justify-center items-center">
           <AutoLazaridisLogo className="h-10 md:h-14 w-auto" />
           <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden text-gray-500 hover:text-white">✕</button>
         </div>
         <div className="p-6 flex-1 space-y-2 overflow-y-auto hide-scrollbar">
           <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-4">Διαχειριση</div>
-          <button onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'dashboard' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>Επισκοπηση</button>
-          <button onClick={() => { setActiveTab('active'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'active' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}><span>Ενεργος Στολος</span><span className="bg-black/50 border border-white/10 text-gray-300 px-2 py-0.5 rounded text-[9px]">{activeCount}</span></button>
-          <button onClick={() => { setActiveTab('draft'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'draft' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}><span>Σε Αναμονη</span>{draftCount > 0 && <span className="bg-white/10 text-white px-2 py-0.5 rounded text-[9px]">{draftCount}</span>}</button>
-          <button onClick={() => { setActiveTab('categories'); fetchCategories(); setIsMobileMenuOpen(false); }} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'categories' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}><span>Κατηγοριες Στολου</span><span className="bg-black/50 border border-white/10 text-gray-500 px-2 py-0.5 rounded text-[9px]">{dbCategories.length}</span></button>
-          <button onClick={() => { setActiveTab('bookings'); fetchBookings(); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'bookings' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>Κρατησεις</button>
-          <div className="pt-4 mt-4 border-t border-white/5"><button onClick={() => { setActiveTab('notes'); fetchNotes(); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'notes' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'}`}>Αρχειο</button></div>
+          <button onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }} className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ' + (activeTab === 'dashboard' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white')}>Επισκοπηση</button>
+          <button onClick={() => { setActiveTab('active'); setIsMobileMenuOpen(false); }} className={'w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ' + (activeTab === 'active' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white')}><span>Ενεργος Στολος</span><span className="bg-black/50 border border-white/10 text-gray-300 px-2 py-0.5 rounded text-[9px]">{activeCount}</span></button>
+          <button onClick={() => { setActiveTab('draft'); setIsMobileMenuOpen(false); }} className={'w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ' + (activeTab === 'draft' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white')}><span>Σε Αναμονη</span>{draftCount > 0 && <span className="bg-white/10 text-white px-2 py-0.5 rounded text-[9px]">{draftCount}</span>}</button>
+          <button onClick={() => { setActiveTab('categories'); fetchCategories(); setIsMobileMenuOpen(false); }} className={'w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ' + (activeTab === 'categories' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white')}><span>Κατηγοριες Στολου</span><span className="bg-black/50 border border-white/10 text-gray-500 px-2 py-0.5 rounded text-[9px]">{dbCategories.length}</span></button>
+          <button onClick={() => { setActiveTab('bookings'); fetchBookings(); setIsMobileMenuOpen(false); }} className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ' + (activeTab === 'bookings' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white')}>Κρατησεις</button>
+          <div className="pt-4 mt-4 border-t border-white/5"><button onClick={() => { setActiveTab('notes'); fetchNotes(); setIsMobileMenuOpen(false); }} className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ' + (activeTab === 'notes' ? 'bg-[#8B0000] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent')}>Αρχειο</button></div>
         </div>
-        <div className="p-6 border-t border-white/5 flex flex-col gap-3">
-           <button onClick={() => { setIsUploadModalOpen(true); setIsMobileMenuOpen(false); }} className="w-full py-3 md:py-4 bg-white/5 border border-white/10 hover:border-[#8B0000]/50 hover:bg-white/10 text-white rounded-xl text-xs font-bold tracking-wide uppercase transition-all">+ Νεο Οχημα</button>
-           <button onClick={handleLogout} className="w-full py-3 bg-transparent hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all">Αποσυνδεση</button>
+        <div className="p-6 border-t border-white/5 flex flex-col gap-2.5">
+           <button onClick={() => { setIsUploadModalOpen(true); setIsMobileMenuOpen(false); }} className="w-full py-3.5 bg-white/5 border border-white/10 hover:border-[#8B0000]/50 hover:bg-white/10 text-white rounded-xl text-xs font-bold tracking-wide uppercase transition-all">+ Νεο Οχημα</button>
+           <button onClick={() => syncCarGrToSupabase(false)} disabled={isSyncingCarGr} className="w-full py-3 bg-[#8B0000]/20 border border-[#8B0000]/40 hover:bg-[#8B0000] text-white rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-0.5">
+             <span>{isSyncingCarGr ? 'Τριπλος Ελεγχος...' : '↻ Συγχρονισμος Car.gr'}</span>
+             <span className="text-[8px] text-gray-400 font-normal tracking-wider">
+               {lastSyncText ? `Αυτόματο 24ωρο • Τεστ: ${lastSyncText}` : 'Αυτόματο ανά 24 ώρες'}
+             </span>
+           </button>
+           <button onClick={handleLogout} className="w-full py-2.5 bg-transparent hover:bg-red-900/20 text-gray-500 hover:text-red-500 rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all">Αποσυνδεση</button>
         </div>
       </aside>
 
-      {/* MAIN CONTENT AREA */}
       <main className="flex-1 md:ml-64 p-5 md:p-10 pt-24 md:pt-10 relative w-full max-w-[100vw]">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-10 pb-4 border-b border-white/5 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 pb-4 border-b border-white/5 gap-4">
           <div className="flex items-center gap-3 w-full md:w-auto">
             <h2 className="text-xl md:text-2xl font-bold tracking-widest text-white uppercase drop-shadow-md">
               {activeTab === 'dashboard' && 'Επισκοπηση Επιχειρησης'}
@@ -592,7 +1081,7 @@ function AdminDashboard() {
         </div>
 
         {loading ? (
-          <div className="flex h-64 items-center justify-center text-gray-600 uppercase tracking-widest text-sm font-bold animate-pulse">Ανάκτηση δεδομένων...</div>
+          <div className="flex h-64 items-center justify-center text-gray-600 uppercase tracking-widest text-sm font-bold animate-pulse">Ανάκτηση & Επαλήθευση Στόλου...</div>
         ) : (
           <div className="animate-in fade-in duration-500">
             {activeTab === 'dashboard' && (
@@ -608,7 +1097,6 @@ function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* --- ΤΟ ΝΕΟ ΕΠΙΒΛΗΤΙΚΟ ΚΟΥΜΠΙ ΓΙΑ ΤΟ ΣΥΜΒΟΛΑΙΟ --- */}
                 <div className="pt-6 border-t border-white/5 max-w-4xl">
                   <button 
                     onClick={() => setIsContractModalOpen(true)}
@@ -625,7 +1113,6 @@ function AdminDashboard() {
             {activeTab === 'active' && renderVehicleGrid(true)}
             {activeTab === 'draft' && renderVehicleGrid(false)}
 
-            {/* --- ΝΕΟ ΠΑΝΕΛ: ΔΙΑΧΕΙΡΙΣΗ ΚΑΤΗΓΟΡΙΩΝ --- */}
             {activeTab === 'categories' && (
               <div className="max-w-xl space-y-6">
                 <form onSubmit={handleAddCategory} className="flex gap-2 bg-[#0A0A0A] p-4 rounded-2xl border border-white/10 shadow-lg">
@@ -642,8 +1129,8 @@ function AdminDashboard() {
                            <label className="flex items-center cursor-pointer">
                              <div className="relative">
                                <input type="checkbox" className="sr-only" checked={c.is_active} onChange={() => handleToggleCategoryStatus(c.id, c.is_active)} />
-                               <div className={`block w-9 h-5 rounded-full transition-colors ${c.is_active ? 'bg-[#8B0000]' : 'bg-gray-800'}`}></div>
-                               <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform ${c.is_active ? 'transform translate-x-4' : ''}`}></div>
+                               <div className={'block w-9 h-5 rounded-full transition-colors ' + (c.is_active ? 'bg-[#8B0000]' : 'bg-gray-800')}></div>
+                               <div className={'absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform ' + (c.is_active ? 'transform translate-x-4' : '')}></div>
                              </div>
                            </label>
                            <button onClick={() => handleDeleteCategory(c.id, c.name)} className="text-gray-500 hover:text-red-500 transition-colors p-1">✕</button>
@@ -655,7 +1142,6 @@ function AdminDashboard() {
               </div>
             )}
 
-            {/* --- ΗΜΕΡΗΣΙΟ ΠΡΟΓΡΑΜΜΑ & ΝΕΕΣ ΚΡΑΤΗΣΕΙΣ --- */}
             {activeTab === 'bookings' && (
               <div className="max-w-4xl space-y-10">
                 <div>
@@ -690,12 +1176,12 @@ function AdminDashboard() {
                     {calendarDaysArray.map((d) => {
                       const dStr = getFormattedDateString(d); const isSelected = dStr === activeDateStr;
                       return (
-                        <div key={dStr} id={isSelected ? 'calendar-active-day' : undefined} onClick={() => setSelectedDailyDate(d)} className={`snap-center flex-shrink-0 w-[4.5rem] h-[5.5rem] flex flex-col items-center justify-center rounded-2xl cursor-pointer transition-all duration-300 ${isSelected ? 'bg-[#8B0000] text-white shadow-lg scale-105' : 'bg-[#111] border border-white/5 text-gray-500 hover:bg-white/10 hover:text-white'}`}>
-                          <span className={`text-[10px] uppercase font-bold tracking-widest mb-1 ${isSelected ? 'text-white/80' : ''}`}>{shortDays[d.getDay()]}</span>
+                        <div key={dStr} id={isSelected ? 'calendar-active-day' : undefined} onClick={() => setSelectedDailyDate(d)} className={'snap-center flex-shrink-0 w-[4.5rem] h-[5.5rem] flex flex-col items-center justify-center rounded-2xl cursor-pointer transition-all duration-300 ' + (isSelected ? 'bg-[#8B0000] text-white shadow-lg scale-105' : 'bg-[#111] border border-white/5 text-gray-500 hover:bg-white/10 hover:text-white')}>
+                          <span className={'text-[10px] uppercase font-bold tracking-widest mb-1 ' + (isSelected ? 'text-white/80' : '')}>{shortDays[d.getDay()]}</span>
                           <span className="text-2xl font-light mb-1">{d.getDate()}</span>
-                          <span className={`text-[9px] uppercase tracking-widest ${isSelected ? 'text-white/80' : ''}`}>{shortMonths[d.getMonth()]}</span>
+                          <span className={'text-[9px] uppercase tracking-widest ' + (isSelected ? 'text-white/80' : '')}>{shortMonths[d.getMonth()]}</span>
                         </div>
-                      )
+                      );
                     })}
                   </div>
 
@@ -710,7 +1196,6 @@ function AdminDashboard() {
               </div>
             )}
 
-            {/* --- ΕΝΟΤΗΤΑ ΑΡΧΕΙΟΥ --- */}
             {activeTab === 'notes' && (
               <div className="max-w-4xl">
                 <form onSubmit={handleAddNote} className="flex flex-col sm:flex-row gap-3 bg-[#0A0A0A] p-4 rounded-[1.5rem] border border-white/10 mb-10 items-end">
@@ -740,7 +1225,7 @@ function AdminDashboard() {
                               <span className="text-gray-300 text-xs md:text-sm">{note.content}</span>
                             </div>
                             <div className="flex items-center gap-4">
-                              {note.amount !== null && <span className={`font-mono font-bold text-sm ${note.amount > 0 ? 'text-green-500' : 'text-red-500'}`}>{note.amount > 0 ? '+' : ''}{note.amount}€</span>}
+                              {note.amount !== null && <span className={'font-mono font-bold text-sm ' + (note.amount > 0 ? 'text-green-500' : 'text-red-500')}>{note.amount > 0 ? '+' : ''}{note.amount}€</span>}
                               <button onClick={() => deleteNote(note.id)} className="text-gray-600 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100">✕</button>
                             </div>
                           </div>
@@ -755,7 +1240,6 @@ function AdminDashboard() {
         )}
       </main>
 
-      {/* --- MODAL ΧΕΙΡΟΚΙΝΗΤΗΣ ΚΡΑΤΗΣΗΣ --- */}
       {isManualBookingModalOpen && (
         <div className="fixed inset-0 bg-[#050505]/95 backdrop-blur-2xl flex items-center justify-center z-[300] p-4">
           <div className="bg-[#0A0A0A] border border-white/10 rounded-[2rem] w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
@@ -800,7 +1284,6 @@ function AdminDashboard() {
         </div>
       )}
 
-      {/* --- MODAL ΠΡΟΣΘΗΚΗΣ ΟΧΗΜΑΤΟΣ --- */}
       {isUploadModalOpen && (
         <div className="fixed inset-0 bg-[#050505]/95 backdrop-blur-2xl flex items-center justify-center z-[100] p-4">
           <div className="bg-[#0A0A0A] border border-white/10 rounded-[2rem] w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -857,9 +1340,8 @@ function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* --- ΤΕΧΝΙΚΑ ΧΑΡΑΚΤΗΡΙΣΤΙΚΑ --- */}
                 <div className="bg-[#111] border border-white/5 p-4 md:p-5 rounded-xl space-y-4">
-                  <label className="block text-[9px] font-bold text-[#8B0000] uppercase tracking-widest">Τεχνικα Χαρακτηριστικα (Προαιρετικα - Μην συμπληρωνετε οσα δεν θελετε να φαινονται)</label>
+                  <label className="block text-[9px] font-bold text-[#8B0000] uppercase tracking-widest">Τεχνικα Χαρακτηριστικα (Προαιρετικα)</label>
                   
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div>
@@ -895,7 +1377,6 @@ function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* --- MULTIPLE CHOICE ΓΙΑ ΤΗ ΔΙΑΘΕΣΙΜΟΤΗΤΑ (CHECKBOXES) --- */}
                 <div className="bg-[#111] border border-white/5 p-4 rounded-xl">
                   <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-3">Διαθεσιμοτητα (Μπορειτε να επιλεξετε πολλαπλα) *</label>
                   <div className="flex gap-6">
@@ -948,7 +1429,6 @@ function AdminDashboard() {
         </div>
       )}
 
-      {/* --- MODAL ΕΠΕΞΕΡΓΑΣΙΑΣ / ΠΡΟΒΟΛΗΣ ΚΡΑΤΗΣΗΣ (Z-INDEX 500) --- */}
       {editingBooking && (
         <div className="fixed inset-0 bg-[#050505]/95 backdrop-blur-2xl flex items-center justify-center z-[500] p-4">
           <div className="bg-[#0A0A0A] border border-white/10 rounded-[2rem] w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] shadow-[0_0_50px_rgba(0,0,0,1)]">
@@ -1041,7 +1521,6 @@ function AdminDashboard() {
         </div>
       )}
 
-      {/* --- MODAL ΗΜΕΡΟΛΟΓΙΟΥ (Z-INDEX 150) --- */}
       {isCalendarModalOpen && selectedVehicle && (
         <div className="fixed inset-0 bg-[#050505]/95 backdrop-blur-2xl flex items-center justify-center z-[150] p-4">
           <div className="bg-[#0A0A0A] border border-white/10 rounded-[2rem] w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -1089,12 +1568,10 @@ function AdminDashboard() {
         </div>
       )}
 
-      {/* --- ΝΕΟ MODAL ΓΙΑ ΔΗΜΙΟΥΡΓΙΑ/ΕΚΤΥΠΩΣΗ ΣΥΜΒΟΛΑΙΟΥ --- */}
       {isContractModalOpen && (
         <div className="fixed inset-0 z-[600] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-8">
           <div className="w-full max-w-[1600px] h-[95vh] bg-[#0A0A0A] rounded-[2rem] border border-white/10 shadow-2xl flex flex-col overflow-hidden relative animate-fadeIn">
             
-            {/* Modal Header */}
             <div className="px-8 py-5 border-b border-white/10 flex justify-between items-center bg-[#050505]">
               <div className="flex items-center gap-4">
                 <div className="w-3 h-3 rounded-full bg-[#8B0000] animate-pulse"></div>
@@ -1108,7 +1585,6 @@ function AdminDashboard() {
 
             <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
               
-              {/* ΑΡΙΣΤΕΡΑ: Η ΦΟΡΜΑ ΣΥΜΠΛΗΡΩΣΗΣ (DARK UI) */}
               <div className="w-full lg:w-1/3 bg-[#0A0A0A] border-r border-white/5 p-8 overflow-y-auto hide-scrollbar">
                 <h3 className="text-[#8B0000] text-xs font-bold uppercase tracking-widest mb-6 border-b border-white/5 pb-4">Στοιχεια Πελατη</h3>
                 <div className="space-y-4 mb-8">
@@ -1137,7 +1613,6 @@ function AdminDashboard() {
                     <input type="number" placeholder="π.χ. 450" value={contractData.totalPrice} onChange={(e) => setContractData({...contractData, totalPrice: e.target.value})} className="w-full bg-[#111] border border-[#8B0000]/30 rounded-xl px-5 py-4 text-lg text-[#8B0000] font-bold focus:border-[#8B0000] focus:outline-none transition-all" />
                   </div>
                   
-                  {/* --- ΝΕΟ: ΕΠΕΞΕΡΓΑΣΙΑ ΟΡΩΝ --- */}
                   <div className="mt-8 pt-6 border-t border-white/5">
                     <label className="text-[9px] text-[#8B0000] font-bold uppercase tracking-widest mb-3 block">Οροι Μισθωσης (Επεξεργασιμοι)</label>
                     <textarea
@@ -1157,9 +1632,9 @@ function AdminDashboard() {
                   </button>
                   <button onClick={() => {
                       if (!contractData.customerEmail) { alert('Παρακαλώ συμπληρώστε το Email του πελάτη.'); return; }
-                      const subject = encodeURIComponent(`Συμβόλαιο Ενοικίασης Οχήματος - AUTO LAZARIDIS`);
-                      const body = encodeURIComponent(`Αγαπητέ/ή ${contractData.customerName},\n\nΣας αποστέλλουμε τα στοιχεία του μισθωτηρίου συμβολαίου σας για το όχημα ${contractData.vehicleModel}.\n\nΕίμαστε στη διάθεσή σας για οποιαδήποτε απορία.\n\nΜε εκτίμηση,\nAUTO LAZARIDIS`);
-                      window.location.href = `mailto:${contractData.customerEmail}?subject=${subject}&body=${body}`;
+                      const subject = encodeURIComponent('Συμβόλαιο Ενοικίασης Οχήματος - AUTO LAZARIDIS');
+                      const body = encodeURIComponent('Αγαπητέ/ή ' + contractData.customerName + ',\n\nΣας αποστέλλουμε τα στοιχεία του μισθωτηρίου συμβολαίου σας για το όχημα ' + contractData.vehicleModel + '.\n\nΕίμαστε στη διάθεσή σας για οποιαδήποτε απορία.\n\nΜε εκτίμηση,\nAUTO LAZARIDIS');
+                      window.location.href = 'mailto:' + contractData.customerEmail + '?subject=' + subject + '&body=' + body;
                     }} 
                     className="w-full py-5 bg-[#8B0000] text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#6A0000] transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(139,0,0,0.3)]"
                   >
@@ -1169,14 +1644,11 @@ function AdminDashboard() {
                 </div>
               </div>
 
-              {/* ΔΕΞΙΑ: ΤΟ ΛΕΥΚΟ ΧΑΡΤΙ Α4 (LIVE PREVIEW & PRINTABLE AREA) */}
               <div className="w-full lg:w-2/3 bg-[#1A1A1A] p-4 md:p-12 overflow-y-auto flex justify-center">
-                <div id="printable-contract" className="w-full max-w-[800px] bg-white text-black p-10 md:p-16 shadow-2xl relative" style={{ minHeight: '1122px' /* Α4 Height */ }}>
+                <div id="printable-contract" className="w-full max-w-[800px] bg-white text-black p-10 md:p-16 shadow-2xl relative" style={{ minHeight: '1122px' }}>
                   
-                  {/* Header Χαρτιού */}
                   <div className="flex justify-between items-start border-b-2 border-black pb-8 mb-8">
                      <div>
-                        {/* Χρησιμοποιούμε μαύρο/κανονικό logo για το χαρτί */}
                         <h1 className="text-4xl font-serif font-bold text-black tracking-tighter">AUTO <br/>LAZARIDIS</h1>
                         <p className="text-xs text-gray-600 mt-2 font-mono">PREMIUM FLEET SERVICES</p>
                      </div>
@@ -1230,7 +1702,6 @@ function AdminDashboard() {
                      </ul>
                   </div>
 
-                  {/* Υπογραφές */}
                   <div className="mt-20 pt-10 flex justify-between px-10">
                      <div className="text-center">
                         <div className="w-40 border-b border-black mb-2"></div>

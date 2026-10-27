@@ -1,0 +1,728 @@
+[
+  {
+    "id": "cargr-56062491",
+    "name": "Hyundai i 10",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2021",
+    "cc": "1000",
+    "hp": "65",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 10000,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/56062491_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56062491/"
+  },
+  {
+    "id": "cargr-54414075",
+    "name": "Mercedes-Benz C 300",
+    "category": "PREMIUM",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2020",
+    "cc": "2000",
+    "hp": "320",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 26000,
+    "price_per_month": 460,
+    "image": "https://static.car.gr/54414075_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/54414075/"
+  },
+  {
+    "id": "cargr-56165620",
+    "name": "Kia Ceed / cee'd",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2019",
+    "cc": "1600",
+    "hp": "135",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 14900,
+    "price_per_month": 264,
+    "image": "https://static.car.gr/56165620_p_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56165620/"
+  },
+  {
+    "id": "cargr-55572639",
+    "name": "Ford Tourneo Courier",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2019",
+    "cc": "1500",
+    "hp": "75",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 10000,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/55572639_1_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/55572639/"
+  },
+  {
+    "id": "cargr-53922949",
+    "name": "Nissan NV 200",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2018",
+    "cc": "1500",
+    "hp": "110",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 10000,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/53922949_1_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/53922949/"
+  },
+  {
+    "id": "cargr-52724383",
+    "name": "Citroen C3",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2018",
+    "cc": "1560",
+    "hp": "75",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 9000,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/52724383_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/52724383/"
+  },
+  {
+    "id": "cargr-56165640",
+    "name": "Mitsubishi L200",
+    "category": "SUV / 4X4",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2018",
+    "cc": "2400",
+    "hp": "180",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 24000,
+    "price_per_month": 425,
+    "image": "https://static.car.gr/56165640_3_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56165640/"
+  },
+  {
+    "id": "cargr-52724523",
+    "name": "Dacia Duster",
+    "category": "SUV / 4X4",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2018",
+    "cc": "1500",
+    "hp": "110",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 10500,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/52724523_1_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/52724523/"
+  },
+  {
+    "id": "cargr-52240849",
+    "name": "Dacia Sandero",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2018",
+    "cc": "1000",
+    "hp": "75",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 8000,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/52240849_1_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/52240849/"
+  },
+  {
+    "id": "cargr-54421509",
+    "name": "Dacia Duster",
+    "category": "SUV / 4X4",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2017",
+    "cc": "1500",
+    "hp": "110",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 12000,
+    "price_per_month": 213,
+    "image": "https://static.car.gr/54421509_2_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/54421509/"
+  },
+  {
+    "id": "cargr-56648613",
+    "name": "Porsche Macan",
+    "category": "SUV / 4X4",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2017",
+    "cc": "3000",
+    "hp": "258",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 47000,
+    "price_per_month": 832,
+    "image": "https://static.car.gr/56648613_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56648613/"
+  },
+  {
+    "id": "cargr-51331188",
+    "name": "Dacia Duster",
+    "category": "SUV / 4X4",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2017",
+    "cc": "1600",
+    "hp": "115",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 7000,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/51331188_1_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/51331188/"
+  },
+  {
+    "id": "cargr-56165574",
+    "name": "Nissan Note",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2017",
+    "cc": "1200",
+    "hp": "98",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 8000,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/56165574_1_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56165574/"
+  },
+  {
+    "id": "cargr-54185664",
+    "name": "Renault Clio",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2017",
+    "cc": "1500",
+    "hp": "90",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 7500,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/54185664_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/54185664/"
+  },
+  {
+    "id": "cargr-55703840",
+    "name": "Ford Fiesta",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2017",
+    "cc": "1500",
+    "hp": "90",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 8500,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/55703840_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/55703840/"
+  },
+  {
+    "id": "cargr-57315982",
+    "name": "Mercedes-Benz CLA 45 AMG",
+    "category": "PREMIUM",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2016",
+    "cc": "2000",
+    "hp": "380",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 34000,
+    "price_per_month": 602,
+    "image": "https://static.car.gr/57315982_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/57315982/"
+  },
+  {
+    "id": "cargr-56473028",
+    "name": "Fiat Doblo",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2016",
+    "cc": "1300",
+    "hp": "80",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 9500,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/56473028_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56473028/"
+  },
+  {
+    "id": "cargr-50681584",
+    "name": "Peugeot 2016",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2008",
+    "cc": "1560",
+    "hp": "100",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 10000,
+    "image": "https://static.car.gr/50681584_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/50681584/"
+  },
+  {
+    "id": "cargr-49428138",
+    "name": "Fiat 500L",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2016",
+    "cc": "1300",
+    "hp": "95",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 10000,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/49428138_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/49428138/"
+  },
+  {
+    "id": "cargr-55979391",
+    "name": "Hyundai i 20",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2016",
+    "cc": "1248",
+    "hp": "90",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 9200,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/55979391_1_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/55979391/"
+  },
+  {
+    "id": "cargr-56411110",
+    "name": "Renault Clio",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2016",
+    "cc": "900",
+    "hp": "90",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 8500,
+    "price_per_month": 190,
+    "image": "https://static.car.gr/56411110_2_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56411110/"
+  },
+  {
+    "id": "cargr-55492723",
+    "name": "Renault Captur",
+    "category": "SUV / 4X4",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2016",
+    "cc": "1200",
+    "hp": "115",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 11000,
+    "price_per_month": 195,
+    "image": "https://static.car.gr/55492723_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/55492723/"
+  },
+  {
+    "id": "cargr-54445159",
+    "name": "Volkswagen Golf",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2016",
+    "cc": "2000",
+    "hp": "185",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 19500,
+    "price_per_month": 345,
+    "image": "https://static.car.gr/54445159_2_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/54445159/"
+  },
+  {
+    "id": "cargr-57362326",
+    "name": "Renault Kadjar",
+    "category": "SUV / 4X4",
+    "type": "sale",
+    "availability": [
+      "Πώληση",
+      "Leasing"
+    ],
+    "year": "2016",
+    "cc": "1500",
+    "hp": "110",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 14500,
+    "price_per_month": 257,
+    "image": "https://static.car.gr/57362326_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/57362326/"
+  },
+  {
+    "id": "cargr-41414086",
+    "name": "Bmw M3",
+    "category": "PREMIUM",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2008",
+    "cc": "4000",
+    "hp": "420",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 45000,
+    "image": "https://static.car.gr/41414086_c_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/41414086/"
+  },
+  {
+    "id": "cargr-54982675",
+    "name": "Opel Corsa",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2007",
+    "cc": "1300",
+    "hp": "75",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 4200,
+    "image": "https://static.car.gr/54982675_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/54982675/"
+  },
+  {
+    "id": "cargr-56256138",
+    "name": "Mini Cooper",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2006",
+    "cc": "1400",
+    "hp": "90",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 3600,
+    "image": "https://static.car.gr/56256138_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56256138/"
+  },
+  {
+    "id": "cargr-56406273",
+    "name": "Nissan Almera",
+    "category": "PREMIUM",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2006",
+    "cc": "1497",
+    "hp": "100",
+    "transmission": "Χειροκίνητο",
+    "fuel": "Βενζίνη",
+    "price": 62500,
+    "image": "https://static.car.gr/56406273_2_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56406273/"
+  },
+  {
+    "id": "cargr-57523049",
+    "name": "Seat Leon",
+    "category": "PREMIUM",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2005",
+    "cc": "1600",
+    "hp": "100",
+    "transmission": "Χειροκίνητο",
+    "fuel": "Βενζίνη",
+    "price": 53000,
+    "image": "https://static.car.gr/57523049_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/57523049/"
+  },
+  {
+    "id": "cargr-56823442",
+    "name": "Opel Corsa",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2005",
+    "cc": "1200",
+    "hp": "80",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 2300,
+    "image": "https://static.car.gr/56823442_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56823442/"
+  },
+  {
+    "id": "cargr-56414668",
+    "name": "Mercedes-Benz E 280",
+    "category": "PREMIUM",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2005",
+    "cc": "2997",
+    "hp": "231",
+    "transmission": "Αυτόματο",
+    "fuel": "LPG / Βενζίνη",
+    "price": 7500,
+    "image": "https://static.car.gr/56414668_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56414668/"
+  },
+  {
+    "id": "cargr-56263753",
+    "name": "Nissan Micra",
+    "category": "PREMIUM",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2003",
+    "cc": "1240",
+    "hp": "70",
+    "transmission": "Χειροκίνητο",
+    "fuel": "Βενζίνη",
+    "price": 32000,
+    "image": "https://static.car.gr/56263753_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56263753/"
+  },
+  {
+    "id": "cargr-56225289",
+    "name": "Mitsubishi L200",
+    "category": "SUV / 4X4",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2003",
+    "cc": "2500",
+    "hp": "105",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 10000,
+    "image": "https://static.car.gr/56225289_1_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56225289/"
+  },
+  {
+    "id": "cargr-56505208",
+    "name": "Bmw 318",
+    "category": "PREMIUM",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2003",
+    "cc": "1800",
+    "hp": "143",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 6000,
+    "image": "https://static.car.gr/56505208_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56505208/"
+  },
+  {
+    "id": "cargr-54429013",
+    "name": "Renault Kangoo",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2001",
+    "cc": "1900",
+    "hp": "70",
+    "transmission": "Αυτόματο",
+    "fuel": "Diesel",
+    "price": 3500,
+    "image": "https://static.car.gr/54429013_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/54429013/"
+  },
+  {
+    "id": "cargr-57189448",
+    "name": "Bmw 316",
+    "category": "PREMIUM",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2000",
+    "cc": "1600",
+    "hp": "100",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 3500,
+    "image": "https://static.car.gr/57189448_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/57189448/"
+  },
+  {
+    "id": "cargr-55575865",
+    "name": "Hyundai Accent",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "2000",
+    "cc": "1300",
+    "hp": "80",
+    "transmission": "Χειροκίνητο",
+    "fuel": "Βενζίνη",
+    "price": 1200,
+    "image": "https://static.car.gr/55575865_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/55575865/"
+  },
+  {
+    "id": "cargr-55183928",
+    "name": "Daihatsu Terios",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "1999",
+    "cc": "1300",
+    "hp": "85",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 3700,
+    "image": "https://static.car.gr/55183928_1_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/55183928/"
+  },
+  {
+    "id": "cargr-56264452",
+    "name": "Daihatsu Feroza/Sportrak",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "1997",
+    "cc": "1590",
+    "hp": "100",
+    "transmission": "Αυτόματο",
+    "fuel": "Βενζίνη",
+    "price": 3500,
+    "image": "https://static.car.gr/56264452_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56264452/"
+  },
+  {
+    "id": "cargr-56347791",
+    "name": "Mitsubishi Pajero",
+    "category": "COMPACT / HATCHBACK",
+    "type": "sale",
+    "availability": [
+      "Πώληση"
+    ],
+    "year": "1990",
+    "cc": "2500",
+    "hp": "140",
+    "transmission": "Αυτόματο",
+    "fuel": "LPG / Βενζίνη",
+    "price": 5500,
+    "image": "https://static.car.gr/56347791_0_n.jpg",
+    "link": "https://auto-lazaridis.car.gr/cars/view/56347791/"
+  }
+]
